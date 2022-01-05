@@ -42,17 +42,17 @@ CUST.DATA.CHANNEL_ID="POS"
 #	5	B	FOREIGN_PUR_LOSS	DCCOMEEP25	(Dr)		CUST.DATA.exchLossAccntDebit	(Cr)			CUST.DATA.ForeignExTranAccntLossCredit
 #	6	B	FOREIGN_PUR_GAIN	DCCOMEIP25	(Cr)		CUST.DATA.exchGainAccntCredit	(Dr)			CUST.DATA.ForeignExTranAccntGainDebit
 #	7	C	REDCOM_PUR	COMRD01P25	(Cr)				CUST.DATA.TranPurchaseRedCredit		
-#   8   D   BAZCOMDEV_PUR DVCBZ02P25 
-#   9   B   OOFCOMDEV_PUR DEVCBFPP25
-#  10	D   PAYCOMDEV_PUR PDCBZ02P25
-#  11	D   PUR_DEV_BAZ DEVCO02P25
-#  12	B   OOFREDDEV_PUR DEVCOFPP25
-#  13   D   PAYREDDEV_PUR PDCOT02P25
-#  14   D   DEVINT_PUR DCOEX01P25
-#  15   B   DEVINTLOSS_PUR DEVCOEEP25
-#  16   B   DEVINTGAIN_PUR DEVCOEIP25
-#  17   B   OOFINTDEV_PUR DCOMEXFP25
-#  18 	D   OOFINTDEV_PAY PDCOEXFP25
+#   8   D   BAZCOMDEV_PUR DVCBZ02P25 (Dr)				CUST.DATA.devPurDebit			
+#   9   B   OOFCOMDEV_PUR DEVCBFPP25 (Dr)				CUST.DATA.OOFDevPurDebit		(Cr)			CUST.DATA.OOFDevPurCredit
+#  10	D   PAYCOMDEV_PUR PDCBZ02P25 (Dr)				CUST.DATA.devPayDebit		
+#  11	D   PUR_DEV_BAZ DEVCO02P25   (Dr)				CUST.DATA.devPurComDebit
+#  12	B   OOFREDDEV_PUR DEVCOFPP25 (Dr)				CUST.DATA.OOFDevRedDebit		(Cr)			CUST.DATA.OOFDevRedCredit
+#  13   D   PAYREDDEV_PUR PDCOT02P25 (Dr)				CUST.DATA.devPayRedDebit
+#  14   D   DEVINT_PUR DCOEX01P25	 (Dr)				CUST.DATA.devIntPurDebit
+#  15   B   DEVINTLOSS_PUR DEVCOEEP25	(Dr)			CUST.DATA.devPurForLossDebit	(Cr) 			CUST.DATA.devPurForLossCredit
+#  16   B   DEVINTGAIN_PUR DEVCOEIP25	(Dr)			CUST.DATA.devPurForGainDebit	(Cr)			CUST.DATA.devPurForGainCredit
+#  17   B   OOFINTDEV_PUR DCOMEXFP25    (Dr)			CUST.DATA.devOOFIntPurDebit 	(Cr)			CUST.DATA.devOOFIntPurCredit
+#  18 	D   OOFINTDEV_PAY PDCOEXFP25	(Dr)			CUST.DATA.devOOFIntPayDebit
 
 
 CUST.DATA.cparamSettleePos=CUST.DATA.cparamUtranCode
@@ -339,6 +339,46 @@ ENDIF
 									#{
 										CUST.DATA.TranPurchaseRedCredit=CUST.DATA.crOfficeAccnt
 									#}
+									else
+									#{
+										if(CUST.DATA.orderUtrancode=="9") then
+										#{
+											CUST.DATA.OOFDevPurCredit=CUST.DATA.crOfficeAccnt
+										#}
+										else
+										#{
+											if(CUST.DATA.orderUtrancode=="12") then
+											#{
+												CUST.DATA.OOFDevRedCredit=CUST.DATA.crOfficeAccnt
+											#}
+											else
+											#{
+												if(CUST.DATA.orderUtrancode=="15") then
+												#{
+													CUST.DATA.devPurForLossCredit=CUST.DATA.crOfficeAccnt
+												#}
+												else
+												#{
+													if(CUST.DATA.orderUtrancode=="16") then
+													#{
+														CUST.DATA.devPurForGainCredit=CUST.DATA.crOfficeAccnt
+													#}
+													else
+													#{
+														if(CUST.DATA.orderUtrancode=="17") then
+														#{
+															CUST.DATA.devOOFIntPurCredit=CUST.DATA.crOfficeAccnt
+														#}
+														endif
+													#}
+													endif
+												#}
+												endif
+											#}
+											endif
+										#}
+										endif
+									#}
 									endif
 								#}
 								endif
@@ -467,6 +507,94 @@ ENDIF
 						if(CUST.DATA.orderUtrancode=="6") then
 						#{
 							CUST.DATA.ForeignExTranAccntGainDebit=CUST.DATA.drOfficeAccnt
+						#}
+						else
+						#{
+							if(CUST.DATA.orderUtrancode=="8") then
+							#{
+								CUST.DATA.devPurDebit=CUST.DATA.drOfficeAccnt
+							#}
+							else
+							#{
+								if(CUST.DATA.orderUtrancode=="9") then
+								#{
+									CUST.DATA.OOFDevPurDebit=CUST.DATA.drOfficeAccnt
+								#}
+								else
+								#{
+									if(CUST.DATA.orderUtrancode=="10") then
+									#{
+										CUST.DATA.devPayDebit=CUST.DATA.drOfficeAccnt
+									#}
+									else
+									#{
+										if(CUST.DATA.orderUtrancode=="11") then
+										#{
+											CUST.DATA.devPurComDebit=CUST.DATA.drOfficeAccnt
+										#}
+										else
+										#{
+											if(CUST.DATA.orderUtrancode=="12") then
+											#{
+												CUST.DATA.OOFDevRedDebit=CUST.DATA.drOfficeAccnt
+											#}
+											else
+											#{
+												if(CUST.DATA.orderUtrancode=="13") then
+												#{
+													CUST.DATA.devPayRedDebit=CUST.DATA.drOfficeAccnt
+												#}
+												else
+												#{
+													if(CUST.DATA.orderUtrancode=="14") then
+													#{
+														CUST.DATA.devIntPurDebit=CUST.DATA.drOfficeAccnt
+													#}
+													else
+													#{
+														if(CUST.DATA.orderUtrancode=="15") then
+														#{
+															CUST.DATA.devPurForLossDebit=CUST.DATA.drOfficeAccnt
+														#}
+														else
+														#{
+															if(CUST.DATA.orderUtrancode=="16") then
+															#{
+																CUST.DATA.devPurForGainDebit=CUST.DATA.drOfficeAccnt
+															#}
+															else
+															#{
+																if(CUST.DATA.orderUtrancode=="17") then
+																#{
+																	CUST.DATA.devOOFIntPurDebit=CUST.DATA.drOfficeAccnt
+																#}
+																else
+																#{
+																	if(CUST.DATA.orderUtrancode=="18") then
+																	#{
+																		CUST.DATA.devOOFIntPayDebit=CUST.DATA.drOfficeAccnt
+																	#}
+																	endif
+																#}
+																endif
+															#}
+															endif
+														#}
+														endif
+													#}
+													endif
+												#}
+												endif
+											#}
+											endif
+										#}
+										endif
+									#}
+									endif
+								#}
+								endif
+							#}
+							endif
 						#}
 						endif
 					#}
