@@ -1,0 +1,914 @@
+<--START
+libname CUSTOMSO
+sv_r = REPEXISTS("CUST")
+IF(sv_r == 0) THEN
+#{
+        CREATEREP ("CUST")
+#}
+ENDIF
+
+#-----------------------------------------------------------------
+# Check whether DATA Class exists else create it
+#-----------------------------------------------------------------
+sv_r = CLASSEXISTS("CUST","DATA")
+IF(sv_r == 0) THEN
+#{
+        CREATECLASS ("CUST","DATA",5)
+#}
+ENDIF
+
+CUST.DATA.respTranId = ""
+CUST.DATA.respTranDate = ""
+CUST.DATA.respCod = ""
+CUST.DATA.respMsg = ""
+CUST.DATA.incidentReason = ""
+CUST.DATA.blockUser = ""
+CUST.DATA.blockDate = ""
+CUST.DATA.LienSettleId = ""
+CUST.DATA.LienSettleAmt = ""
+CUST.DATA.LienExpSettle = ""
+CUST.DATA.respMsg = ""
+CUST.DATA.header = ""
+CUST.DATA.detail1 = ""
+CUST.DATA.cardNum = ""
+CUST.DATA.detail2	= ""
+CUST.DATA.purDate = ""
+CUST.DATA.purTime = ""
+CUST.DATA.detail3 = ""
+CUST.DATA.tranType = ""
+CUST.DATA.detail4 = ""
+CUST.DATA.totSourceAmt = ""
+CUST.DATA.purSourceAmt = ""
+CUST.DATA.detail2	= ""
+CUST.DATA.destParty = ""
+CUST.DATA.currCode = ""
+CUST.DATA.settParty = ""
+CUST.DATA.townLocation = ""
+CUST.DATA.tranType = ""
+CUST.DATA.PurAmt = ""
+CUST.DATA.detail3 = ""
+CUST.DATA.USDExcRate = ""
+CUST.DATA.bussCode = ""
+CUST.DATA.MCC = ""
+CUST.DATA.bussName = ""
+CUST.DATA.bussAdd = ""
+CUST.DATA.TXSourceCountry = ""
+CUST.DATA.ZIPCode = ""
+CUST.DATA.detail4 = ""
+CUST.DATA.tranRef = ""
+CUST.DATA.detail5 = ""
+CUST.DATA.ElecPaymentCode = ""
+CUST.DATA.FolioNumber = ""
+CUST.DATA.POSEntryMode = ""
+CUST.DATA.ActivePOSInd = ""
+CUST.DATA.Filler = ""
+CUST.DATA.TimeOfTran = ""
+CUST.DATA.Responder = ""
+CUST.DATA.AuthResCode = ""
+CUST.DATA.ComShortName = ""
+CUST.DATA.AuthNum = ""
+CUST.DATA.detail6 = ""
+CUST.DATA.purDate = ""
+CUST.DATA.purTime = ""
+CUST.DATA.detail7 = ""
+CUST.DATA.Sum254 = ""
+CUST.DATA.detail8 = ""
+CUST.DATA.ElecPayCode = ""
+CUST.DATA.POSID = ""
+CUST.DATA.ExcFeeAmt = ""
+CUST.DATA.EcommInd = ""
+CUST.DATA.EcommTerCapacity = ""
+CUST.DATA.track2CompleteDataInd = ""
+CUST.DATA.C2VIND = ""
+CUST.DATA.CAVVIND = ""
+CUST.DATA.settCurrCode = ""
+CUST.DATA.detail9 = ""
+CUST.DATA.accNature = ""
+CUST.DATA.RFC = ""
+CUST.DATA.bussLocation = ""
+CUST.DATA.RecType = ""
+CUST.DATA.totDetTrans = ""
+CUST.DATA.totSales = ""
+CUST.DATA.SalesAmt = ""
+CUST.DATA.totDisb = ""
+CUST.DATA.DisbAmt = ""
+CUST.DATA.totNumDebTran = ""
+CUST.DATA.totAmtDebTran = ""
+CUST.DATA.totNumDebitDebit = ""
+CUST.DATA.AmtDebitDebit = ""
+CUST.DATA.totBillPayments = ""
+CUST.DATA.totAmtBillPayments = ""
+CUST.DATA.totNumPaymentRecords = ""
+CUST.DATA.totAmtPayments = ""
+CUST.DATA.totNumDevolutions = ""
+CUST.DATA.AmtofDevolutions = ""
+CUST.DATA.totCredTran = ""
+CUST.DATA.AmountofCredits = ""
+CUST.DATA.FIDADQ = ""
+CUST.DATA.time = "000000"
+CUST.DATA.description = "Success"
+CUST.DATA.status = "S"
+CUST.DATA.bodDate1 = ""
+CUST.DATA.recErrMsg = ""
+CUST.DATA.accNumber = ""
+CUST.DATA.cardEncr = ""
+
+CUST.DATA.periAcc = ""
+CUST.DATA.mainAcc = ""
+CUST.DATA.appliedAmt = ""
+CUST.DATA.pendAppAmt = ""
+CUST.DATA.amtExcDiff = ""
+CUST.DATA.respCod = ""
+CUST.DATA.respMsg = ""
+CUST.DATA.incidentReason = ""
+CUST.DATA.blockUser = ""
+CUST.DATA.blockDate = ""
+CUST.DATA.respTranId = ""
+
+sv_i = CUST.DATA.inputRecord
+CUST.DATA.recordLengthFlg=""
+
+
+IF (sv_t == 0) THEN
+#{
+	if(sv_m == 0)then
+	#{
+		CUST.DATA.recordLength=STRLEN(CUST.DATA.inputRecord)
+		Print(CUST.DATA.recordLength)
+		if(CUST.DATA.recordLength >= 337) then
+		#{
+			CUST.DATA.recordLength=CINT(CUST.DATA.recordLength)-CINT("1")
+			CUST.DATA.recordLengthFlg="Y"
+			Print(CUST.DATA.recordLength)
+		#}
+		ELSE
+		#{
+			CUST.DATA.processFlg = "FAILURE"
+			CUST.DATA.errMsg="The header record in input file is not proper."
+			PRINT(CUST.DATA.errMsg)
+			CUST.DATA.failStatus="Y"
+			CUST.DATA.inpFilProcStat="F"
+			CUST.DATA.respCode="ERR0000357"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+			PRINT(sv_r)
+			PRINT(CUST.DATA.statMessage)
+			GOTO ENDOFSCRIPT
+		#}
+		endif
+	#}
+	endif
+	
+	####to validate footer####
+	if(sv_f == 0)then
+	#{
+		CUST.DATA.cpFlPath1=CUST.DATA.posSettlementReqPath
+		print(CUST.DATA.cpFlPath1)
+		
+		CUST.DATA.footer = "tmpCntFile_"+CUST.DATA.Batchdate+".txt"
+		print(CUST.DATA.footer)
+		
+		sv_r = urhk_getFileLocation("COM|pos_headerfooter.com")
+		IF(sv_r == 0) THEN
+		#{
+			CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + "pos_headerfooter.com"
+			print(CUST.DATA.comFile)
+		#}
+		endif
+	
+		sv_d = CUST.DATA.cpFlPath1 + " " + CUST.DATA.footer
+		print(sv_d)
+		sv_b = CUST.DATA.comFile+ " " + sv_d
+		
+		print(sv_b)
+		sv_u = SYSTEM(sv_b)
+		PRINT(sv_u)
+	
+		IF (sv_u ==0) THEN
+		#{
+			####################################
+			#Access the Input the DAT FILE
+			###################################	
+			sv_t = ""
+			sv_t = urtn_fileAccess(CUST.DATA.footer)
+			print(sv_t)
+			CUST.DATA.fileRec1 = urtn_fileOpen(CUST.DATA.footer + "|r")
+			sv_t = urtn_fileRead(CUST.DATA.fileRec1 + "|CUST.DATA.inputRecordCnt")
+			print(sv_t)
+		
+			print(CUST.DATA.inputRecordCnt)
+			CUST.DATA.posCntName = CUST.DATA.inputRecordCnt
+			sv_t = urtn_fileClose(CUST.DATA.fileRec1)
+			PRINT(sv_t)
+		
+			sv_q = "rm -f "+CUST.DATA.footer
+			sv_v = SYSTEM(sv_q)
+			PRINT(sv_v)
+			print(CUST.DATA.posCntName)
+			CUST.DATA.posCntNameLength = STRLEN(CUST.DATA.posCntName)
+			PRINT(CUST.DATA.posCntNameLength)
+			IF(CUST.DATA.posCntNameLength <= 199 )THEN
+			#{
+				CUST.DATA.processFlg = "FAILURE"
+				CUST.DATA.errMsg="The footer record is either improper or not provided."
+				PRINT(CUST.DATA.errMsg)
+				CUST.DATA.failStatus="Y"
+				CUST.DATA.inpFilProcStat="F"
+				CUST.DATA.respCode="ERR0000431"
+				sv_r = func_cmmsgerrdescWithInputs("ERR0000431",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+				PRINT(sv_r)
+				PRINT(CUST.DATA.statMessage)
+				GOTO ENDOFSCRIPT
+			#}
+			ENDIF
+		#}
+		ENDIF
+		sv_f = 1
+	#}
+	endif
+	
+	
+	######################################################
+	#Getting the details from input record- header section
+	######################################################
+	IF(CUST.DATA.recordLengthFlg=="Y") then
+	#{
+		CUST.DATA.identifier = "H"
+		CUST.DATA.settleFileType = "POS ADQU"
+		CUST.DATA.settleFileDate = MID$(CUST.DATA.inputRecord,72,6)
+		CUST.DATA.settleInstitName = MID$(CUST.DATA.inputRecord,32,15)
+		CUST.DATA.settleFileNum = MID$(CUST.DATA.inputRecord,92,6)
+		CUST.DATA.settleFileChar = MID$(CUST.DATA.inputRecord,113,10)
+		PRINT(CUST.DATA.settleFileType)
+		PRINT(CUST.DATA.settleFileDate)
+		PRINT(CUST.DATA.settleInstitName)
+		PRINT(CUST.DATA.settleFileNum)
+		PRINT(CUST.DATA.settleFileChar)
+		
+	#}
+	else
+	#{
+		CUST.DATA.Flg1 = ""
+		CUST.DATA.Flg1 = TRIM(MID$(CUST.DATA.inputRecord,0,338))
+		if((CUST.DATA.Flg1 != "") AND (MID$(CUST.DATA.inputRecord,0,7) != "TRAILER"))then
+		#{
+			CUST.DATA.identifier = "D"
+			CUST.DATA.recordLength=STRLEN(CUST.DATA.inputRecord)
+			Print(CUST.DATA.recordLength)
+			if(CUST.DATA.recordLength >= 337) then
+			#{
+				CUST.DATA.recordLength=CINT(CUST.DATA.recordLength)-CINT("1")
+				Print(CUST.DATA.recordLength)
+				######################################################
+				#Getting the details from input record
+				######################################################
+				CUST.DATA.settleFileType = "POS ADQU"
+				CUST.DATA.detail1 = MID$(CUST.DATA.inputRecord,0,4)
+				CUST.DATA.cardNum = RTRIM(MID$(CUST.DATA.inputRecord,4,16))
+				CUST.DATA.detail2	= RTRIM(MID$(CUST.DATA.inputRecord,20,3))
+				CUST.DATA.townLocation = MID$(CUST.DATA.inputRecord,23,13)
+				CUST.DATA.tranType = MID$(CUST.DATA.inputRecord,36,2)
+				CUST.DATA.PurAmt = MID$(CUST.DATA.inputRecord,38,11) + "." + MID$(CUST.DATA.inputRecord,49,2)
+				CUST.DATA.detail3 = MID$(CUST.DATA.inputRecord,51,36)
+				CUST.DATA.USDExcRate = MID$(CUST.DATA.inputRecord,87,7)
+				CUST.DATA.bussCode = MID$(CUST.DATA.inputRecord,94,9)
+				CUST.DATA.bussName = MID$(CUST.DATA.inputRecord,103,30)
+				CUST.DATA.detail4 = MID$(CUST.DATA.inputRecord,133,8)
+				CUST.DATA.tranRef = MID$(CUST.DATA.inputRecord,141,23)
+				CUST.DATA.detail5 = MID$(CUST.DATA.inputRecord,164,5)
+				CUST.DATA.ElecPaymentCode = MID$(CUST.DATA.inputRecord,169,24)
+				CUST.DATA.FolioNumber = MID$(CUST.DATA.inputRecord,169,10)
+				CUST.DATA.POSEntryMode = MID$(CUST.DATA.inputRecord,179,2)
+				CUST.DATA.ActivePOSInd = MID$(CUST.DATA.inputRecord,181,1)
+				CUST.DATA.Filler = MID$(CUST.DATA.inputRecord,182,1)
+				CUST.DATA.TimeOfTran = MID$(CUST.DATA.inputRecord,183,6)
+				CUST.DATA.Responder = MID$(CUST.DATA.inputRecord,189,1)
+				CUST.DATA.AuthResCode = MID$(CUST.DATA.inputRecord,190,3)
+				CUST.DATA.ComShortName = MID$(CUST.DATA.inputRecord,193,16)
+				CUST.DATA.AuthNum = MID$(CUST.DATA.inputRecord,209,6)
+				CUST.DATA.detail6 = MID$(CUST.DATA.inputRecord,215,34)
+				CUST.DATA.purDate = MID$(CUST.DATA.inputRecord,233,6)
+				CUST.DATA.detail7 = MID$(CUST.DATA.inputRecord,239,14)
+				CUST.DATA.Sum254 = MID$(CUST.DATA.inputRecord,253,8)
+				CUST.DATA.detail8 = MID$(CUST.DATA.inputRecord,261,20)
+				CUST.DATA.ElecPayCode = MID$(CUST.DATA.inputRecord,281,30)
+				CUST.DATA.POSID = MID$(CUST.DATA.inputRecord,281,10)
+				CUST.DATA.ExcFeeAmt = MID$(CUST.DATA.inputRecord,291,11)
+				CUST.DATA.EcommInd = MID$(CUST.DATA.inputRecord,302,1)
+				CUST.DATA.EcommTerCapacity = MID$(CUST.DATA.inputRecord,303,1)
+				CUST.DATA.track2CompleteDataInd = MID$(CUST.DATA.inputRecord,305,1)
+				CUST.DATA.C2VIND = MID$(CUST.DATA.inputRecord,306,1)
+				CUST.DATA.CAVVIND = MID$(CUST.DATA.inputRecord,307,1)
+				CUST.DATA.currCode = MID$(CUST.DATA.inputRecord,308,3)
+				CUST.DATA.detail9 = MID$(CUST.DATA.inputRecord,311,14)
+				CUST.DATA.RFC = MID$(CUST.DATA.inputRecord,325,13)				
+				
+				if(CUST.DATA.cardNum == "") then
+				#{
+					CUST.DATA.respCode="03"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Account Number"
+					ELSE
+						CUST.DATA.recErrMsg = "Número de cuenta inválido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.townLocation == "") then
+				#{
+					CUST.DATA.respCode="62"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Town Location is Invalid"
+					ELSE
+						CUST.DATA.recErrMsg = "La ubicación de la ciudad no es válida"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.tranType == "") then
+				#{
+					CUST.DATA.respCode="63"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Transaction Type: Transaction type can be of type 01 sales, 02 cash disbursements ,20 payments, 21 devolutions"
+					ELSE
+						CUST.DATA.recErrMsg = "Tipo de transacción no válida: el tipo de transacción puede ser del tipo 01 ventas, 02 desembolsos de efectivo, 20 pagos, 21 devoluciones"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.PurAmt == "") then
+				#{
+					CUST.DATA.respCode="64"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Purchase Amount"
+					ELSE
+						CUST.DATA.recErrMsg = "Importe de compra no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				CUST.DATA.PurAmt = LTRIM(CUST.DATA.PurAmt,'0')
+				if(CDOUBLE(CUST.DATA.PurAmt) <= "00.00") then
+				#{
+					CUST.DATA.respCode="64"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Enter non-zero amount value"
+					ELSE
+						CUST.DATA.recErrMsg = "Ingrese un valor de monto distinto de cero"
+					ENDIF
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.USDExcRate == "") then
+				#{
+					CUST.DATA.respCode="65"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid USD exchange rate (Applicable to transactions received abroad)"
+					ELSE
+						CUST.DATA.recErrMsg = "Tipo de cambio USD no válido (aplicable a transacciones recibidas en el extranjero)"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.bussCode == "") then
+				#{
+					CUST.DATA.respCode="66"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Establishment's enrollment number"
+					ELSE
+						CUST.DATA.recErrMsg = "Número de inscripción del establecimiento no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.bussName == "") then
+				#{
+					CUST.DATA.respCode="67"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Establishment's name"
+					ELSE
+						CUST.DATA.recErrMsg = "Nombre del establecimiento no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.tranRef == "") then
+				#{
+					CUST.DATA.respCode="68"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Transaction reference"
+					ELSE
+						CUST.DATA.recErrMsg = "Referencia de transacción no válida"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.ElecPaymentCode == "") then
+				#{
+					CUST.DATA.respCode="69"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid electronic payment code : PROSA usage"
+					ELSE
+						CUST.DATA.recErrMsg = "Código de pago electrónico no válido: uso de PROSA"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.FolioNumber == "") then
+				#{
+					CUST.DATA.respCode="25"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Identification Folio"
+					ELSE
+						CUST.DATA.recErrMsg = "Folio de identificación no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF	
+				if(CUST.DATA.TimeOfTran == "") then
+				#{
+					CUST.DATA.respCode="70"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Time of transactions only made through POS,  HHMISS format"
+					ELSE
+						CUST.DATA.recErrMsg = "Hora de las transacciones solo realizadas a través de POS, formato HHMISS"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.Responder == "") then
+				#{
+					CUST.DATA.respCode="71"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid response to electronic transactions, who gave the authorization"
+					ELSE
+						CUST.DATA.recErrMsg = "Respuesta inválida a transacciones electrónicas, quién dio la autorización."
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.AuthResCode == "") then
+				#{
+					CUST.DATA.respCode="72"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid authorization response code"
+					ELSE
+						CUST.DATA.recErrMsg = "Código de respuesta de autorización no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.AuthNum == "") then
+				#{
+					CUST.DATA.respCode="73"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid authorization number"
+					ELSE
+						CUST.DATA.recErrMsg = "Número de autorización no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.purDate == "") then
+				#{
+					CUST.DATA.respCode="74"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid purchase date"
+					ELSE
+						CUST.DATA.recErrMsg = "Fecha de compra inválida"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.ElecPayCode == "") then
+				#{
+					CUST.DATA.respCode="75"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Electronic Payment Code"
+					ELSE
+						CUST.DATA.recErrMsg = "Código de pago electrónico no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.POSID == "") then
+				#{
+					CUST.DATA.respCode="76"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Folio number assigned for the transaction's upload"
+					ELSE
+						CUST.DATA.recErrMsg = "POSID no válido número asignado para la carga de la transacción"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.ExcFeeAmt == "") then
+				#{
+					CUST.DATA.respCode="77"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Exchange fee amount between  Bnc/Bnm  and PROSA for the issuer banks "
+					ELSE
+						CUST.DATA.recErrMsg = "Importe de tarifa de cambio no válido entre Bnc / Bnm y PROSA para los bancos emisores"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.EcommInd == "") then
+				#{
+					CUST.DATA.respCode="78"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Electronic establishment indicator"
+					ELSE
+						CUST.DATA.recErrMsg = "Indicador de establecimiento electrónico no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.EcommTerCapacity == "") then
+				#{
+					CUST.DATA.respCode="79"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Access means indicator "
+					ELSE
+						CUST.DATA.recErrMsg = "Indicador de medios de acceso no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.track2CompleteDataInd == "") then
+				#{
+					CUST.DATA.respCode="80"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Track 2 complete data indicator "
+					ELSE
+						CUST.DATA.recErrMsg = "Indicador de datos completos de la pista 2 no válida"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.C2VIND == "") then
+				#{
+					CUST.DATA.respCode="81"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid validation code presentation indicator CVC'S INDICATOR"
+					ELSE
+						CUST.DATA.recErrMsg = "Indicador de presentación de código de validación no válido INDICADOR DE CVC"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.CAVVIND == "") then
+				#{
+					CUST.DATA.respCode="82"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Identification collector authentication Indicator "
+					ELSE
+						CUST.DATA.recErrMsg = "Indicador de autenticación del recopilador de identificación no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.currCode == "") then
+				#{
+					CUST.DATA.respCode="83"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid transaction currency code"
+					ELSE
+						CUST.DATA.recErrMsg = "Código de moneda de transacción no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				if(CUST.DATA.RFC == "") then
+				#{
+					CUST.DATA.respCode="84"
+					CUST.DATA.status = "F"
+					CUST.DATA.description = "Failure"
+					IF(BANCS.STDIN.languageCode=="INFENG") then
+						CUST.DATA.recErrMsg = "Invalid Tax Id of the buyer business"
+					ELSE
+						CUST.DATA.recErrMsg = "Número de identificación fiscal de la empresa compradora no válido"
+					ENDIF
+					GOTO ENDOFRECORD
+				#}
+				ENDIF
+				
+				#Convert purchase date to Database readable format
+				sv_s = ""
+				sv_s = sv_s + "purDateTemp|"
+				sv_s = sv_s + "select to_char(to_date(?SVAR,'YYMMDD'),'DD-MM-YYYY') from dual"
+				print(sv_s)
+				BANCS.INPARAM.BINDVARS = CUST.DATA.purDate
+				PRINT(BANCS.INPARAM.BINDVARS)
+				sv_d = urhk_dbSelectWithBind(sv_s)
+				print(sv_d)
+				IF(sv_d == 0) THEN
+				#{
+					CUST.DATA.purDateTemp = BANCS.OUTPARAM.purDateTemp
+					print(CUST.DATA.accNumber)
+				#}
+				ENDIF
+				
+				sv_s = ""
+				sv_s = sv_s + "accNumber,cardEncr,parentacc|"
+				sv_s = sv_s + "select EMP_ACCNT_NUM,LNKED_CARD_NUM,PARENT_ACCT from CUSTOM.CUST_CARD_ACCT_TBL WHERE CRD_MOD_FRMT "
+				sv_s = sv_s + "IN (select to_char(?SVAR,'XXXXXXXXXXXXXXXX') from dual) AND "
+				sv_s = sv_s + "ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N' AND BANK_ID = ?SVAR"
+					
+				print(sv_s)
+				BANCS.INPARAM.BINDVARS = CUST.DATA.cardNum + "|" + BANCS.STDIN.contextBankId
+				PRINT(BANCS.INPARAM.BINDVARS)
+				sv_d = urhk_dbSelectWithBind(sv_s)
+				print(sv_d)
+				IF(sv_d == 0) THEN
+				#{
+					CUST.DATA.accNumber = BANCS.OUTPARAM.accNumber
+					print(CUST.DATA.accNumber)
+					CUST.DATA.cardEncr = BANCS.OUTPARAM.cardEncr
+					print(CUST.DATA.cardEncr)
+					CUST.DATA.parentacc = BANCS.OUTPARAM.parentacc
+					print(CUST.DATA.parentacc)
+				#}
+				ENDIF
+				CALLSCRIPTIFEXIST("posRecordSettlement.scr")
+			#}
+			else
+			#{
+				CUST.DATA.respCode="66"
+				IF(BANCS.STDIN.languageCode=="INFENG") then
+					CUST.DATA.respMsg = "Detail Record is not proper"
+				ELSE
+					CUST.DATA.respMsg = "El detalle no es correcto"
+				ENDIF
+				GOTO ENDOFRECORD
+			#}
+			endif
+		#}
+		else
+		#{
+			if(MID$(CUST.DATA.inputRecord,0,7) == "TRAILER") then
+			#{
+				CUST.DATA.identifier="T"
+			#}
+			else
+			#{
+				CUST.DATA.respCode="67"
+				IF(BANCS.STDIN.languageCode=="INFENG") then
+					CUST.DATA.respMsg = "Trailer is not proper"
+				ELSE
+					CUST.DATA.respMsg = "El remolque no es adecuado"
+				ENDIF
+				GOTO ENDOFRECORD
+			#}
+			endif
+		#}
+		ENDIF
+	#}
+	ENDIF
+	ENDOFRECORD:
+	####################################
+	# Writing the response contents to file
+	###################################
+	IF(CUST.DATA.identifier=="H") then
+	#{
+		CUST.DATA.AllFields = RPAD(CUST.DATA.settleFileType,10,' ')+" "+"FECHA: "+" "+RPAD(CUST.DATA.settleFileDate,6,' ')+" "+"HORA: "+" "+RPAD(CUST.DATA.time,6,' ')+" "+"CONSECUTIVO: "+" "+RPAD(CUST.DATA.settleFileNum,6,' ')+RPAD(CUST.DATA.space,304,' ')
+
+		PRINT(CUST.DATA.AllFields)
+		
+		CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+		sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+		print(sv_a)
+	#}
+	ENDIF
+	IF(CUST.DATA.identifier=="D") then
+	#{
+		CUST.DATA.incidentReason = MID$(CUST.DATA.incidentReason,0,40)
+		CUST.DATA.AllFields = RPAD(CUST.DATA.cardNum,16,' ')+" "+LPAD(CUST.DATA.accNumber,14,'0')+" "+LPAD(CUST.DATA.parentacc,14,'0')+" "+RPAD(CUST.DATA.AuthNum,6,' ')+" "+RPAD(CUST.DATA.purDate,6,' ')+" "+RPAD(CUST.DATA.purTime,6,' ')+" "+RPAD(CUST.DATA.tranType,2,' ')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.currCode,3,' ')+" "+LPAD(CUST.DATA.totSourceAmt,14,'0')+" "+LPAD(CUST.DATA.purSourceAmt,14,'0')+" "+LPAD(CUST.DATA.destParty,14,'0')+" "+LPAD(CUST.DATA.settParty,14,'0')+" "+LPAD(CUST.DATA.PurAmt,14,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.appliedAmt,14,'0')+" "+LPAD(CUST.DATA.pendAppAmt,14,'0')+" "+LPAD(CUST.DATA.amtExcDiff,14,'0')+" "+RPAD(CUST.DATA.bussCode,15,' ')+" "+RPAD(CUST.DATA.bussName,30,' ')+" "+RPAD(CUST.DATA.tranRef,23,' ')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.FIDADQ,4,' ')+" "+RPAD(CUST.DATA.respTranId,9,' ')+" "+RPAD(CUST.DATA.respCod,5,' ')+" "+RPAD(CUST.DATA.respMsg,25,' ')+" "+RPAD(CUST.DATA.incidentReason,40,' ')+" "+RPAD(CUST.DATA.blockUser,15,' ')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.blockDate,6,' ')+" "
+			
+		PRINT(CUST.DATA.AllFields)
+			
+		CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+		sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+		print(sv_a)
+		
+		####################################################
+		##  Fetching BOD Date
+		####################################################	
+	
+		sv_s = ""
+		sv_s  = "BODDate| select to_date(?SVAR,'dd-mm-yyyy')" 		   
+		sv_s = sv_s + " from dual "
+		print(sv_s)	
+
+		BANCS.INPARAM.BINDVARS = CUST.DATA.bodDate  
+		PRINT(sv_s)
+		PRINT(BANCS.INPARAM.BINDVARS)
+
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		print(sv_u)
+		IF(sv_u == 0) THEN
+		#{
+			CUST.DATA.bodDate1 = BANCS.OUTPARAM.BODDate
+			PRINT(CUST.DATA.bodDate1)	
+		#}
+		ENDIF
+		
+		if(CUST.DATA.recErrMsg != "")then
+		#{
+			CUST.DATA.status = "F"
+			CUST.DATA.description = "Failure"
+		#}
+		endif
+		
+		####################################
+		# Insert into Table
+		###################################
+		sv_q = "INSERT INTO CUSTOM.CUST_POS_SETTLEMENT_FILE_TBL "
+		sv_q = sv_q + "(SETTLE_FILE_TYPE, SETTLE_FILE_DATE, SETTLE_INSTIT_NAME, SETTLE_FILE_NUM, SETTLE_FILE_CHAR, "
+		sv_q = sv_q + "ACCOUNT_NUMBER, PURCHASE_DATE, PURCHASE_TIME, TRAN_TYPE, "
+		sv_q = sv_q + "CALC_PURCH_AMT, BUSINESS_CODE, BUSINESS_NAME, RFC, "
+		sv_q = sv_q + "AUTH_ID, TRAN_REF, ECOM_TRACK2_DATA_IND, ECOM_ECOM_IND, "
+		sv_q = sv_q + "ECOM_TERMINAL_CAP, ECOM_TERMINAL_ACT_IND, ECOM_TERM_ID, POS_ENTRY_MODE, "
+		sv_q = sv_q + "CV2_IND, ECOM_CAVV_IND, SOURCE_CRNCY_CODE, PROCESS_DATE, USD_EXCHG_RATE, "
+		sv_q = sv_q + "ASSIGN_FOLIO_NUM, ETRAN_ANSWER, AUTHORIZER_RESP_CODE, COMP_SHORT_NAME, SUM_AMT_CASH254, EXCH_FEE_AMT,"
+		sv_q = sv_q + "REC_ERR_MSG,RESP_TRAN_ID,RESP_TRAN_DATE,RESP_CODE,RESP_MSG,INCIDENT_REASON,"
+		sv_q = sv_q + "SETTLE_FILE_NAME, INP_FILE_DATE, RECORD_STRING, STATUS, DESCRIPTION, RESP_FILE_NAME, REC_PROCESS_DATE,"
+		sv_q = sv_q + "LIEN_ID_SETTLE, LIEN_AMT_SETTLE ,LIEN_EXPIRY_SETTLE, "
+		sv_q = sv_q + "ENTITY_CRE_FLG, DEL_FLG, LCHG_USER_ID, LCHG_TIME,RCRE_USER_ID,RCRE_TIME,BANK_ID,"
+		sv_q = sv_q + "CARD_NUMBER,BLOCK_USER,BLOCK_DATE"
+		sv_q = sv_q + ")VALUES("
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,?SVAR,?SVAR,"
+		sv_q = sv_q + "?SVAR,?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR,SYSDATE,?SVAR,?SVAR, ?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'),"
+		sv_q = sv_q + "?SVAR, ?SVAR,TO_DATE(?SVAR,'DD-MM-YYYY'),"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, SYSDATE ,?SVAR, SYSDATE ,?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'))"
+		
+		PRINT(sv_q)
+		BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileType + "|" + CUST.DATA.settleFileDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.accNumber + "|" + CUST.DATA.purDate + "|" + CUST.DATA.TimeOfTran + "|" + CUST.DATA.tranType + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.PurAmt + "|" + CUST.DATA.bussCode + "|" + CUST.DATA.bussName + "|" + CUST.DATA.RFC + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.AuthNum + "|" + CUST.DATA.tranRef + "|" + CUST.DATA.track2CompleteDataInd + "|" + CUST.DATA.EcommInd + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.EcommTerCapacity + "|" + CUST.DATA.ActivePOSInd + "|" + CUST.DATA.POSID + "|" + CUST.DATA.POSEntryMode + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.C2VIND + "|" + CUST.DATA.CAVVIND + "|" + CUST.DATA.currCode + "|" + CUST.DATA.settleFileDate + "|" + CUST.DATA.USDExcRate + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.FolioNumber + "|" + CUST.DATA.Responder + "|" + CUST.DATA.AuthResCode + "|" + CUST.DATA.ComShortName + "|" + CUST.DATA.Sum254 + "|" + CUST.DATA.ExcFeeAmt + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.recErrMsg + "|" + CUST.DATA.respTranId + "|" + CUST.DATA.respTranDate + "|" + CUST.DATA.respCod + "|" + CUST.DATA.respMsg + "|" + CUST.DATA.incidentReason + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.posSettlementInpFileName + "|" + CUST.DATA.AllFields + "|" + CUST.DATA.status + "|" + CUST.DATA.description + "|" + CUST.DATA.respFileName + "|" + CUST.DATA.bodDate1 + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.LienSettleId + "|" + CUST.DATA.LienSettleAmt + "|" + CUST.DATA.LienExpSettle + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "Y" + "|" + "N" + "|" + BANCS.STDIN.userId  + "|" + BANCS.STDIN.userId + "|" + BANCS.STDIN.contextBankId + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.cardEncr + "|" + CUST.DATA.blockUser + "|" + CUST.DATA.blockDate
+		
+		PRINT(BANCS.INPARAM.BINDVARS)
+		sv_o = urhk_dbSQLWithBind(sv_q)
+		PRINT(sv_o)
+
+
+		IF(sv_o == 0) THEN
+		#{
+			PRINT("Data inserted successfully")
+			CUST.DATA.Collection=""
+			CUST.DATA.Batchcount = CINT(CUST.DATA.Batchcount) + CINT("1")
+			CUST.DATA.processFlg = "SUCCESS"
+			CUST.DATA.ENTITY_ID=""
+			CUST.DATA.inpFilProcStat="S"
+		#}
+		ELSE
+		#{
+			PRINT("Data insertion failed")
+			CUST.DATA.processFlg = "FAILURE"
+			CUST.DATA.errMsg = "Insertion in CUST_POS_SETTLEMENT_FILE_TBL Failed"
+		#}
+		ENDIF
+	#}
+	ENDIF
+	IF(CUST.DATA.identifier=="T") then
+	#{
+		CUST.DATA.AllFields = RPAD(CUST.DATA.totNational,20,' ')+"  "+LPAD(CUST.DATA.totTran01Sale,8,'0')+" "+LPAD(CUST.DATA.totAmtTran01Sale,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totTran01Cashback,8,'0')+" "+LPAD(CUST.DATA.totAmtTran18Cashback,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totTran20Deposit,8,'0')+" "+LPAD(CUST.DATA.totAmtTran20Deposit,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totTran21Returns,8,'0')+" "+LPAD(CUST.DATA.totAmtTran21Returns,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totTran25RevOfSales,8,'0')+" "+LPAD(CUST.DATA.totAmtTran25RevOfSales,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totTran26RetRev,8,'0')+" "+LPAD(CUST.DATA.totAmtTran26RetRev,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totTranFreeField1,8,'0')+" "+LPAD(CUST.DATA.totAmtTranFreeField1,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totTranFreeField2,8,'0')+" "+LPAD(CUST.DATA.totAmtTranFreeField2,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totTranFreeField3,8,'0')+" "+LPAD(CUST.DATA.totAmtTranFreeField3,16,'0')+RPAD(CUST.DATA.space,125,' ')
+		PRINT(CUST.DATA.AllFields)
+		CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+		sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+		print(sv_a)
+		
+		CUST.DATA.AllFields = RPAD(CUST.DATA.totIntNational,20,' ')+"  "+LPAD(CUST.DATA.totIntTran01Sale,8,'0')+" "+LPAD(CUST.DATA.totIntAmtTran01Sale,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totIntTran01Cashback,8,'0')+" "+LPAD(CUST.DATA.totIntAmtTran18Cashback,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totIntTran20Deposit,8,'0')+" "+LPAD(CUST.DATA.totIntAmtTran20Deposit,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totIntTran21Returns,8,'0')+" "+LPAD(CUST.DATA.totIntAmtTran21Returns,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totIntTran25RevOfSales,8,'0')+" "+LPAD(CUST.DATA.totIntAmtTran25RevOfSales,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totIntTran26RetRev,8,'0')+" "+LPAD(CUST.DATA.totIntAmtTran26RetRev,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totIntTranFreeField1,8,'0')+" "+LPAD(CUST.DATA.totIntAmtTranFreeField1,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totIntTranFreeField2,8,'0')+" "+LPAD(CUST.DATA.totIntAmtTranFreeField2,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totIntTranFreeField3,8,'0')+" "+LPAD(CUST.DATA.totIntAmtTranFreeField3,16,'0')+RPAD(CUST.DATA.space,125,' ')
+		PRINT(CUST.DATA.AllFields)
+		CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+		sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+		print(sv_a)
+		
+		CUST.DATA.AllFields = RPAD(CUST.DATA.totApplied,20,' ')+"  "+LPAD(CUST.DATA.totAppTran01Sale,8,'0')+" "+LPAD(CUST.DATA.totAppAmtTran01Sale,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totAppTran01Cashback,8,'0')+" "+LPAD(CUST.DATA.totAppAmtTran18Cashback,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totAppTran20Deposit,8,'0')+" "+LPAD(CUST.DATA.totAppAmtTran20Deposit,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totAppTran21Returns,8,'0')+" "+LPAD(CUST.DATA.totAppAmtTran21Returns,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totAppTran25RevOfSales,8,'0')+" "+LPAD(CUST.DATA.totAppAmtTran25RevOfSales,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totAppTran26RetRev,8,'0')+" "+LPAD(CUST.DATA.totAppAmtTran26RetRev,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totAppTranFreeField1,8,'0')+" "+LPAD(CUST.DATA.totAppAmtTranFreeField1,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totAppTranFreeField2,8,'0')+" "+LPAD(CUST.DATA.totAppAmtTranFreeField2,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totAppTranFreeField3,8,'0')+" "+LPAD(CUST.DATA.totAppAmtTranFreeField3,16,'0')+RPAD(CUST.DATA.space,125,' ')
+		PRINT(CUST.DATA.AllFields)
+		CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+		sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+		print(sv_a)
+		
+		CUST.DATA.AllFields = RPAD(CUST.DATA.totIncidents,20,' ')+"  "+LPAD(CUST.DATA.totInciTran01Sale,8,'0')+" "+LPAD(CUST.DATA.totInciAmtTran01Sale,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totInciTran01Cashback,8,'0')+" "+LPAD(CUST.DATA.totInciAmtTran18Cashback,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totInciTran20Deposit,8,'0')+" "+LPAD(CUST.DATA.totInciAmtTran20Deposit,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totInciTran21Returns,8,'0')+" "+LPAD(CUST.DATA.totInciAmtTran21Returns,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totInciTran25RevOfSales,8,'0')+" "+LPAD(CUST.DATA.totInciAmtTran25RevOfSales,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totInciTran26RetRev,8,'0')+" "+LPAD(CUST.DATA.totInciAmtTran26RetRev,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totInciTranFreeField1,8,'0')+" "+LPAD(CUST.DATA.totInciAmtTranFreeField1,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totInciTranFreeField2,8,'0')+" "+LPAD(CUST.DATA.totInciAmtTranFreeField2,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totInciTranFreeField3,8,'0')+" "+LPAD(CUST.DATA.totInciAmtTranFreeField3,16,'0')+RPAD(CUST.DATA.space,125,' ')
+		PRINT(CUST.DATA.AllFields)
+		CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+		sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+		print(sv_a)
+		
+		CUST.DATA.AllFields = RPAD(CUST.DATA.totExcDiff,20,' ')+"  "+LPAD(CUST.DATA.totTrans,8,'0')+" "+LPAD(CUST.DATA.totAmtTrans,16,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields + LPAD(CUST.DATA.totTrans1,8,'0')+" "+LPAD(CUST.DATA.totAmtTrans1,16,'0')+RPAD(CUST.DATA.space,307,' ')
+		PRINT(CUST.DATA.AllFields)
+		CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+		sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+		print(sv_a)
+	#}
+	ENDIF
+#}
+ENDIF
+
+
+EXITSCRIPT
+END-->

@@ -1,0 +1,531 @@
+<--START
+TRACE ON
+sv_r = REPEXISTS("CUST")
+IF(sv_r == 0) THEN
+#{
+        CREATEREP ("CUST")
+#}
+ENDIF
+
+#-----------------------------------------------------------------
+# Check whether DATA Class exists else create it
+#-----------------------------------------------------------------
+sv_r = CLASSEXISTS("CUST","DATA")
+IF(sv_r == 0) THEN
+#{
+        CREATECLASS ("CUST","DATA",5)
+#}
+ENDIF
+CUST.DATA.cparamSettleePos=""
+CUST.DATA.debOfficeAccntPholder=""
+CUST.DATA.credOfficeAccntPholder=""
+CUST.DATA.userTranSettle=""
+CUST.DATA.paramLvl="BNKL"
+CUST.DATA.modName="LIABILITIES"
+CUST.DATA.accntTypeFlg=""
+CUST.DATA.orderUtrancode=""
+CUST.DATA.tranCategory="N"
+CUST.DATA.freeText7="I"
+CUST.DATA.CHANNEL_ID="POS"
+
+
+
+#CUST.DATA.cparamUtranCode="WDL_FOREIGN_REV_EXGAIN"
+#CUST.DATA.drcrFlg="B"
+#CUST.DATA.utrancodeOrder=12
+
+
+#	1	C	BAZCOM_PUR	COMBZ01P25	(Cr)				CUST.DATA.TranPurchaseCredit   
+#	2	B	INCIDENCE_UTRANCODE	INCXCOBP33	(Dr)		CUST.DATA.incidAccnt1			(Cr)			CUST.DATA.compProsaAcnt
+#	3	B	INCIDENCE_DUP_UTRANCODE	INCXCDUP33	(Dr)	CUST.DATA.incidAccnt1			(Cr)			CUST.DATA.compProsaAcnt
+#	4	C	FOREIGN_PUR	COMEX01P25														(Cr)			CUST.DATA.foreignTranPurchaseCredit
+#	5	B	FOREIGN_PUR_LOSS	DCCOMEEP25	(Dr)		CUST.DATA.exchLossAccntDebit	(Cr)			CUST.DATA.ForeignExTranAccntLossCredit
+#	6	B	FOREIGN_PUR_GAIN	DCCOMEIP25	(Cr)		CUST.DATA.exchGainAccntCredit	(Dr)			CUST.DATA.ForeignExTranAccntGainDebit
+#	7	C	REDCOM_PUR	COMRD01P25	(Cr)				CUST.DATA.TranPurchaseRedCredit		
+#   8   D   BAZCOMDEV_PUR DVCBZ02P25 
+#   9   B   OOFCOMDEV_PUR DEVCBFPP25
+#  10	D   PAYCOMDEV_PUR PDCBZ02P25
+#  11	D   PUR_DEV_BAZ DEVCO02P25
+#  12	B   OOFREDDEV_PUR DEVCOFPP25
+#  13   D   PAYREDDEV_PUR PDCOT02P25
+#  14   D   DEVINT_PUR DCOEX01P25
+#  15   B   DEVINTLOSS_PUR DEVCOEEP25
+#  16   B   DEVINTGAIN_PUR DEVCOEIP25
+#  17   B   OOFINTDEV_PUR DCOMEXFP25
+#  18 	D   OOFINTDEV_PAY PDCOEXFP25
+
+
+CUST.DATA.cparamSettleePos=CUST.DATA.cparamUtranCode
+CUST.DATA.accntTypeFlg=CUST.DATA.drcrFlg
+CUST.DATA.orderUtrancode=CUST.DATA.utrancodeOrder
+
+################################################################################################
+# Fetching Payroll User Tran Code from CPARAM
+#################################################################################################
+
+BANCS.INPARAM.BINDVARS = CUST.DATA.cparamSettleePos+ "|" + CUST.DATA.paramLvl+ "|" + CUST.DATA.modName+ "|" + BANCS.STDIN.contextBankId
+PRINT(BANCS.INPARAM.BINDVARS)
+sv_s = ""
+sv_s = sv_s + "userTranSettle|"
+sv_s = sv_s + "select A.PARAMETER_VALUE from "
+sv_s = sv_s + "custom.C_CPVALUE A,custom.C_CPMASTER B where A.PARAMETER_ID=?SVAR "
+sv_s = sv_s + "and A.PARAMETER_ID=B.PARAMETER_ID and A.bank_id=B.bank_id "
+sv_s = sv_s + "and B.PARAMETER_LEVEL=?SVAR and B.MODULE_NAME=?SVAR "
+sv_s = sv_s + "and A.bank_id=?SVAR and A.ENTITY_CRE_FLG='Y' AND A.DEL_FLG!='Y'"
+print(sv_s)
+sv_d = urhk_dbSelectWithBind(sv_s)
+print(sv_d)
+IF(sv_d == 0) THEN
+#{
+	CUST.DATA.userTranSettle = BANCS.OUTPARAM.userTranSettle
+	print(CUST.DATA.userTranSettle)
+	CUST.DATA.USER_TRANCODE=CUST.DATA.userTranSettle
+	IF(CUST.DATA.orderUtrancode=="1") then 
+	#{
+		CUST.DATA.BAZCOM_PUR=CUST.DATA.USER_TRANCODE
+	#}
+	else 
+	#{
+		if(CUST.DATA.orderUtrancode=="2") then
+		#{
+			CUST.DATA.INCIDENCE_UTRANCODE=CUST.DATA.USER_TRANCODE
+		#}
+		else
+		#{
+			if(CUST.DATA.orderUtrancode=="3")  then
+			#{
+				CUST.DATA.INCIDENCE_DUP_UTRANCODE=CUST.DATA.USER_TRANCODE
+			#}
+			else
+			#{
+				if(CUST.DATA.orderUtrancode=="4") then
+				#{
+					CUST.DATA.FOREIGN_PUR=CUST.DATA.USER_TRANCODE
+				#}
+				else
+				#{
+					if(CUST.DATA.orderUtrancode=="5") then
+					#{
+						CUST.DATA.FOREIGN_PUR_LOSS=CUST.DATA.USER_TRANCODE
+					#}
+					else
+					#{
+						if(CUST.DATA.orderUtrancode=="6") then
+						#{
+							CUST.DATA.FOREIGN_PUR_GAIN=CUST.DATA.USER_TRANCODE
+						#}
+						else
+						#{
+							if(CUST.DATA.orderUtrancode=="7") then
+							#{
+								CUST.DATA.REDCOM_PUR=CUST.DATA.USER_TRANCODE
+							#}
+							else
+							#{
+								if(CUST.DATA.orderUtrancode=="8") then
+								#{
+									CUST.DATA.BAZCOMDEV_PUR=CUST.DATA.USER_TRANCODE
+								#}
+								else
+								#{
+									if(CUST.DATA.orderUtrancode=="9") then
+									#{
+										CUST.DATA.OOFCOMDEV_PUR=CUST.DATA.USER_TRANCODE
+									#}
+									else
+									#{
+										if(CUST.DATA.orderUtrancode=="10") then
+										#{
+											CUST.DATA.PAYCOMDEV_PUR=CUST.DATA.USER_TRANCODE
+										#}
+										else
+										#{
+											if(CUST.DATA.orderUtrancode=="11") then
+											#{
+												CUST.DATA.PUR_DEV_BAZ=CUST.DATA.USER_TRANCODE
+											#}
+											else
+											#{
+												if(CUST.DATA.orderUtrancode=="12") then
+												#{
+													CUST.DATA.OOFREDDEV_PUR=CUST.DATA.USER_TRANCODE
+												#}
+												else
+												#{
+													if(CUST.DATA.orderUtrancode=="13") then
+													#{
+														CUST.DATA.PAYREDDEV_PUR=CUST.DATA.USER_TRANCODE
+													#}
+													else
+													#{
+														if(CUST.DATA.orderUtrancode=="14") then
+														#{
+															CUST.DATA.DEVINT_PUR=CUST.DATA.USER_TRANCODE
+														#}
+														else
+														#{
+															if(CUST.DATA.orderUtrancode=="15") then
+															#{
+																CUST.DATA.DEVINTLOSS_PUR=CUST.DATA.USER_TRANCODE
+															#}
+															else
+															#{
+																if(CUST.DATA.orderUtrancode=="16") then
+																#{
+																	CUST.DATA.DEVINTGAIN_PUR=CUST.DATA.USER_TRANCODE
+																#}
+																else
+																#{
+																	if(CUST.DATA.orderUtrancode=="17") then
+																	#{
+																		CUST.DATA.OOFINTDEV_PUR=CUST.DATA.USER_TRANCODE
+																	#}
+																	else
+																	#{
+																		if(CUST.DATA.orderUtrancode=="18") then
+																		#{
+																			CUST.DATA.OOFINTDEV_PAY=CUST.DATA.USER_TRANCODE
+																		#}
+																		endif
+																	#}
+																	endif
+																#}
+																endif
+															#}
+															endif
+														#}
+														endif
+													#}
+													endif
+												#}
+												endif
+											#}
+											endif
+										#}
+										endif
+									#}
+									endif
+								#}
+								endif
+							#}
+							endif
+						#}
+						endif
+					#}
+					endif
+				#}
+				endif
+			#}
+			endif
+		#}
+		endif	
+	#}
+	endif
+	
+#}
+ELSE
+#{
+	BANCS.OUTPUT.errMsg = "CPARAM is not set for "+CUST.DATA.cparamSettleePos
+	PRINT(BANCS.OUTPUT.errMsg)
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.respCode="ERR00028"
+	sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.cparamSettleePos, BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+
+
+		#==============================================
+		#Finding the credit offcie account for POS settlement
+		#==============================================
+		
+		if((CUST.DATA.accntTypeFlg=="C") or (CUST.DATA.accntTypeFlg=="B")) then 
+		#{
+		
+		CUST.DATA.TRAN_TYPE="C"
+		BANCS.INPARAM.BINDVARS = CUST.DATA.USER_TRANCODE+ "|" + CUST.DATA.CHANNEL_ID+ "|" + CUST.DATA.TRAN_TYPE+"|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS +BANCS.STDIN.contextBankId+"|Y|Y|"+ CUST.DATA.tranCategory+ "|" + CUST.DATA.freeText7
+		sv_s="credOfficeAccntPholder|select account_placeholder " 
+		sv_s = sv_s + "from CUSTOM.C_PTCM where user_tran_code=?SVAR and channel_id=?SVAR and tran_type=?SVAR and bank_id=?SVAR and ENTITY_CRE_FLG=?SVAR "
+		sv_s = sv_s + "and del_flg!=?SVAR and TRAN_CATEGORY=?SVAR and TYPE_OF_TRAN=?SVAR"
+						
+		print(sv_s)
+		sv_d = urhk_dbSelectWithBind(sv_s)
+		print(sv_d)
+		IF(sv_d == 0) THEN
+		#{
+			CUST.DATA.credOfficeAccntPholder = BANCS.OUTPARAM.credOfficeAccntPholder
+			print(CUST.DATA.credOfficeAccntPholder)
+				
+			
+		#}
+		ELSE
+		#{
+			BANCS.OUTPUT.errMsg = "Credit Office Account placeholder is Not set for "+CUST.DATA.USER_TRANCODE
+			PRINT(BANCS.OUTPUT.errMsg)
+			CUST.DATA.failStatus="Y"
+			CUST.DATA.inpFilProcStat="F"
+			CUST.DATA.respCode="ERR0000449"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000449",BANCS.STDIN.userId, CUST.DATA.USER_TRANCODE, BYREF CUST.DATA.statMessage)
+			PRINT(sv_r)
+			PRINT(CUST.DATA.statMessage)
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+		
+		if(CUST.DATA.credOfficeAccntPholder!="") then
+		#{
+			sv_s = ""
+			sv_s  = "schemetype,crOfficeAccnt,acid,ccy,solid| SELECT SCHM_TYPE,FORACID, " 
+			sv_s = sv_s + " ACID, "
+			sv_s = sv_s + " ACCT_CRNCY_CODE,SOL_ID "
+			sv_s = sv_s + " FROM TBAADM.GAM "
+			sv_s = sv_s + " WHERE BACID = ?SVAR " 
+			sv_s = sv_s + " AND SOL_ID = ?SVAR "
+			sv_s = sv_s + " AND ENTITY_CRE_FLG = 'Y' "
+			sv_s = sv_s + " AND DEL_FLG = 'N' "
+			sv_s = sv_s + " AND ACCT_CLS_FLG = 'N' "
+			sv_s = sv_s + " AND BANK_ID = ?SVAR AND ACCT_CRNCY_CODE=?SVAR"	
+			print(sv_s)	
+			
+			BANCS.INPARAM.BINDVARS= TRIM(CUST.DATA.credOfficeAccntPholder) + "|" + BANCS.STDIN.homeSolId+ "|" + BANCS.STDIN.contextBankId + "|" +BANCS.STDIN.homeCrncyCode 
+			PRINT(sv_s)
+			PRINT(BANCS.INPARAM.BINDVARS)
+			
+			sv_u = urhk_dbSelectWithBind(sv_s)
+			print(sv_u)
+			IF(sv_u == 0) THEN
+			#{
+				CUST.DATA.schemetype1 = BANCS.OUTPARAM.schemetype
+				CUST.DATA.crOfficeAccnt=BANCS.OUTPARAM.crOfficeAccnt
+				CUST.DATA.acid1 	  = BANCS.OUTPARAM.acid
+				CUST.DATA.ccy1        = BANCS.OUTPARAM.ccy
+				CUST.DATA.solid1      = BANCS.OUTPARAM.solid
+				PRINT(CUST.DATA.schemetype1)
+				IF(CUST.DATA.orderUtrancode=="1") then 
+				#{
+					CUST.DATA.TranPurchaseCredit=CUST.DATA.crOfficeAccnt
+				#}
+				else 
+				#{
+					if((CUST.DATA.orderUtrancode=="2") or (CUST.DATA.orderUtrancode=="3")) then
+					#{
+						CUST.DATA.compProsaAcnt=CUST.DATA.crOfficeAccnt
+					#}
+					else
+					#{
+						if(CUST.DATA.orderUtrancode=="4") then
+						#{
+							CUST.DATA.foreignTranPurchaseCredit=CUST.DATA.crOfficeAccnt
+						#}
+						else
+						#{
+							if(CUST.DATA.orderUtrancode=="5") then
+							#{
+								CUST.DATA.ForeignExTranAccntLossCredit=CUST.DATA.crOfficeAccnt
+							#}
+							else
+							#{
+								if(CUST.DATA.orderUtrancode=="6") then
+								#{
+									CUST.DATA.exchGainAccntCredit=CUST.DATA.crOfficeAccnt
+								#}
+								else
+								#{
+									if(CUST.DATA.orderUtrancode=="7") then
+									#{
+										CUST.DATA.TranPurchaseRedCredit=CUST.DATA.crOfficeAccnt
+									#}
+									endif
+								#}
+								endif
+							#}
+							endif
+						#}
+						endif
+					#}
+					endif	
+				#}
+				endif
+					
+			#}
+			ELSE
+			#{
+				BANCS.OUTPUT.errMsg = "Credit Office Account is Not set for "+CUST.DATA.USER_TRANCODE
+				CUST.DATA.failStatus="Y"
+				CUST.DATA.inpFilProcStat="F"
+				CUST.DATA.respCode="ERR0000450"
+				sv_r = func_cmmsgerrdescWithInputs("ERR0000450",BANCS.STDIN.userId, CUST.DATA.credOfficeAccntPholder, BYREF CUST.DATA.statMessage)
+				PRINT(sv_r)
+				PRINT(CUST.DATA.statMessage)
+				GOTO ENDOFSCRIPT
+				PRINT(BANCS.OUTPUT.errMsg)
+				
+			#}
+			ENDIF
+		#}
+		ELSE
+		#{
+			BANCS.OUTPUT.errMsg = "Credit Office Account placeholder is not valid for "+CUST.DATA.USER_TRANCODE
+			PRINT(BANCS.OUTPUT.errMsg)
+			CUST.DATA.failStatus="Y"
+			CUST.DATA.inpFilProcStat="F"
+			CUST.DATA.respCode="ERR0000449"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000449",BANCS.STDIN.userId, CUST.DATA.credOfficeAccntPholder, BYREF CUST.DATA.statMessage)
+			PRINT(sv_r)
+			PRINT(CUST.DATA.statMessage)
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+		
+		#}
+		endif
+		
+		#==============================================
+		#Finding the debit offcie account for POS settlement
+		#==============================================
+		
+		if((CUST.DATA.accntTypeFlg=="D") or (CUST.DATA.accntTypeFlg=="B")) then 
+		#{
+		
+		
+		CUST.DATA.TRAN_TYPE="D"
+		BANCS.INPARAM.BINDVARS = CUST.DATA.USER_TRANCODE+ "|" + CUST.DATA.CHANNEL_ID+ "|" + CUST.DATA.TRAN_TYPE+"|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS +BANCS.STDIN.contextBankId+"|Y|Y|"+ CUST.DATA.tranCategory+ "|" + CUST.DATA.freeText7
+		sv_s="debitOfficeAccntPholder|select account_placeholder " 
+		sv_s = sv_s + "from CUSTOM.C_PTCM where user_tran_code=?SVAR and channel_id=?SVAR and tran_type=?SVAR and bank_id=?SVAR and ENTITY_CRE_FLG=?SVAR "
+		sv_s = sv_s + "and del_flg!=?SVAR and TRAN_CATEGORY=?SVAR and TYPE_OF_TRAN=?SVAR"
+						
+		print(sv_s)
+		sv_d = urhk_dbSelectWithBind(sv_s)
+		print(sv_d)
+		IF(sv_d == 0) THEN
+		#{
+			CUST.DATA.debitOfficeAccntPholder = BANCS.OUTPARAM.debitOfficeAccntPholder
+			print(CUST.DATA.debitOfficeAccntPholder)
+			
+		#}
+		ELSE
+		#{
+			BANCS.OUTPUT.errMsg = "Debit Office Account placeholder is Not set for "+CUST.DATA.USER_TRANCODE
+			PRINT(BANCS.OUTPUT.errMsg)
+			CUST.DATA.failStatus="Y"
+			CUST.DATA.inpFilProcStat="F"
+			CUST.DATA.respCode="ERR0000453"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000453",BANCS.STDIN.userId, CUST.DATA.USER_TRANCODE, BYREF CUST.DATA.statMessage)
+			PRINT(sv_r)
+			PRINT(CUST.DATA.statMessage)
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+		
+		if(CUST.DATA.debitOfficeAccntPholder!="") then
+		#{
+			sv_s = ""
+			sv_s  = "schemetype,drOfficeAccnt,acid,ccy,solid| SELECT SCHM_TYPE,FORACID, " 
+			sv_s = sv_s + " ACID, "
+			sv_s = sv_s + " ACCT_CRNCY_CODE,SOL_ID "
+			sv_s = sv_s + " FROM TBAADM.GAM "
+			sv_s = sv_s + " WHERE BACID = ?SVAR " 
+			sv_s = sv_s + " AND SOL_ID = ?SVAR "
+			sv_s = sv_s + " AND ENTITY_CRE_FLG = 'Y' "
+			sv_s = sv_s + " AND DEL_FLG = 'N' "
+			sv_s = sv_s + " AND ACCT_CLS_FLG = 'N' "
+			sv_s = sv_s + " AND BANK_ID = ?SVAR AND ACCT_CRNCY_CODE=?SVAR"	
+			print(sv_s)	
+			
+			BANCS.INPARAM.BINDVARS= TRIM(CUST.DATA.debitOfficeAccntPholder) + "|" + BANCS.STDIN.homeSolId+ "|" + BANCS.STDIN.contextBankId + "|" +BANCS.STDIN.homeCrncyCode 
+			PRINT(sv_s)
+			PRINT(BANCS.INPARAM.BINDVARS)
+			
+			sv_u = urhk_dbSelectWithBind(sv_s)
+			print(sv_u)
+			IF(sv_u == 0) THEN
+			#{
+				CUST.DATA.schemetype1 = BANCS.OUTPARAM.schemetype
+				CUST.DATA.drOfficeAccnt=BANCS.OUTPARAM.drOfficeAccnt
+				CUST.DATA.acid1 	  = BANCS.OUTPARAM.acid
+				CUST.DATA.ccy1        = BANCS.OUTPARAM.ccy
+				CUST.DATA.solid1      = BANCS.OUTPARAM.solid
+				PRINT(CUST.DATA.schemetype1)
+				
+				IF((CUST.DATA.orderUtrancode=="2") or (CUST.DATA.orderUtrancode=="3")) then 
+				#{
+					CUST.DATA.incidAccnt1=CUST.DATA.drOfficeAccnt
+				#}
+				else 
+				#{
+					if(CUST.DATA.orderUtrancode=="5") then
+					#{
+						CUST.DATA.exchLossAccntDebit=CUST.DATA.drOfficeAccnt
+					#}
+					else
+					#{
+						if(CUST.DATA.orderUtrancode=="6") then
+						#{
+							CUST.DATA.ForeignExTranAccntGainDebit=CUST.DATA.drOfficeAccnt
+						#}
+						endif
+					#}
+					endif	
+				#}
+				endif
+					
+			#}
+			ELSE
+			#{
+				BANCS.OUTPUT.errMsg = "Debit Office Account is Not set for "+CUST.DATA.debitOfficeAccntPholder
+				CUST.DATA.failStatus="Y"
+				CUST.DATA.inpFilProcStat="F"
+				CUST.DATA.respCode="ERR0000452"
+				sv_r = func_cmmsgerrdescWithInputs("ERR0000452",BANCS.STDIN.userId, CUST.DATA.debitOfficeAccntPholder, BYREF CUST.DATA.statMessage)
+				PRINT(sv_r)
+				PRINT(CUST.DATA.statMessage)
+				GOTO ENDOFSCRIPT
+			#}
+			ENDIF
+		#}
+		ELSE
+		#{
+			BANCS.OUTPUT.errMsg = "Debit Office Account placeholder is not valid for "+CUST.DATA.debitOfficeAccntPholder
+			PRINT(BANCS.OUTPUT.errMsg)
+			CUST.DATA.failStatus="Y"
+			CUST.DATA.inpFilProcStat="F"
+			CUST.DATA.respCode="ERR0000451"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000451",BANCS.STDIN.userId, CUST.DATA.debitOfficeAccntPholder, BYREF CUST.DATA.statMessage)
+			PRINT(sv_r)
+			PRINT(CUST.DATA.statMessage)
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+		
+		#}
+		endif
+
+ENDOFSCRIPT:
+
+PRINT(CUST.DATA.TranPurchaseCredit)   
+PRINT(CUST.DATA.incidAccnt1)	
+PRINT(CUST.DATA.exchLossAccntDebit)
+PRINT(CUST.DATA.exchGainAccntCredit)
+PRINT(CUST.DATA.TranPurchaseRedCredit)
+
+PRINT(CUST.DATA.compProsaAcnt)
+PRINT(CUST.DATA.foreignTranPurchaseCredit)
+PRINT(CUST.DATA.ForeignExTranAccntLossCredit)
+PRINT(CUST.DATA.ForeignExTranAccntGainDebit)
+
+
+PRINT(CUST.DATA.BAZCOM_PUR)				
+PRINT(CUST.DATA.INCIDENCE_UTRANCODE)	      
+PRINT(CUST.DATA.INCIDENCE_DUP_UTRANCODE)	      
+PRINT(CUST.DATA.FOREIGN_PUR)	  
+PRINT(CUST.DATA.FOREIGN_PUR_LOSS)	
+PRINT(CUST.DATA.FOREIGN_PUR_GAIN)
+PRINT(CUST.DATA.REDCOM_PUR)
+
+EXITSCRIPT
+end-->

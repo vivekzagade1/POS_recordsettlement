@@ -1,0 +1,1141 @@
+#----------------------------------------------------------------------------------------
+# Source Name        : pos_settlement_FileProcessing.scr
+# Author             : Sharmila B M
+# Date               : 18-August-2021
+# Description        : Script to do the POS settlement file processing and make the required settlement
+# Called scripts     : 
+# Calling Scripts    :
+# Modification Log   :
+# <Sr No>       <Date>          <Author>                				<Description>
+#  1.      		18-August-2021 	Sharmila B M/Hrishikesh R Z       		original version
+#----------------------------------------------------------------------------------------
+IMPORT LibCommon001
+IMPORT LibCommonB002
+<--START
+TRACE ON	
+LIBNAME CUSTOMSO
+#--------------------------------
+# Create Repositories and Classes
+#--------------------------------
+
+IF (REPEXISTS("CUST") == 0) THEN
+#{
+	CREATEREP("CUST")
+#}
+ENDIF
+
+IF (CLASSEXISTS("CUST", "DATA") == 0) THEN
+#{
+	CREATECLASS("CUST", "DATA", 5)
+#}
+ENDIF
+
+IF (CLASSEXISTS("CUST", "TRAN") == 0) THEN
+#{
+	CREATECLASS("CUST", "TRAN", 5)
+#}
+ENDIF
+
+#--------------------------------
+#Initialising the variables
+#--------------------------------
+
+CUST.DATA.inputRecord = ""
+CUST.DATA.paramLvl="BNKL"
+CUST.DATA.modName="LIABILITIES"
+CUST.DATA.respCode=""
+CUST.DATA.inputParam1 = ""
+CUST.DATA.errMsg = ""
+CUST.DATA.bankId = BANCS.STDIN.contextBankId
+CUST.DATA.RCRE_USER_ID = BANCS.STDIN.userId
+CUST.DATA.LCHG_USER_ID = BANCS.STDIN.userId
+CUST.DATA.Batchcount = "0"
+CUST.DATA.Batchdate	= ""
+CUST.DATA.processFlg = ""
+CUST.DATA.respFileName=""
+CUST.DATA.inputFileNameLen=""
+CUST.DATA.posSettlementReqPath=""
+CUST.DATA.posSettlementResPath=""
+CUST.DATA.FILEID=""
+CUST.DATA.bodDate = MID$(BANCS.STDIN.BODDate,0,10)
+CUST.DATA.repIndex=""
+CUST.DATA.AllFields=""
+CUST.DATA.valCnt="0"
+CUST.DATA.posSettlementReqPath1=""
+CUST.DATA.responseData=""
+CUST.DATA.failStatus="N"
+CUST.DATA.acctRecCnt=""
+CUST.DATA.comFile=""
+CUST.DATA.resfilecrt="N"
+CUST.DATA.tmpcntFile="tmpCnt.dat"
+CUST.DATA.inpFileLen=""
+CUST.DATA.posSettlementReqPathLen=""
+CUST.DATA.posSettlementInpFileName=""
+CUST.DATA.respPrefix=""
+CUST.DATA.inputRecordCnt=""
+CUST.DATA.posSettlementFileCntName=""
+CUST.DATA.inpFilProcStat=""
+CUST.DATA.reasMode=""
+CUST.DATA.timeStamp = ""
+CUST.DATA.outRecCntFile = ""
+CUST.DATA.recordLength=""
+CUST.DATA.recordLengthFlg=""
+CUST.DATA.fileRec = ""
+CUST.DATA.posSettlementFileCnt = ""
+CUST.DATA.reportIndex = ""
+CUST.DATA.statMessage = ""
+CUST.DATA.respMsg = ""
+CUST.DATA.inpFileDate = ""
+CUST.DATA.resFileDate = ""
+CUST.DATA.status = ""
+CUST.DATA.desc = ""
+CUST.DATA.possettlementStatusReportFile = ""
+CUST.DATA.date = ""
+CUST.DATA.cpFlPath = ""
+CUST.DATA.bodDate1 = ""
+CUST.DATA.recordLength1 = ""
+CUST.DATA.actionFlag = ""
+CUST.DATA.settInstName = ""
+CUST.DATA.settFileNum = ""
+CUST.DATA.settFileChar = ""
+CUST.DATA.respTranId = ""
+CUST.DATA.respTranDate = ""
+CUST.DATA.respCode = ""
+CUST.DATA.respMsg = ""
+CUST.DATA.IncidentReason = ""
+CUST.DATA.recordString = ""
+CUST.DATA.blockUser = ""
+CUST.DATA.blockDate = ""
+CUST.DATA.respAuthCode = ""
+CUST.DATA.status = ""
+CUST.DATA.desc = ""
+CUST.DATA.space = " "
+
+CUST.DATA.totNational = "TOTAL NACIONAL:"
+CUST.DATA.totTran01Sale = "0"
+CUST.DATA.totAmtTran01Sale = "0.00"
+CUST.DATA.totTran01Cashback = "0"
+CUST.DATA.totAmtTran18Cashback = "0.00"
+CUST.DATA.totTran20Deposit = "0"
+CUST.DATA.totAmtTran20Deposit = "0.00"
+CUST.DATA.totTran21Returns = "0"
+CUST.DATA.totAmtTran21Returns = "0.00"
+CUST.DATA.totTran25RevOfSales = "0"
+CUST.DATA.totAmtTran25RevOfSales = "0.00"
+CUST.DATA.totTran26RetRev = "0"
+CUST.DATA.totAmtTran26RetRev = "0.00"
+CUST.DATA.totTranFreeField1 = "0"
+CUST.DATA.totAmtTranFreeField1 = "0.00"
+CUST.DATA.totTranFreeField2 = "0"
+CUST.DATA.totAmtTranFreeField2 = "0.00"
+CUST.DATA.totTranFreeField3 = "0"
+CUST.DATA.totAmtTranFreeField3 = "0.00"
+
+CUST.DATA.totIntNational = "TOTAL INTERNACIONAL:"
+CUST.DATA.totIntTran01Sale = "0"
+CUST.DATA.totIntAmtTran01Sale = "0.00"
+CUST.DATA.totIntTran01Cashback = "0"
+CUST.DATA.totIntAmtTran18Cashback = "0.00"
+CUST.DATA.totIntTran20Deposit = "0"
+CUST.DATA.totIntAmtTran20Deposit = "0.00"
+CUST.DATA.totIntTran21Returns = "0"
+CUST.DATA.totIntAmtTran21Returns = "0.00"
+CUST.DATA.totIntTran25RevOfSales = "0"
+CUST.DATA.totIntAmtTran25RevOfSales = "0.00"
+CUST.DATA.totIntTran26RetRev = "0"
+CUST.DATA.totIntAmtTran26RetRev = "0.00"
+CUST.DATA.totIntTranFreeField1 = "0"
+CUST.DATA.totIntAmtTranFreeField1 = "0.00"
+CUST.DATA.totIntTranFreeField2 = "0"
+CUST.DATA.totIntAmtTranFreeField2 = "0.00"
+CUST.DATA.totIntTranFreeField3 = "0"
+CUST.DATA.totIntAmtTranFreeField3 = "0.00"
+
+CUST.DATA.totApplied = "TOTAL APLICADO:"
+CUST.DATA.totAppTran01Sale = "0"
+CUST.DATA.totAppAmtTran01Sale = "0.00"
+CUST.DATA.totAppTran01Cashback = "0"
+CUST.DATA.totAppAmtTran18Cashback = "0.00"
+CUST.DATA.totAppTran20Deposit = "0"
+CUST.DATA.totAppAmtTran20Deposit = "0.00"
+CUST.DATA.totAppTran21Returns = "0"
+CUST.DATA.totAppAmtTran21Returns = "0.00"
+CUST.DATA.totAppTran25RevOfSales = "0"
+CUST.DATA.totAppAmtTran25RevOfSales = "0.00"
+CUST.DATA.totAppTran26RetRev = "0"
+CUST.DATA.totAppAmtTran26RetRev = "0.00"
+CUST.DATA.totAppTranFreeField1 = "0"
+CUST.DATA.totAppAmtTranFreeField1 = "0.00"
+CUST.DATA.totAppTranFreeField2 = "0"
+CUST.DATA.totAppAmtTranFreeField2 = "0.00"
+CUST.DATA.totAppTranFreeField3 = "0"
+CUST.DATA.totAppAmtTranFreeField3 = "0.00"
+
+CUST.DATA.totIncidents = "TOTAL INCIDENCIAS:"
+CUST.DATA.totInciTran01Sale = "0"
+CUST.DATA.totInciAmtTran01Sale = "0.00"
+CUST.DATA.totInciTran01Cashback = "0"
+CUST.DATA.totInciAmtTran18Cashback = "0.00"
+CUST.DATA.totInciTran20Deposit = "0"
+CUST.DATA.totInciAmtTran20Deposit = "0.00"
+CUST.DATA.totInciTran21Returns = "0"
+CUST.DATA.totInciAmtTran21Returns = "0.00"
+CUST.DATA.totInciTran25RevOfSales = "0"
+CUST.DATA.totInciAmtTran25RevOfSales = "0.00"
+CUST.DATA.totInciTran26RetRev = "0"
+CUST.DATA.totInciAmtTran26RetRev = "0.00"
+CUST.DATA.totInciTranFreeField1 = "0"
+CUST.DATA.totInciAmtTranFreeField1 = "0.00"
+CUST.DATA.totInciTranFreeField2 = "0"
+CUST.DATA.totInciAmtTranFreeField2 = "0.00"
+CUST.DATA.totInciTranFreeField3 = "0"
+CUST.DATA.totInciAmtTranFreeField3 = "0.00"
+
+CUST.DATA.totExcDiff = "TOTAL EXCHANGE DIFFERENCE"
+CUST.DATA.totTrans = "0"
+CUST.DATA.totAmtTrans = "0.00"
+CUST.DATA.totTrans1 = "0"
+CUST.DATA.totAmtTrans1 = "0.00"
+
+CUST.DATA.settleFileType = "" 
+CUST.DATA.settleFileDate = ""
+CUST.DATA.settleInstitName = ""
+CUST.DATA.settleFileNum = ""
+CUST.DATA.settleFileChar = ""
+
+CUST.DATA.TranPurchaseCredit=""
+CUST.DATA.incidAccnt1=""                      
+CUST.DATA.exchLossAccntDebit=""  
+CUST.DATA.exchGainAccntCredit=""  
+CUST.DATA.TranPurchaseRedCredit=""
+
+CUST.DATA.compProsaAcnt=""
+CUST.DATA.foreignTranPurchaseCredit=""
+CUST.DATA.ForeignExTranAccntLossCredit=""
+CUST.DATA.ForeignExTranAccntGainDebit=""
+
+CUST.DATA.BAZCOM_PUR=""                             
+CUST.DATA.INCIDENCE_UTRANCODE=""     
+CUST.DATA.INCIDENCE_DUP_UTRANCODE=""
+CUST.DATA.FOREIGN_PUR="" 
+CUST.DATA.FOREIGN_PUR_LOSS=""
+CUST.DATA.FOREIGN_PUR_GAIN=""
+CUST.DATA.REDCOM_PUR=""
+
+
+###############################################
+# Fetching system date for usage              #
+###############################################
+
+sv_s = ""
+sv_s = sv_s + "sysDate|"
+sv_s = sv_s + "SELECT to_char(sysdate,'dd-mm-yyyy_HH24MISS') FROM dual "
+PRINT(sv_s)
+
+sv_d = urhk_dbSelectWithBind(sv_s)
+PRINT(sv_d)
+IF(sv_d == 0) THEN
+#{
+		CUST.DATA.date = BANCS.OUTPARAM.sysDate
+		PRINT(CUST.DATA.date)
+		CUST.DATA.Batchdate = CUST.DATA.date
+#}
+ENDIF
+
+
+IF(BANCS.STDIN.languageCode=="INFENG") then
+	CUST.DATA.possettlementStatusReportFile = "POS_SETTLEMENT_FILEPROCESSING_STATUS_" +  CUST.DATA.Batchdate + ".txt"
+	PRINT(CUST.DATA.possettlementStatusReportFile)
+else
+	if(BANCS.STDIN.languageCode=="es_ES") then
+		CUST.DATA.possettlementStatusReportFile = "ESTADO_DE_PROCESAMIENTO_DE_ARCHIVOS_POSTERIORES_AL_ACUERDO_" +  CUST.DATA.Batchdate + ".txt"
+		PRINT(CUST.DATA.possettlementStatusReportFile)
+	else
+		CUST.DATA.possettlementStatusReportFile = "POS_SETTLEMENT_FILEPROCESSING_STATUS_" +  CUST.DATA.Batchdate + ".txt"
+		PRINT(CUST.DATA.possettlementStatusReportFile)
+	endif
+endif
+
+
+IF (REPEXISTS("MTT") == 0) THEN
+#{
+	   CREATEREP("MTT")
+#}
+ENDIF
+sv_r = CLASSEXISTS("MTT", "InputDetails")
+IF (sv_r == 0) THEN
+#{
+		CREATECLASS("MTT","InputDetails",5)
+#}
+ENDIF
+sv_a = urhk_MTTS_PopulateInputDetails("")
+print (sv_a)
+
+IF(FIELDEXISTS(MTT.InputDetails.Argument1))THEN
+#{
+	CUST.DATA.actionFlag = MTT.InputDetails.Argument1
+	print(CUST.DATA.actionFlag)
+#}
+ELSE
+#{
+	CUST.DATA.actionFlag = ""	
+#}
+ENDIF
+
+
+
+################################################################################################
+# Fetching input file path from CPARAM
+#################################################################################################
+IF((CUST.DATA.actionFlag == "A") OR (CUST.DATA.actionFlag == "P") OR (CUST.DATA.actionFlag == "E"))THEN
+#{
+	IF(CUST.DATA.actionFlag == "A")then
+	#{
+		CUST.DATA.inputParam1 = "POS_ADQUIRENTE_REQUEST"
+	#}
+	endif
+	IF(CUST.DATA.actionFlag == "P")then
+	#{
+		CUST.DATA.inputParam1 = "POS_PROSA_REQUEST"
+	#}
+	endif
+	IF(CUST.DATA.actionFlag == "E")then
+	#{
+		CUST.DATA.inputParam1 = "POS_EGLO_REQUEST"
+	#}
+	endif
+#}
+ELSE
+#{
+	BANCS.OUTPUT.errMsg = "The MTT argument should be A,P or E."
+	PRINT(BANCS.OUTPUT.errMsg)
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.respCode="ERR00028"
+	sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.inputParam1, BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+BANCS.INPARAM.BINDVARS = CUST.DATA.inputParam1+ "|" + CUST.DATA.paramLvl+ "|" + CUST.DATA.modName+ "|" + BANCS.STDIN.contextBankId
+PRINT(BANCS.INPARAM.BINDVARS)
+sv_s = ""
+sv_s = sv_s + "posSettlementReqPath|"
+sv_s = sv_s + "select A.PARAMETER_VALUE from "
+sv_s = sv_s + "custom.C_CPVALUE A,custom.C_CPMASTER B where A.PARAMETER_ID=?SVAR "
+sv_s = sv_s + "and A.PARAMETER_ID=B.PARAMETER_ID and A.bank_id=B.bank_id "
+sv_s = sv_s + "and B.PARAMETER_LEVEL=?SVAR and B.MODULE_NAME=?SVAR "
+sv_s = sv_s + "and A.bank_id=?SVAR and A.ENTITY_CRE_FLG='Y' AND A.DEL_FLG!='Y'"
+print(sv_s)
+sv_d = urhk_dbSelectWithBind(sv_s)
+print(sv_d)
+IF(sv_d == 0) THEN
+#{
+	CUST.DATA.posSettlementReqPath = BANCS.OUTPARAM.posSettlementReqPath
+	print(CUST.DATA.posSettlementReqPath)
+	CUST.DATA.inpFileLen=STRLEN(CUST.DATA.posSettlementReqPath)+1
+	print(CUST.DATA.inpFileLen)
+#}
+ELSE
+#{
+	BANCS.OUTPUT.errMsg = "CPARAM is not set for "+CUST.DATA.inputParam1
+	PRINT(BANCS.OUTPUT.errMsg)
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.respCode="ERR00028"
+	sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.inputParam1, BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cpFlPath=CUST.DATA.posSettlementReqPath + "/"
+print(CUST.DATA.cpFlPath)
+
+CUST.DATA.outRecCntFile = "tmpCntFile_"+CUST.DATA.Batchdate+".txt"
+print(CUST.DATA.outRecCntFile)
+######################
+#Write comfile calling
+######################
+CUST.DATA.comFileType = ""
+IF(CUST.DATA.actionFlag == "A")then
+#{
+	CUST.DATA.comFileType = "pos_settlement_adq_inpFileFetch.com"
+	sv_r = urhk_getFileLocation("COM|pos_settlement_adq_inpFileFetch.com")
+#}
+endif
+IF(CUST.DATA.actionFlag == "P")then
+#{
+	CUST.DATA.comFileType = "pos_settlement_prosa_inpFileFetch.com"
+	sv_r = urhk_getFileLocation("COM|pos_settlement_prosa_inpFileFetch.com")
+#}
+endif
+IF(CUST.DATA.actionFlag == "E")then
+#{
+	CUST.DATA.comFileType = "pos_settlement_eglo_inpFileFetch.com"
+	sv_r = urhk_getFileLocation("COM|pos_settlement_eglo_inpFileFetch.com")
+#}
+endif
+IF(sv_r == 0) THEN
+#{
+	CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + CUST.DATA.comFileType
+	print(CUST.DATA.comFile)
+#}
+endif
+
+sv_d = CUST.DATA.cpFlPath + " " + CUST.DATA.outRecCntFile
+print(sv_d)
+sv_b = CUST.DATA.comFile+ " " + sv_d
+
+print(sv_b)
+sv_u = SYSTEM(sv_b)
+PRINT(sv_u)
+
+IF (sv_u !=0) THEN
+#{
+	CUST.DATA.processFlg = "FAILURE"
+	CUST.DATA.errMsg="Input File Not Found in Upload Path"
+	PRINT(CUST.DATA.errMsg)
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.respCode="ERR00029"
+	sv_r = func_cmmsgerrdescWithInputs("ERR00029",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+
+#}
+ELSE
+#{
+	####################################
+	#Access the Input the DAT FILE
+	###################################	
+	sv_t = ""
+	sv_t = urtn_fileAccess(CUST.DATA.outRecCntFile)
+	print(sv_t)
+	CUST.DATA.fileRec = urtn_fileOpen(CUST.DATA.outRecCntFile + "|r")
+	sv_t = urtn_fileRead(CUST.DATA.fileRec + "|CUST.DATA.inputRecordCnt")
+	print(sv_t)
+
+	IF (sv_t !=0) THEN
+	#{
+		CUST.DATA.processFlg = "FAILURE"
+		CUST.DATA.errMsg="Unable to Open Input File"
+		PRINT(CUST.DATA.errMsg)
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.respCode="ERR00030"
+		sv_r = func_cmmsgerrdescWithInputs("ERR00030",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+
+	#}
+	ENDIF
+	
+	print(CUST.DATA.inputRecordCnt)
+	CUST.DATA.posSettlementFileCntName = CUST.DATA.inputRecordCnt
+	sv_t = urtn_fileClose(CUST.DATA.fileRec)
+	PRINT(sv_t)
+	
+	sv_q = "rm -f "+CUST.DATA.outRecCntFile
+	sv_v = SYSTEM(sv_q)
+	PRINT(sv_v)
+	print(CUST.DATA.posSettlementFileCntName)				
+	CUST.DATA.posSettlementFileCnt= MID$(CUST.DATA.posSettlementFileCntName,0,1)
+			
+#}
+ENDIF
+
+if(CUST.DATA.posSettlementFileCnt=="Z") then
+#{
+	CUST.DATA.processFlg = "FAILURE"
+	CUST.DATA.errMsg="No input files available in Request Path"
+	PRINT(CUST.DATA.errMsg)
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.respCode="ERR0000343"
+	sv_r = func_cmmsgerrdescWithInputs("ERR0000343",BANCS.STDIN.userId, CUST.DATA.reasMode, BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+	
+if((CUST.DATA.posSettlementFileCnt=="O") or (CUST.DATA.posSettlementFileCnt=="M"))then
+#{
+	CUST.DATA.posSettlementReqPath=MID$(CUST.DATA.posSettlementFileCntName,1,STRLEN(CUST.DATA.posSettlementFileCntName)-1)
+	print(CUST.DATA.posSettlementReqPath)
+	CUST.DATA.posSettlementReqPathLen=STRLEN(CUST.DATA.posSettlementReqPath)
+	PRINT(CUST.DATA.posSettlementReqPathLen)
+	PRINT(CUST.DATA.posSettlementReqPath)
+	CUST.DATA.posSettlementInpFileName=MID$(CUST.DATA.posSettlementReqPath,CINT(CUST.DATA.inpFileLen),CINT(CUST.DATA.posSettlementReqPathLen))
+	PRINT(CUST.DATA.posSettlementInpFileName)
+	CUST.DATA.inputFileNameLen=STRLEN(CUST.DATA.posSettlementInpFileName)
+	PRINT(CUST.DATA.inputFileNameLen)
+	
+	####################################
+	# Access the Input file
+	###################################	
+	sv_t = ""
+	sv_t = urtn_fileAccess(CUST.DATA.posSettlementReqPath)
+	print(sv_t)
+	IF (sv_t !=0) THEN
+	#{
+		CUST.DATA.processFlg = "FAILURE"
+		CUST.DATA.errMsg="Unable to Access Input File"
+		PRINT(CUST.DATA.errMsg)
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.respCode="ERR00033"
+		sv_r = func_cmmsgerrdescWithInputs("ERR00033",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+	
+	
+
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="BAZCOM_PUR"
+CUST.DATA.drcrFlg="C"
+CUST.DATA.utrancodeOrder="1"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+ 
+CUST.DATA.cparamUtranCode="INCIDENCE_UTRANCODE"
+CUST.DATA.drcrFlg="B"
+CUST.DATA.utrancodeOrder="2"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+ 
+CUST.DATA.cparamUtranCode="INCIDENCE_DUP_UTRANCODE"
+CUST.DATA.drcrFlg="B"
+CUST.DATA.utrancodeOrder="3"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="FOREIGN_PUR"
+CUST.DATA.drcrFlg="C"
+CUST.DATA.utrancodeOrder="4"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="FOREIGN_PUR_LOSS"
+CUST.DATA.drcrFlg="B"
+CUST.DATA.utrancodeOrder="5"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="FOREIGN_PUR_GAIN"
+CUST.DATA.drcrFlg="B"
+CUST.DATA.utrancodeOrder="6"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="REDCOM_PUR"
+CUST.DATA.drcrFlg="C"
+CUST.DATA.utrancodeOrder="7"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="BAZCOMDEV_PUR"
+CUST.DATA.drcrFlg="D"
+CUST.DATA.utrancodeOrder="8"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="OOFCOMDEV_PUR"
+CUST.DATA.drcrFlg="B"
+CUST.DATA.utrancodeOrder="9"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="PAYCOMDEV_PUR"
+CUST.DATA.drcrFlg="D"
+CUST.DATA.utrancodeOrder="10"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="PUR_DEV_BAZ"
+CUST.DATA.drcrFlg="D"
+CUST.DATA.utrancodeOrder="11"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="OOFREDDEV_PUR"
+CUST.DATA.drcrFlg="B"
+CUST.DATA.utrancodeOrder="12"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="PAYREDDEV_PUR"
+CUST.DATA.drcrFlg="D"
+CUST.DATA.utrancodeOrder="13"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="DEVINT_PUR"
+CUST.DATA.drcrFlg="D"
+CUST.DATA.utrancodeOrder="14"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="DEVINTLOSS_PUR"
+CUST.DATA.drcrFlg="B"
+CUST.DATA.utrancodeOrder="15"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="DEVINTGAIN_PUR"
+CUST.DATA.drcrFlg="B"
+CUST.DATA.utrancodeOrder="16"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="OOFINTDEV_PUR"
+CUST.DATA.drcrFlg="B"
+CUST.DATA.utrancodeOrder="17"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="OOFINTDEV_PAY"
+CUST.DATA.drcrFlg="D"
+CUST.DATA.utrancodeOrder="18"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+##############################################
+#Creating the response file
+##############################################
+
+#CUST.DATA.respFileName=MID$(CUST.DATA.posSettlementInpFileName,0,24)+"OUT"+MID$(CUST.DATA.posSettlementInpFileName,27,CINT(CUST.DATA.inputFileNameLen))
+CUST.DATA.respFileName=CUST.DATA.posSettlementInpFileName+".RES"
+PRINT(CUST.DATA.respFileName)
+
+CUST.DATA.FILEID=MID$(CUST.DATA.posSettlementInpFileName,6,CINT(CUST.DATA.inputFileNameLen))
+PRINT(CUST.DATA.FILEID)
+
+if(CUST.DATA.FILEID!="")then
+#{
+	BANCS.INPARAM.BINDVARS = CUST.DATA.posSettlementInpFileName+ "|" + BANCS.STDIN.contextBankId
+	PRINT(BANCS.INPARAM.BINDVARS)
+	sv_s="valCnt|SELECT COUNT(*) FROM CUSTOM.CUST_POS_SETTLEMENT_FILE_TBL WHERE SETTLE_FILE_NAME =?SVAR "
+	sv_s=sv_s+" and BANK_ID=?SVAR and ENTITY_CRE_FLG='Y' and DEL_FLG!='Y'"
+	print(sv_s)
+	sv_d = urhk_dbSelectWithBind(sv_s)
+	print(sv_d)
+	IF(sv_d == 0) THEN
+	#{
+		CUST.DATA.valCnt = BANCS.OUTPARAM.valCnt
+		print(CUST.DATA.valCnt)
+	#}
+	ENDIF
+	
+	IF(CUST.DATA.valCnt!="0") then
+	#{
+		BANCS.OUTPUT.errMsg = "The input file with the given name is already present."
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.inpFilProcStat="F"
+		PRINT(BANCS.OUTPUT.errMsg)
+		CUST.DATA.respCode="ERR0000347"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000347",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+endif
+			
+#############################################
+#Fetching the Response File path from CPARAM
+#############################################
+
+IF(CUST.DATA.actionFlag == "A")then
+#{
+	CUST.DATA.inputParam2 = "POS_ADQUIRENTE_RESPONSE"
+#}
+endif
+IF(CUST.DATA.actionFlag == "P")then
+#{
+	CUST.DATA.inputParam2 = "POS_PROSA_RESPONSE"
+#}
+endif
+IF(CUST.DATA.actionFlag == "E")then
+#{
+	CUST.DATA.inputParam2 = "POS_EGLO_RESPONSE"
+#}
+endif
+
+
+BANCS.INPARAM.BINDVARS = CUST.DATA.inputParam2+ "|" + CUST.DATA.paramLvl+ "|" + CUST.DATA.modName+ "|" + BANCS.STDIN.contextBankId
+PRINT(BANCS.INPARAM.BINDVARS)
+sv_s = ""
+sv_s = sv_s + "posSettlementResPath|"
+sv_s = sv_s + "select A.PARAMETER_VALUE from "
+sv_s = sv_s + "custom.C_CPVALUE A,custom.C_CPMASTER B where A.PARAMETER_ID=?SVAR "
+sv_s = sv_s + "and A.PARAMETER_ID=B.PARAMETER_ID and A.bank_id=B.bank_id "
+sv_s = sv_s + "and B.PARAMETER_LEVEL=?SVAR and B.MODULE_NAME=?SVAR "
+sv_s = sv_s + "and A.bank_id=?SVAR and A.ENTITY_CRE_FLG='Y' AND A.DEL_FLG!='Y'"
+print(sv_s)
+sv_d = urhk_dbSelectWithBind(sv_s)
+print(sv_d)
+IF(sv_d == 0) THEN
+#{
+	CUST.DATA.posSettlementResPath = BANCS.OUTPARAM.posSettlementResPath
+	print(CUST.DATA.posSettlementResPath)
+#}
+ELSE
+#{
+	BANCS.OUTPUT.errMsg = "CPARAM is not set for "+CUST.DATA.inputParam2
+	PRINT(BANCS.OUTPUT.errMsg)
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.inpFilProcStat="F"
+	CUST.DATA.respCode="ERR00028"
+	sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.inputParam2, BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+IF (CUST.DATA.posSettlementResPath != "") THEN
+#{
+	CUST.DATA.posSettlementResPath = CUST.DATA.posSettlementResPath + "/" + CUST.DATA.respFileName
+#}
+ELSE
+#{
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.inpFilProcStat="F"
+	CUST.DATA.respCode="ERR00028"
+	sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.inputParam2, BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+PRINT(CUST.DATA.posSettlementResPath)
+sv_t = urtn_fileOpen(CUST.DATA.posSettlementResPath + "|a")
+PRINT(sv_t)
+CUST.DATA.reportIndex =  sv_t
+PRINT(CUST.DATA.reportIndex)
+
+
+IF (sv_t != 0) THEN
+#{
+	CUST.DATA.processFlg = "FAILURE"
+	CUST.DATA.errMsg="Unable to create the Response file"
+	PRINT(CUST.DATA.errMsg)
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.inpFilProcStat="F"
+	CUST.DATA.respCode="ERR00045"
+	sv_r = func_cmmsgerrdescWithInputs("ERR00045",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+#}
+ELSE
+#{
+	CUST.DATA.resfilecrt="Y"
+#}
+ENDIF
+
+CUST.DATA.posSettlementReqPath1 = CUST.DATA.posSettlementReqPath
+#sv_y = ""
+#sv_y = sv_y + "mv " + CUST.DATA.posSettlementReqPath+" "+CUST.DATA.posSettlementReqPath+".processing"
+#sv_v = system(sv_y)
+#print(sv_v)
+
+
+#CUST.DATA.posSettlementReqPath = CUST.DATA.posSettlementReqPath + ".processing"
+
+
+#############################################
+#Open the Input file
+############################################			
+CUST.DATA.fileRec= urtn_fileOpen(CUST.DATA.posSettlementReqPath + "|r")
+PRINT(CUST.DATA.fileRec)
+
+sv_t = urtn_fileRead(CUST.DATA.fileRec + "|CUST.DATA.inputRecord")
+print(sv_t)
+
+IF (sv_t!=0) THEN
+#{
+	CUST.DATA.processFlg = "FAILURE"
+	CUST.DATA.errMsg="INPUT FILE IS EMPTY"
+	PRINT(CUST.DATA.errMsg)
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.inpFilProcStat="F"
+	CUST.DATA.respCode="ERR00053"
+	sv_r = func_cmmsgerrdescWithInputs("ERR00053",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+print(CUST.DATA.fileRec)
+print(CUST.DATA.inputRecord)
+	
+sv_m = 0	#Header Validation and Number of entry counts
+sv_f = 0	#Footer Validation Count
+WHILE(sv_t==0)
+#{
+sv_i = CUST.DATA.inputRecord
+	IF (sv_t == 0) THEN
+	#{		
+		IF(CUST.DATA.actionFlag == "A")then
+		#{
+			CALLSCRIPTIFEXIST("pos_Adquirente.scr")
+		#}
+		endif
+		IF(CUST.DATA.actionFlag == "P")then
+		#{
+			CALLSCRIPTIFEXIST("pos_Prosa.scr")
+		#}
+		endif
+		IF(CUST.DATA.actionFlag == "E")then
+		#{
+			CALLSCRIPTIFEXIST("pos_Eglo.scr")
+		#}
+		endif
+	#}
+	ENDIF
+	sv_t = urtn_fileRead(CUST.DATA.fileRec + "|CUST.DATA.inputRecord")
+	PRINT(sv_t)
+	sv_m =sv_m+1 
+#}
+DO
+	sv_t = urtn_fileClose(CUST.DATA.fileRec)
+	PRINT(sv_t)
+	sv_t = urtn_fileClose(CUST.DATA.reportIndex)
+	PRINT(sv_t)
+	
+ENDOFSCRIPT:
+
+if(CUST.DATA.failStatus=="Y") then
+#{
+	IF(CUST.DATA.inpFilProcStat=="F") then
+	#{
+		sv_y = ""
+		sv_y = sv_y + "mv " + CUST.DATA.posSettlementReqPath+" "+CUST.DATA.posSettlementReqPath+".ERR"
+		sv_v = system(sv_y)
+		print(sv_v)
+	#}
+	endif
+	CUST.DATA.repIndex = urtn_fileOpen(CUST.DATA.possettlementStatusReportFile + "|w")
+	CUST.DATA.statContent="                                                                                 "
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	CUST.DATA.statContent="---------------------------------------------------------------------------------"
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="                      DEBIT CARD FILE PROCESSING STATUS                             "
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="               ESTADO DE PROCESAMIENTO DE ARCHIVO DE TARJETA DE DÉBITO                      "
+		else
+			CUST.DATA.statContent="                      DEBIT CARD FILE PROCESSING STATUS                             "
+		endif
+	endif	
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	CUST.DATA.statContent="---------------------------------------------------------------------------------"
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	CUST.DATA.statContent="                                                                                 "
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	CUST.DATA.statContent="                                                                                 "
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="Date: "+CUST.DATA.bodDate
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="Fecha: "+CUST.DATA.bodDate
+		else
+			CUST.DATA.statContent="Date: "+CUST.DATA.bodDate
+		endif
+	endif
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	if(CUST.DATA.posSettlementInpFileName!="") then 
+	#{
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="Input File Name: "+CUST.DATA.posSettlementInpFileName
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="Nombre de archivo de entrada: "+CUST.DATA.posSettlementInpFileName
+		else
+			CUST.DATA.statContent="Input File Name: "+CUST.DATA.posSettlementInpFileName
+		endif
+	endif
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	#}
+	else
+	#{
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="Input File Name: Not Given"
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="Nombre de archivo de entrada: no proporcionado"
+		else
+			CUST.DATA.statContent="Input File Name: Not Given"
+		endif
+	endif
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	#}
+	endif
+	
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="File Processing Status: Failed"
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="Estado de procesamiento de archivos: fallido"
+		else
+			CUST.DATA.statContent="File Processing Status: Failed"
+		endif
+	endif
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="Reason: "+ CUST.DATA.statMessage
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="Razón: "+ CUST.DATA.statMessage
+		else
+			CUST.DATA.statContent="Reason: "+ CUST.DATA.statMessage
+		endif
+	endif
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	sv_z = urtn_fileClose(CUST.DATA.repIndex)
+	print(sv_z)
+	
+#}
+else
+#{
+	IF(CUST.DATA.inpFilProcStat=="S") then
+	#{
+		sv_y = ""
+		sv_y = sv_y + "mv " + CUST.DATA.posSettlementReqPath+" "+CUST.DATA.posSettlementReqPath+".OK"
+		sv_v = system(sv_y)
+		print(sv_v)
+	#}
+	endif
+	CUST.DATA.repIndex = urtn_fileOpen(CUST.DATA.possettlementStatusReportFile + "|w")
+	CUST.DATA.statContent="                                                                                 "
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	CUST.DATA.statContent="---------------------------------------------------------------------------------"
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="                      DEBIT CARD FILE PROCESSING STATUS                             "
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="               ESTADO DE PROCESAMIENTO DE ARCHIVO DE TARJETA DE DÉBITO                      "
+		else
+			CUST.DATA.statContent="                      DEBIT CARD FILE PROCESSING STATUS                             "
+		endif
+	endif	
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	CUST.DATA.statContent="---------------------------------------------------------------------------------"
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	CUST.DATA.statContent="                                                                                 "
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	CUST.DATA.statContent="                                                                                 "
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="Date: "+CUST.DATA.bodDate
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="Fecha: "+CUST.DATA.bodDate
+		else
+			CUST.DATA.statContent="Date: "+CUST.DATA.bodDate
+		endif
+	endif
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+	print(sv_b)
+	if(CUST.DATA.posSettlementInpFileName!="") then 
+	#{
+		IF(BANCS.STDIN.languageCode=="INFENG") then
+			CUST.DATA.statContent="Input File Name: "+CUST.DATA.posSettlementInpFileName
+		else
+			if(BANCS.STDIN.languageCode=="es_ES") then
+				CUST.DATA.statContent="Nombre de archivo de entrada: "+CUST.DATA.posSettlementInpFileName
+			else
+				CUST.DATA.statContent="Input File Name: "+CUST.DATA.posSettlementInpFileName
+			endif
+		endif
+		sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+		print(sv_b)
+	#}
+	else
+	#{
+		IF(BANCS.STDIN.languageCode=="INFENG") then
+			CUST.DATA.statContent="Input File Name: Not Given"
+		else
+			if(BANCS.STDIN.languageCode=="es_ES") then
+				CUST.DATA.statContent="Nombre de archivo de entrada: no proporcionado"
+			else
+				CUST.DATA.statContent="Input File Name: Not Given"
+			endif
+		endif
+		sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
+		print(sv_b)
+	#}
+	endif
+	
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="File Processing Status: Success"
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="Estado de procesamiento de archivos: correcto"
+		else
+			CUST.DATA.statContent="File Processing Status: Success"
+		endif
+	endif
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+	
+	IF(BANCS.STDIN.languageCode=="INFENG") then
+		CUST.DATA.statContent="Please Check the Response file generated."
+	else
+		if(BANCS.STDIN.languageCode=="es_ES") then
+			CUST.DATA.statContent="Compruebe el archivo de respuesta generado."
+		else
+			CUST.DATA.statContent="Please Check the Response file generated."
+		endif
+	endif
+	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)	
+	print(sv_b)
+	
+	sv_z = urtn_fileClose(CUST.DATA.repIndex)
+	print(sv_z)
+#}
+endif
+
+IF (CLASSEXISTS("CUST", "DATA") == 1) THEN
+#{
+	DELETECLASS("CUST", "DATA")
+#}
+ENDIF
+
+IF (CLASSEXISTS("CUST", "TRAN") == 1) THEN
+#{
+	DELETECLASS("CUST", "TRAN")
+#}
+ENDIF
+
+EXITSCRIPT
+
+END-->
+
+
+
+
+
+
+
+
