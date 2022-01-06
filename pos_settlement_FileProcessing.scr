@@ -250,6 +250,7 @@ CUST.DATA.DEVINTGAIN_PUR=""
 CUST.DATA.OOFINTDEV_PUR=""
 CUST.DATA.OOFINTDEV_PAY=""
 
+CUST.DATA.DevLimit=""
 
 
 ###############################################
@@ -526,6 +527,43 @@ if((CUST.DATA.posSettlementFileCnt=="O") or (CUST.DATA.posSettlementFileCnt=="M"
 
 #}
 ENDIF
+
+################################
+#Fetch Devolution Analysis Limit
+################################
+CUST.DATA.devLimParID = "DEV_ANALYSIS_LIMIT"
+
+BANCS.INPARAM.BINDVARS = CUST.DATA.devLimParID+ "|" + CUST.DATA.paramLvl+ "|" + CUST.DATA.modName+ "|" + BANCS.STDIN.contextBankId
+PRINT(BANCS.INPARAM.BINDVARS)
+sv_s = ""
+sv_s = sv_s + "DevLimit|"
+sv_s = sv_s + "select A.PARAMETER_VALUE from "
+sv_s = sv_s + "custom.C_CPVALUE A,custom.C_CPMASTER B where A.PARAMETER_ID=?SVAR "
+sv_s = sv_s + "and A.PARAMETER_ID=B.PARAMETER_ID and A.bank_id=B.bank_id "
+sv_s = sv_s + "and B.PARAMETER_LEVEL=?SVAR and B.MODULE_NAME=?SVAR "
+sv_s = sv_s + "and A.bank_id=?SVAR and A.ENTITY_CRE_FLG='Y' AND A.DEL_FLG!='Y'"
+print(sv_s)
+sv_d = urhk_dbSelectWithBind(sv_s)
+print(sv_d)
+IF(sv_d == 0) THEN
+#{
+	CUST.DATA.DevLimit = BANCS.OUTPARAM.DevLimit
+	print(CUST.DATA.DevLimit)
+#}
+ELSE
+#{
+	BANCS.OUTPUT.errMsg = "CPARAM is not set for "+CUST.DATA.DevLimit
+	PRINT(BANCS.OUTPUT.errMsg)
+	CUST.DATA.failStatus="Y"
+	CUST.DATA.inpFilProcStat="F"
+	CUST.DATA.respCode="ERR00028"
+	sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.DevLimit, BYREF CUST.DATA.statMessage)
+	PRINT(sv_r)
+	PRINT(CUST.DATA.statMessage)
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
 
 CUST.DATA.cparamUtranCode="BAZCOM_PUR"
 CUST.DATA.drcrFlg="C"
