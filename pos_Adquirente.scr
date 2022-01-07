@@ -679,7 +679,19 @@ IF (sv_t == 0) THEN
 					print(CUST.DATA.parentacc)
 				#}
 				ENDIF
-				CALLSCRIPTIFEXIST("posRecordSettlement.scr")
+				IF(CUST.DATA.tranType == "01") then
+				#{
+					CALLSCRIPTIFEXIST("posRecordSettlement.scr")
+				#}
+				ELSE
+				#{
+					IF(CUST.DATA.tranType == "21") then
+					#{
+						CALLSCRIPTIFEXIST("posRecordSettlement_devolucion.scr")
+					#}
+					ENDIF
+				#}
+				ENDIF
 			#}
 			else
 			#{
