@@ -53,6 +53,8 @@ CUST.DATA.CHANNEL_ID="POS"
 #  16   B   DEVINTGAIN_PUR DEVCOEIP25	(Dr)			CUST.DATA.devPurForGainDebit	(Cr)			CUST.DATA.devPurForGainCredit
 #  17   B   OOFINTDEV_PUR DCOMEXFP25    (Dr)			CUST.DATA.devOOFIntPurDebit 	(Cr)			CUST.DATA.devOOFIntPurCredit
 #  18 	D   OOFINTDEV_PAY PDCOEXFP25	(Dr)			CUST.DATA.devOOFIntPayDebit
+#  19	C	CASHBACK_WD	CASHB01P25	(Cr)				CUST.DATA.cahbackWithDrawCredit
+#  20   D	CANCELCASHBACK_WD CCASH02P25 (Dr)			CUST.DATA.cancelCahbackWithDrawDebit
 
 
 CUST.DATA.cparamSettleePos=CUST.DATA.cparamUtranCode
@@ -185,6 +187,22 @@ IF(sv_d == 0) THEN
 																		if(CUST.DATA.orderUtrancode=="18") then
 																		#{
 																			CUST.DATA.OOFINTDEV_PAY=CUST.DATA.USER_TRANCODE
+																		#}
+																		else
+																		#{
+																			if(CUST.DATA.orderUtrancode=="19") then
+																			#{
+																				CUST.DATA.CASHBACK_WD=CUST.DATA.USER_TRANCODE
+																			#}
+																			else
+																			#{
+																				if(CUST.DATA.orderUtrancode=="20") then
+																				#{
+																					CUST.DATA.CANCELCASHBACK_WD=CUST.DATA.USER_TRANCODE
+																				#}
+																				endif
+																			#}
+																			endif
 																		#}
 																		endif
 																	#}
@@ -368,6 +386,14 @@ ENDIF
 														if(CUST.DATA.orderUtrancode=="17") then
 														#{
 															CUST.DATA.devOOFIntPurCredit=CUST.DATA.crOfficeAccnt
+														#}
+														else
+														#{
+															if(CUST.DATA.orderUtrancode=="19") then
+															#{
+																CUST.DATA.cahbackWithDrawCredit=CUST.DATA.crOfficeAccnt
+															#}
+															endif
 														#}
 														endif
 													#}
@@ -574,6 +600,14 @@ ENDIF
 																	#{
 																		CUST.DATA.devOOFIntPayDebit=CUST.DATA.drOfficeAccnt
 																	#}
+																	else
+																	#{
+																		if(CUST.DATA.orderUtrancode=="20") then
+																		#{
+																			CUST.DATA.cancelCahbackWithDrawDebit=CUST.DATA.drOfficeAccnt
+																		#}
+																		endif
+																	#}
 																	endif
 																#}
 																endif
@@ -662,7 +696,8 @@ PRINT(CUST.DATA.devPurForGainCredit)
 PRINT(CUST.DATA.devOOFIntPurDebit)
 PRINT(CUST.DATA.devOOFIntPurCredit)
 PRINT(CUST.DATA.devOOFIntPayDebit)
-
+PRINT(CUST.DATA.cahbackWithDrawCredit)
+PRINT(CUST.DATA.cancelCahbackWithDrawDebit)
 
 PRINT(CUST.DATA.BAZCOM_PUR)				
 PRINT(CUST.DATA.INCIDENCE_UTRANCODE)	      
@@ -682,5 +717,10 @@ PRINT(CUST.DATA.DEVINTLOSS_PUR)
 PRINT(CUST.DATA.DEVINTGAIN_PUR)
 PRINT(CUST.DATA.OOFINTDEV_PUR)
 PRINT(CUST.DATA.OOFINTDEV_PAY)
+PRINT(CUST.DATA.CASHBACK_WD)
+PRINT(CUST.DATA.CANCELCASHBACK_WD)
+
+
+
 EXITSCRIPT
 end-->

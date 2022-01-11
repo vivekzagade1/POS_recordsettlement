@@ -252,6 +252,12 @@ CUST.DATA.OOFINTDEV_PAY=""
 
 CUST.DATA.DevLimit=""
 
+CUST.DATA.cahbackWithDrawCredit=""
+CUST.DATA.cancelCahbackWithDrawDebit=""
+
+CUST.DATA.CASHBACK_WD=""
+CUST.DATA.CANCELCASHBACK_WD=""
+
 
 ###############################################
 # Fetching system date for usage              #
@@ -755,6 +761,28 @@ ENDIF
 CUST.DATA.cparamUtranCode="OOFINTDEV_PAY"
 CUST.DATA.drcrFlg="D"
 CUST.DATA.utrancodeOrder="18"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="CASHBACK_WD"
+CUST.DATA.drcrFlg="C"
+CUST.DATA.utrancodeOrder="19"
+CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
+IF(CUST.DATA.failStatus=="Y") THEN
+#{
+          PRINT(CUST.DATA.statMessage)
+          GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cparamUtranCode="CANCELCASHBACK_WD"
+CUST.DATA.drcrFlg="D"
+CUST.DATA.utrancodeOrder="20"
 CALLSCRIPTIFEXIST("settlementAccountsPOSFetch.scr")
 IF(CUST.DATA.failStatus=="Y") THEN
 #{
