@@ -1041,7 +1041,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.PurAmt) AND FIELDE
 						CUST.DATA.incidentReason = CUST.DATA.errorMsg
 						CUST.DATA.blockUser = ""
 						CUST.DATA.blockDate = ""
-						CUST.DATA.totInciTran21Returns=CINT(CUST.DATA.totInciTran21Returns)+1
+						#CUST.DATA.totInciTran21Returns=CINT(CUST.DATA.totInciTran21Returns)+1
 						print(CUST.DATA.totInciTran21Returns)
 						CUST.DATA.totInciAmtTran21Returns=CDOUBLE(CUST.DATA.totInciAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
 						print(CUST.DATA.totInciAmtTran21Returns)
