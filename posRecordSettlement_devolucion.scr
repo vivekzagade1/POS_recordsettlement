@@ -1043,7 +1043,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.PurAmt) AND FIELDE
 						CUST.DATA.blockDate = ""
 						#CUST.DATA.totInciTran21Returns=CINT(CUST.DATA.totInciTran21Returns)+1
 						print(CUST.DATA.totInciTran21Returns)
-						CUST.DATA.totInciAmtTran21Returns=CDOUBLE(CUST.DATA.totInciAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
+						#CUST.DATA.totInciAmtTran21Returns=CDOUBLE(CUST.DATA.totInciAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
 						print(CUST.DATA.totInciAmtTran21Returns)
 						if((CUST.DATA.freeTxt1=="B127") OR ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) ) then
 						#{

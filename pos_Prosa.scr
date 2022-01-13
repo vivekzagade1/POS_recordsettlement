@@ -686,10 +686,10 @@ IF (sv_t == 0) THEN
 	#{
 		CUST.DATA.incidentReason = MID$(CUST.DATA.incidentReason,0,40)
 		CUST.DATA.AllFields = RPAD(CUST.DATA.cardNum,16,' ')+" "+LPAD(CUST.DATA.accNumber,14,'0')+" "+LPAD(CUST.DATA.parentacc,14,'0')+" "+RPAD(CUST.DATA.AuthNum,6,' ')+" "+RPAD(CUST.DATA.purDate,6,' ')+" "+RPAD(CUST.DATA.purTime,6,' ')+" "+RPAD(CUST.DATA.tranType,2,' ')+" "
-		CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.currCode,3,' ')+" "+LPAD(CUST.DATA.totSourceAmt,14,'0')+" "+LPAD(CUST.DATA.purSourceAmt,14,'0')+" "+LPAD(CUST.DATA.destParty,14,'0')+" "+LPAD(CUST.DATA.settParty,14,'0')+" "+LPAD(CUST.DATA.PurAmt,14,'0')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.currCode,3,' ')+" "+LPAD(CUST.DATA.totSourceAmt,14,'0')+" "+LPAD(CUST.DATA.purSourceAmt,14,'0')+" "+LPAD(CUST.DATA.destParty,8,'0')+" "+LPAD(CUST.DATA.settParty,8,'0')+" "+LPAD(CUST.DATA.PurAmt,14,'0')+" "
 		CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.appliedAmt,14,'0')+" "+LPAD(CUST.DATA.pendAppAmt,14,'0')+" "+LPAD(CUST.DATA.amtExcDiff,14,'0')+" "+RPAD(CUST.DATA.bussCode,15,' ')+" "+RPAD(CUST.DATA.bussName,30,' ')+" "+RPAD(CUST.DATA.tranRef,23,' ')+" "
 		CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.FIDADQ,4,' ')+" "+RPAD(CUST.DATA.respTranId,9,' ')+" "+RPAD(CUST.DATA.respCod,5,' ')+" "+RPAD(CUST.DATA.respMsg,25,' ')+" "+RPAD(CUST.DATA.incidentReason,40,' ')+" "+RPAD(CUST.DATA.blockUser,15,' ')+" "
-		CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.blockDate,6,' ')+" "
+		CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.blockDate,6,' ')+RPAD(CUST.DATA.space,16,' ')
 			
 		PRINT(CUST.DATA.AllFields)
 			
