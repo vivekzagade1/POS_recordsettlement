@@ -296,7 +296,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.AuthNum) AND FIELD
 									if((CUST.DATA.freeTxt1=="B127") OR ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) ) then
 									#{
 										CUST.DATA.totAppTran01Sale=CINT(CUST.DATA.totAppTran01Sale)+1
-										CUST.DATA.totAppAmtTran01Sale=CINT(CUST.DATA.totAppAmtTran01Sale)+1
+										CUST.DATA.totAppAmtTran01Sale=CDOUBLE(CUST.DATA.totAppAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
 										CUST.DATA.totTran01Sale=CINT(CUST.DATA.totTran01Sale)+1
 										print(CUST.DATA.totTran01Sale)
 										CUST.DATA.totAmtTran01Sale=CDOUBLE(CUST.DATA.totAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
@@ -305,7 +305,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.AuthNum) AND FIELD
 									else 
 									#{
 										CUST.DATA.totAppTran01Sale=CINT(CUST.DATA.totAppTran01Sale)+1
-										CUST.DATA.totAppAmtTran01Sale=CINT(CUST.DATA.totAppAmtTran01Sale)+1
+										CUST.DATA.totAppAmtTran01Sale=CDOUBLE(CUST.DATA.totAppAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
 										CUST.DATA.totIntTran01Sale=CINT(CUST.DATA.totIntTran01Sale)+1
 										print(CUST.DATA.totIntTran01Sale)
 										CUST.DATA.totIntAmtTran01Sale=CDOUBLE(CUST.DATA.totIntAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
@@ -1276,7 +1276,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.AuthNum) AND FIELD
 									if((CUST.DATA.FIDADQ=="B127") OR ((CUST.DATA.FIDADQ!="VISA") AND (CUST.DATA.FIDADQ!="BNET") AND (CUST.DATA.FIDADQ!="MDS")) ) then
 									#{
 										CUST.DATA.totAppTran01Sale=CINT(CUST.DATA.totAppTran01Sale)+1
-										CUST.DATA.totAppAmtTran01Sale=CINT(CUST.DATA.totAppAmtTran01Sale)+1
+										CUST.DATA.totAppAmtTran01Sale=CDOUBLE(CUST.DATA.totAppAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
 										CUST.DATA.totTran01Sale=CINT(CUST.DATA.totTran01Sale)+1
 										print(CUST.DATA.totTran01Sale)
 										CUST.DATA.totAmtTran01Sale=CDOUBLE(CUST.DATA.totAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
@@ -1285,7 +1285,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.AuthNum) AND FIELD
 									else 
 									#{
 										CUST.DATA.totAppTran01Sale=CINT(CUST.DATA.totAppTran01Sale)+1
-										CUST.DATA.totAppAmtTran01Sale=CINT(CUST.DATA.totAppAmtTran01Sale)+1
+										CUST.DATA.totAppAmtTran01Sale=CDOUBLE(CUST.DATA.totAppAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
 										CUST.DATA.totIntTran01Sale=CINT(CUST.DATA.totIntTran01Sale)+1
 										print(CUST.DATA.totIntTran01Sale)
 										CUST.DATA.totIntAmtTran01Sale=CDOUBLE(CUST.DATA.totIntAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
@@ -1416,7 +1416,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.AuthNum) AND FIELD
 								if((CUST.DATA.FIDADQ=="B127") OR ((CUST.DATA.FIDADQ!="VISA") AND (CUST.DATA.FIDADQ!="BNET") AND (CUST.DATA.FIDADQ!="MDS")) ) then
 								#{
 									CUST.DATA.totAppTran01Sale=CINT(CUST.DATA.totAppTran01Sale)+1
-									CUST.DATA.totAppAmtTran01Sale=CINT(CUST.DATA.totAppAmtTran01Sale)+1
+									CUST.DATA.totAppAmtTran01Sale=CDOUBLE(CUST.DATA.totAppAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
 									CUST.DATA.totTran01Sale=CINT(CUST.DATA.totTran01Sale)+1
 									print(CUST.DATA.totTran01Sale)
 									CUST.DATA.totAmtTran01Sale=CDOUBLE(CUST.DATA.totAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
@@ -1425,7 +1425,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.AuthNum) AND FIELD
 								else 
 								#{
 									CUST.DATA.totAppTran01Sale=CINT(CUST.DATA.totAppTran01Sale)+1
-									CUST.DATA.totAppAmtTran01Sale=CINT(CUST.DATA.totAppAmtTran01Sale)+1
+									CUST.DATA.totAppAmtTran01Sale=CDOUBLE(CUST.DATA.totAppAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)
 									CUST.DATA.totIntTran01Sale=CINT(CUST.DATA.totIntTran01Sale)+1
 									print(CUST.DATA.totIntTran01Sale)
 									CUST.DATA.totIntAmtTran01Sale=CDOUBLE(CUST.DATA.totIntAmtTran01Sale)+CDOUBLE(CUST.DATA.TranAmt)

@@ -343,7 +343,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.PurAmt) AND FIELDE
 									if((CUST.DATA.freeTxt1=="B127") OR ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) ) then
 									#{
 										CUST.DATA.totAppTran21Returns=CINT(CUST.DATA.totAppTran21Returns)+1
-										CUST.DATA.totAppAmtTran21Returns=CINT(CUST.DATA.totAppAmtTran21Returns)+1
+										CUST.DATA.totAppAmtTran21Returns=CDOUBLE(CUST.DATA.totAppAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
 										CUST.DATA.totTran21Returns=CINT(CUST.DATA.totTran21Returns)+1
 										print(CUST.DATA.totTran21Returns)
 										CUST.DATA.totAmtTran21Returns=CDOUBLE(CUST.DATA.totAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
@@ -352,7 +352,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.PurAmt) AND FIELDE
 									else 
 									#{
 										CUST.DATA.totAppTran21Returns=CINT(CUST.DATA.totAppTran21Returns)+1
-										CUST.DATA.totAppAmtTran21Returns=CINT(CUST.DATA.totAppAmtTran21Returns)+1
+										CUST.DATA.totAppAmtTran21Returns=CDOUBLE(CUST.DATA.totAppAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
 										CUST.DATA.totIntTran21Returns=CINT(CUST.DATA.totIntTran21Returns)+1
 										print(CUST.DATA.totIntTran21Returns)
 										CUST.DATA.totIntAmtTran21Returns=CDOUBLE(CUST.DATA.totIntAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
@@ -1132,15 +1132,15 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.PurAmt) AND FIELDE
 								CUST.DATA.respTranDate = CUST.DATA.TRANDATE
 								print(CUST.DATA.respTranId)
 								print(CUST.DATA.respTranDate)
-								CUST.DATA.respCod = "APL00"
-								CUST.DATA.respMsg = "APPLICADO"
+								CUST.DATA.respCod = "APC02"
+								CUST.DATA.respMsg = "APLICADO SIN CONCILIAR"
 								CUST.DATA.incidentReason = CUST.DATA.errorMsg
 								CUST.DATA.blockUser = ""
 								CUST.DATA.blockDate = ""
 								if((CUST.DATA.FIDADQ=="B127") OR ((CUST.DATA.FIDADQ!="VISA") AND (CUST.DATA.FIDADQ!="BNET") AND (CUST.DATA.FIDADQ!="MDS")) ) then
 								#{
 									CUST.DATA.totAppTran21Returns=CINT(CUST.DATA.totAppTran21Returns)+1
-									CUST.DATA.totAppAmtTran21Returns=CINT(CUST.DATA.totAppAmtTran21Returns)+1
+									CUST.DATA.totAppAmtTran21Returns=CDOUBLE(CUST.DATA.totAppAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
 									CUST.DATA.totTran21Returns=CINT(CUST.DATA.totTran21Returns)+1
 									print(CUST.DATA.totTran21Returns)
 									CUST.DATA.totAmtTran21Returns=CDOUBLE(CUST.DATA.totAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
@@ -1149,7 +1149,7 @@ IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.PurAmt) AND FIELDE
 								else 
 								#{
 									CUST.DATA.totAppTran21Returns=CINT(CUST.DATA.totAppTran21Returns)+1
-									CUST.DATA.totAppAmtTran21Returns=CINT(CUST.DATA.totAppAmtTran21Returns)+1
+									CUST.DATA.totAppAmtTran21Returns=CDOUBLE(CUST.DATA.totAppAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
 									CUST.DATA.totIntTran21Returns=CINT(CUST.DATA.totIntTran21Returns)+1
 									print(CUST.DATA.totIntTran21Returns)
 									CUST.DATA.totIntAmtTran21Returns=CDOUBLE(CUST.DATA.totIntAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
