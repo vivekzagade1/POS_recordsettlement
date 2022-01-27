@@ -623,6 +623,14 @@ IF (sv_t == 0) THEN
 						#{
 							CALLSCRIPTIFEXIST("posRecordSettlement_devolucion.scr")
 						#}
+						ELSE
+						#{
+							IF(CUST.DATA.tranType == "18") then
+							#{
+								CALLSCRIPTIFEXIST("posRecordSettlement_Cashback.scr")
+							#}
+							ENDIF
+						#}
 						ENDIF
 					#}
 					ENDIF
