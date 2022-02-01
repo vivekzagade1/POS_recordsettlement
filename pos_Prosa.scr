@@ -739,7 +739,7 @@ IF (sv_t == 0) THEN
 		###################################
 		sv_q = "INSERT INTO CUSTOM.CUST_POS_SETTLEMENT_FILE_TBL "
 		sv_q = sv_q + "(SETTLE_FILE_TYPE, SETTLE_FILE_DATE, SETTLE_INSTIT_NAME, SETTLE_FILE_NUM, SETTLE_FILE_CHAR, "
-		sv_q = sv_q + "ACCOUNT_NUMBER, PURCHASE_DATE, PURCHASE_TIME, TRAN_TYPE, "
+		sv_q = sv_q + "ACCOUNT_NUMBER, PARENT_ACCOUNT,PURCHASE_DATE, PURCHASE_TIME, TRAN_TYPE, "
 		sv_q = sv_q + "TOT_SOURCE_AMT, PURCH_SOURCE_AMT, DEST_PARITY, SETTL_CRNCY_CODE, SETTL_PARITY, "
 		sv_q = sv_q + "CALC_PURCH_AMT, BUSINESS_CODE, BUSINESS_IND, BUSINESS_NAME, "
 		sv_q = sv_q + "BUSINESS_ADDR, TX_SOURCE_CNTRY, ZIP_CODE, BUSINESS_LOC, RFC, "
@@ -753,7 +753,7 @@ IF (sv_t == 0) THEN
 		sv_q = sv_q + "CARD_NUMBER,BLOCK_USER,BLOCK_DATE"
 		sv_q = sv_q + ")VALUES("
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
-		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
@@ -769,7 +769,7 @@ IF (sv_t == 0) THEN
 		PRINT(sv_q)
 
 		BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileType + "|" + CUST.DATA.settleFileDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
-		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.accNumber + "|" + CUST.DATA.purDate + "|" + CUST.DATA.purTime + "|" + CUST.DATA.tranType + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.accNumber + "|" + CUST.DATA.parentacc + "|" + CUST.DATA.purDate + "|" + CUST.DATA.purTime + "|" + CUST.DATA.tranType + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.totSourceAmt + "|" + CUST.DATA.purSourceAmt + "|" + CUST.DATA.destParty + "|" + CUST.DATA.currCode + "|" + CUST.DATA.settParty + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.PurAmt + "|" + CUST.DATA.bussCode + "|" + CUST.DATA.MCC + "|" + CUST.DATA.bussName + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.bussAdd + "|" + CUST.DATA.TXSourceCountry + "|" + CUST.DATA.ZIPCode + "|" + CUST.DATA.bussLocation + "|" + CUST.DATA.RFC + "|"

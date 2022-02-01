@@ -798,7 +798,7 @@ IF (sv_t == 0) THEN
 		###################################
 		sv_q = "INSERT INTO CUSTOM.CUST_POS_SETTLEMENT_FILE_TBL "
 		sv_q = sv_q + "(SETTLE_FILE_TYPE, SETTLE_FILE_DATE, SETTLE_INSTIT_NAME, SETTLE_FILE_NUM, SETTLE_FILE_CHAR, "
-		sv_q = sv_q + "ACCOUNT_NUMBER, PURCHASE_DATE, PURCHASE_TIME, TRAN_TYPE, "
+		sv_q = sv_q + "ACCOUNT_NUMBER, PARENT_ACCOUNT, PURCHASE_DATE, PURCHASE_TIME, TRAN_TYPE, "
 		sv_q = sv_q + "CALC_PURCH_AMT, BUSINESS_CODE, BUSINESS_NAME, RFC, "
 		sv_q = sv_q + "AUTH_ID, TRAN_REF, ECOM_TRACK2_DATA_IND, ECOM_ECOM_IND, "
 		sv_q = sv_q + "ECOM_TERMINAL_CAP, ECOM_TERMINAL_ACT_IND, ECOM_TERM_ID, POS_ENTRY_MODE, "
@@ -811,7 +811,7 @@ IF (sv_t == 0) THEN
 		sv_q = sv_q + "CARD_NUMBER,BLOCK_USER,BLOCK_DATE"
 		sv_q = sv_q + ")VALUES("
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
-		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
@@ -825,7 +825,7 @@ IF (sv_t == 0) THEN
 		
 		PRINT(sv_q)
 		BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileType + "|" + CUST.DATA.settleFileDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
-		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.accNumber + "|" + CUST.DATA.purDate + "|" + CUST.DATA.TimeOfTran + "|" + CUST.DATA.tranType + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.accNumber + "|" + CUST.DATA.parentacc + "|" + CUST.DATA.purDate + "|" + CUST.DATA.TimeOfTran + "|" + CUST.DATA.tranType + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.PurAmt + "|" + CUST.DATA.bussCode + "|" + CUST.DATA.bussName + "|" + CUST.DATA.RFC + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.AuthNum + "|" + CUST.DATA.tranRef + "|" + CUST.DATA.track2CompleteDataInd + "|" + CUST.DATA.EcommInd + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.EcommTerCapacity + "|" + CUST.DATA.ActivePOSInd + "|" + CUST.DATA.POSID + "|" + CUST.DATA.POSEntryMode + "|"
