@@ -107,6 +107,7 @@ CUST.DATA.status = "S"
 CUST.DATA.bodDate1 = ""
 CUST.DATA.recErrMsg = ""
 CUST.DATA.accNumber = ""
+CUST.DATA.parentacc = ""
 CUST.DATA.cardEncr = ""
 
 CUST.DATA.parentacc = ""
@@ -121,6 +122,7 @@ CUST.DATA.blockUser = ""
 CUST.DATA.blockDate = ""
 CUST.DATA.respTranId = ""
 
+CUST.DATA.stmtDesc = ""
 
 CUST.DATA.recordLengthFlg = ""
 sv_i = CUST.DATA.inputRecord

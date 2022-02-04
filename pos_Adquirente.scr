@@ -112,6 +112,7 @@ CUST.DATA.bodDate1 = ""
 CUST.DATA.recErrMsg = ""
 CUST.DATA.accNumber = ""
 CUST.DATA.cardEncr = ""
+CUST.DATA.parentacc = ""
 
 CUST.DATA.periAcc = ""
 CUST.DATA.mainAcc = ""
@@ -124,6 +125,8 @@ CUST.DATA.incidentReason = ""
 CUST.DATA.blockUser = ""
 CUST.DATA.blockDate = ""
 CUST.DATA.respTranId = ""
+
+CUST.DATA.stmtDesc = ""
 
 sv_i = CUST.DATA.inputRecord
 CUST.DATA.recordLengthFlg=""
