@@ -43,7 +43,7 @@ CUST.DATA.detail2	= ""
 CUST.DATA.destParty = ""
 CUST.DATA.currCode = ""
 CUST.DATA.settParty = ""
-CUST.DATA.townLocation = ""
+CUST.DATA.bussLocation = ""
 CUST.DATA.tranType = ""
 CUST.DATA.PurAmt = ""
 CUST.DATA.detail3 = ""
@@ -268,10 +268,10 @@ IF (sv_t == 0) THEN
 				CUST.DATA.detail1 = MID$(CUST.DATA.inputRecord,0,4)
 				CUST.DATA.cardNum = RTRIM(MID$(CUST.DATA.inputRecord,4,16))
 				CUST.DATA.detail2	= RTRIM(MID$(CUST.DATA.inputRecord,20,3))
-				CUST.DATA.townLocation = MID$(CUST.DATA.inputRecord,23,13)
+				CUST.DATA.bussLocation = MID$(CUST.DATA.inputRecord,23,13)
 				CUST.DATA.tranType = MID$(CUST.DATA.inputRecord,36,2)
 				CUST.DATA.PurAmt = MID$(CUST.DATA.inputRecord,38,11) + "." + MID$(CUST.DATA.inputRecord,49,2)
-				CUST.DATA.detail3 = MID$(CUST.DATA.inputRecord,51,36)
+				CUST.DATA.purSourceAmt = MID$(CUST.DATA.inputRecord,51,11) + "." + MID$(CUST.DATA.inputRecord,62,2)
 				CUST.DATA.USDExcRate = MID$(CUST.DATA.inputRecord,87,7)
 				CUST.DATA.bussCode = MID$(CUST.DATA.inputRecord,94,9)
 				CUST.DATA.bussName = MID$(CUST.DATA.inputRecord,103,30)
@@ -318,7 +318,7 @@ IF (sv_t == 0) THEN
 					GOTO ENDOFRECORD
 				#}
 				ENDIF
-				if(CUST.DATA.townLocation == "") then
+				if(CUST.DATA.bussLocation == "") then
 				#{
 					CUST.DATA.respCode="62"
 					CUST.DATA.status = "F"
@@ -802,7 +802,7 @@ IF (sv_t == 0) THEN
 		sv_q = "INSERT INTO CUSTOM.CUST_POS_SETTLEMENT_FILE_TBL "
 		sv_q = sv_q + "(SETTLE_FILE_TYPE, SETTLE_FILE_DATE, SETTLE_INSTIT_NAME, SETTLE_FILE_NUM, SETTLE_FILE_CHAR, "
 		sv_q = sv_q + "ACCOUNT_NUMBER, PARENT_ACCOUNT, PURCHASE_DATE, PURCHASE_TIME, TRAN_TYPE, "
-		sv_q = sv_q + "CALC_PURCH_AMT, BUSINESS_CODE, BUSINESS_NAME, RFC, "
+		sv_q = sv_q + "CALC_PURCH_AMT, PURCH_SOURCE_AMT, BUSINESS_CODE, BUSINESS_NAME, BUSINESS_LOC, RFC, "
 		sv_q = sv_q + "AUTH_ID, TRAN_REF, ECOM_TRACK2_DATA_IND, ECOM_ECOM_IND, "
 		sv_q = sv_q + "ECOM_TERMINAL_CAP, ECOM_TERMINAL_ACT_IND, ECOM_TERM_ID, POS_ENTRY_MODE, "
 		sv_q = sv_q + "CV2_IND, ECOM_CAVV_IND, SOURCE_CRNCY_CODE, PROCESS_DATE, USD_EXCHG_RATE, "
@@ -815,7 +815,7 @@ IF (sv_t == 0) THEN
 		sv_q = sv_q + ")VALUES("
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
-		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
@@ -829,7 +829,7 @@ IF (sv_t == 0) THEN
 		PRINT(sv_q)
 		BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileType + "|" + CUST.DATA.settleFileDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.accNumber + "|" + CUST.DATA.parentacc + "|" + CUST.DATA.purDate + "|" + CUST.DATA.TimeOfTran + "|" + CUST.DATA.tranType + "|"
-		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.PurAmt + "|" + CUST.DATA.bussCode + "|" + CUST.DATA.bussName + "|" + CUST.DATA.RFC + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.PurAmt + "|" + CUST.DATA.purSourceAmt + "|" + CUST.DATA.bussCode + "|" + CUST.DATA.bussName + "|" + CUST.DATA.bussLocation + "|" + CUST.DATA.RFC + "|" 
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.AuthNum + "|" + CUST.DATA.tranRef + "|" + CUST.DATA.track2CompleteDataInd + "|" + CUST.DATA.EcommInd + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.EcommTerCapacity + "|" + CUST.DATA.ActivePOSInd + "|" + CUST.DATA.POSID + "|" + CUST.DATA.POSEntryMode + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.C2VIND + "|" + CUST.DATA.CAVVIND + "|" + CUST.DATA.currCode + "|" + CUST.DATA.settleFileDate + "|" + CUST.DATA.USDExcRate + "|"
