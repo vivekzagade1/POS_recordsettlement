@@ -306,6 +306,15 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#{
 									CUST.DATA.debAccnt=CUST.DATA.devPurDebit
 									CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
+									
+									##Devolucion Normal Devolucion
+									CUST.DATA.Nombre= "DEVOLUCION EN"
+									CUST.DATA.Nombre1= "CAJERO"
+									CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+									PRINT(CUST.DATA.stmtDesc)
+									CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+
+									
 								#}
 								else 
 								#{
@@ -313,11 +322,25 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									#{
 										CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
 										CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
+
+										CUST.DATA.Nombre= "DEVOLUCION EN"
+										CUST.DATA.Nombre1= "CAJERO"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0')
+										PRINT(CUST.DATA.stmtDesc)
+										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										
 									#}
 									else 
 									#{
 										CUST.DATA.debAccnt=CUST.DATA.devPurComDebit
 										CUST.TRAN.UserTrnCode = CUST.DATA.PUR_DEV_BAZ
+										
+										##Devolucion Normal Devolucion
+										CUST.DATA.Nombre= "DEVOLUCION EN"
+										CUST.DATA.Nombre1= "CAJERO"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+										PRINT(CUST.DATA.stmtDesc)
+										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 									#}
 									endif
 								#}
@@ -521,6 +544,12 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#{
 											CUST.DATA.debAccnt=CUST.DATA.devPurDebit
 											CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
+											##Devolucion Normal Devolucion
+											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre1= "CAJERO"
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											PRINT(CUST.DATA.stmtDesc)
+											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										#}
 										else 
 										#{
@@ -528,11 +557,22 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											#{
 												CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
 												CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
+												CUST.DATA.Nombre= "DEVOLUCION EN"
+										CUST.DATA.Nombre1= "CAJERO"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') 
+										PRINT(CUST.DATA.stmtDesc)
+										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											#}
 											else 
 											#{
 												CUST.DATA.debAccnt=CUST.DATA.devPurComDebit
 												CUST.TRAN.UserTrnCode = CUST.DATA.PUR_DEV_BAZ
+												##Devolucion Normal Devolucion
+											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre1= "CAJERO"
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											PRINT(CUST.DATA.stmtDesc)
+											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											#}
 											endif
 										#}
@@ -764,6 +804,12 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#{
 											CUST.DATA.debAccnt=CUST.DATA.devPurDebit
 											CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
+											##Devolucion Normal Devolucion
+											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre1= "CAJERO"
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											PRINT(CUST.DATA.stmtDesc)
+											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										#}
 										else 
 										#{
@@ -771,11 +817,22 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											#{
 												CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
 												CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
+												CUST.DATA.Nombre= "DEVOLUCION EN"
+										CUST.DATA.Nombre1= "CAJERO"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') 
+										PRINT(CUST.DATA.stmtDesc)
+										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											#}
 											else 
 											#{
 												CUST.DATA.debAccnt=CUST.DATA.devPurComDebit
 												CUST.TRAN.UserTrnCode = CUST.DATA.PUR_DEV_BAZ
+												##Devolucion Normal Devolucion
+											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre1= "CAJERO"
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											PRINT(CUST.DATA.stmtDesc)
+											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											#}
 											endif
 										#}
@@ -1103,6 +1160,12 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 							#{
 								CUST.DATA.debAccnt=CUST.DATA.devPurDebit
 								CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
+								##Devolucion Normal Devolucion
+											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre1= "CAJERO"
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											PRINT(CUST.DATA.stmtDesc)
+											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 							#}
 							else 
 							#{
@@ -1110,11 +1173,23 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#{
 									CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
 									CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
+									CUST.DATA.Nombre= "DEVOLUCION EN"
+										CUST.DATA.Nombre1= "CAJERO"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') 
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') 
+										PRINT(CUST.DATA.stmtDesc)
+										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 								#}
 								else 
 								#{
 									CUST.DATA.debAccnt=CUST.DATA.devPurComDebit
 									CUST.TRAN.UserTrnCode = CUST.DATA.PUR_DEV_BAZ
+									##Devolucion Normal Devolucion
+											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre1= "CAJERO"
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											PRINT(CUST.DATA.stmtDesc)
+											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 								#}
 								endif
 							#}

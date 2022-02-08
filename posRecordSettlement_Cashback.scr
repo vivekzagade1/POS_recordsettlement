@@ -259,6 +259,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#{
 									CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
 									CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+									#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 								#}
 								else 
 								#{
@@ -271,6 +289,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									#{
 										CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 										CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+										#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 									#}
 									endif
 								#}
@@ -546,6 +582,25 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#{
 											CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
 											CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+											#domestic
+																				#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 										#}
 										else 
 										#{
@@ -558,6 +613,25 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											#{
 												CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 												CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+												#domestic
+																					#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 											#}
 											endif
 										#}
@@ -863,6 +937,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#{
 											CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
 											CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+																				#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 										#}
 										else 
 										#{
@@ -875,6 +967,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											#{
 												CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 												CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+																					#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 											#}
 											endif
 										#}
@@ -1214,6 +1324,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									#{
 										CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
 										CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+																			#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 									#}
 									else 
 									#{
@@ -1226,6 +1354,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#{
 											CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 											CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+																				#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 										#}
 										endif
 									#}
@@ -1277,6 +1423,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									#{
 										CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
 										CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+																			#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 									#}
 									else 
 									#{
@@ -1289,6 +1453,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#{
 											CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 											CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+																				#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 										#}
 										endif
 									#}
@@ -1355,6 +1537,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#{
 											CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
 											CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+																				#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 										#}
 										else 
 										#{
@@ -1367,6 +1567,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											#{
 												CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 												CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+																					#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 											#}
 											endif
 										#}
@@ -1420,6 +1638,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#{
 									CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
 									CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+																		#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 								#}
 								else 
 								#{
@@ -1432,6 +1668,24 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									#{
 										CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 										CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+																			#domestic
+									CUST.DATA.amount = "0"	
+IF(CUST.DATA.totSourceAmt!="")THEN
+#{
+
+	CUST.DATA.totSourceAmt = LTRIM(CUST.DATA.totSourceAmt,'0')
+	CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+	CUST.DATA.amount = CDOUBLE(CUST.DATA.totSourceAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+	PRINT(CUST.DATA.amount)
+#}
+ENDIF	
+	
+CUST.DATA.Nombre= "COMPRA EN"
+CUST.DATA.Nombre1= "COMPRA"
+CUST.DATA.Nombre2= "RETIRO"
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + "$" + CUST.DATA.amount + "" + CUST.DATA.Nombre2 + "$" + LTRIM(CUST.DATA.purSourceAmt,'0')
+PRINT(CUST.DATA.stmtDesc)
+CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 									#}
 									endif
 								#}
