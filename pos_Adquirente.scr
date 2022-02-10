@@ -278,7 +278,7 @@ IF (sv_t == 0) THEN
 				CUST.DATA.bussName = MID$(CUST.DATA.inputRecord,103,30)
 				CUST.DATA.detail4 = MID$(CUST.DATA.inputRecord,133,8)
 				CUST.DATA.tranRef = MID$(CUST.DATA.inputRecord,141,23)
-				CUST.DATA.detail5 = MID$(CUST.DATA.inputRecord,164,5)
+				CUST.DATA.MCC = MID$(CUST.DATA.inputRecord,164,5)
 				CUST.DATA.ElecPaymentCode = MID$(CUST.DATA.inputRecord,169,24)
 				CUST.DATA.FolioNumber = MID$(CUST.DATA.inputRecord,169,10)
 				CUST.DATA.POSEntryMode = MID$(CUST.DATA.inputRecord,179,2)
@@ -804,7 +804,7 @@ IF (sv_t == 0) THEN
 		sv_q = "INSERT INTO CUSTOM.CUST_POS_SETTLEMENT_FILE_TBL "
 		sv_q = sv_q + "(SETTLE_FILE_TYPE, SETTLE_FILE_DATE, SETTLE_INSTIT_NAME, SETTLE_FILE_NUM, SETTLE_FILE_CHAR, "
 		sv_q = sv_q + "ACCOUNT_NUMBER, PARENT_ACCOUNT, PURCHASE_DATE, PURCHASE_TIME, TRAN_TYPE, "
-		sv_q = sv_q + "CALC_PURCH_AMT, PURCH_SOURCE_AMT, BUSINESS_CODE, BUSINESS_NAME, BUSINESS_LOC, RFC, "
+		sv_q = sv_q + "CALC_PURCH_AMT, PURCH_SOURCE_AMT, BUSINESS_CODE, BUSINESS_NAME, BUSINESS_LOC, RFC, BUSINESS_IND,"
 		sv_q = sv_q + "AUTH_ID, TRAN_REF, ECOM_TRACK2_DATA_IND, ECOM_ECOM_IND, "
 		sv_q = sv_q + "ECOM_TERMINAL_CAP, ECOM_TERMINAL_ACT_IND, ECOM_TERM_ID, POS_ENTRY_MODE, "
 		sv_q = sv_q + "CV2_IND, ECOM_CAVV_IND, SOURCE_CRNCY_CODE, PROCESS_DATE, USD_EXCHG_RATE, "
@@ -817,7 +817,7 @@ IF (sv_t == 0) THEN
 		sv_q = sv_q + ")VALUES("
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
-		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
@@ -831,7 +831,7 @@ IF (sv_t == 0) THEN
 		PRINT(sv_q)
 		BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileType + "|" + CUST.DATA.settleFileDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.accNumber + "|" + CUST.DATA.parentacc + "|" + CUST.DATA.purDate + "|" + CUST.DATA.TimeOfTran + "|" + CUST.DATA.tranType + "|"
-		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.PurAmt + "|" + CUST.DATA.purSourceAmt + "|" + CUST.DATA.bussCode + "|" + CUST.DATA.bussName + "|" + CUST.DATA.bussLocation + "|" + CUST.DATA.RFC + "|" 
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.PurAmt + "|" + CUST.DATA.purSourceAmt + "|" + CUST.DATA.bussCode + "|" + CUST.DATA.bussName + "|" + CUST.DATA.bussLocation + "|" + CUST.DATA.RFC + "|" + CUST.DATA.MCC + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.AuthNum + "|" + CUST.DATA.tranRef + "|" + CUST.DATA.track2CompleteDataInd + "|" + CUST.DATA.EcommInd + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.EcommTerCapacity + "|" + CUST.DATA.ActivePOSInd + "|" + CUST.DATA.POSID + "|" + CUST.DATA.POSEntryMode + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.C2VIND + "|" + CUST.DATA.CAVVIND + "|" + CUST.DATA.currCode + "|" + CUST.DATA.settleFileDate + "|" + CUST.DATA.USDExcRate + "|"
