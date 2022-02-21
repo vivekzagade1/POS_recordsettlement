@@ -798,6 +798,13 @@ IF (sv_t == 0) THEN
 		#}
 		endif
 		
+		####################################################
+		##  Conversion of 'settleFileDate' from YYMMDD to DDMMYY For Database Insertion
+		####################################################
+		
+		CUST.DATA.tempSettleFileDate = MID$(CUST.DATA.settleFileDate,0,2) + MID$(CUST.DATA.settleFileDate,2,2) + MID$(CUST.DATA.settleFileDate,4,2)
+		PRINT(CUST.DATA.tempSettleFileDate)
+		
 		####################################
 		# Insert into Table
 		###################################
@@ -829,7 +836,7 @@ IF (sv_t == 0) THEN
 		sv_q = sv_q + "?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR)"
 		
 		PRINT(sv_q)
-		BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileType + "|" + CUST.DATA.settleFileDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
+		BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileType + "|" + CUST.DATA.tempSettleFileDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.accNumber + "|" + CUST.DATA.parentacc + "|" + CUST.DATA.purDate + "|" + CUST.DATA.TimeOfTran + "|" + CUST.DATA.tranType + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.PurAmt + "|" + CUST.DATA.purSourceAmt + "|" + CUST.DATA.bussCode + "|" + CUST.DATA.bussName + "|" + CUST.DATA.bussLocation + "|" + CUST.DATA.RFC + "|" + CUST.DATA.MCC + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.AuthNum + "|" + CUST.DATA.tranRef + "|" + CUST.DATA.track2CompleteDataInd + "|" + CUST.DATA.EcommInd + "|"
