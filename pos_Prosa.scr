@@ -744,7 +744,7 @@ IF (sv_t == 0) THEN
 		##  Conversion of 'settleFileDate' from YYMMDD to DDMMYY For Database Insertion
 		####################################################
 		
-		CUST.DATA.tempSettleFileDate = MID$(CUST.DATA.settleFileDate,0,2) + MID$(CUST.DATA.settleFileDate,2,2) + MID$(CUST.DATA.settleFileDate,4,2)
+		CUST.DATA.tempSettleFileDate = MID$(CUST.DATA.settleFileDate,4,2) + MID$(CUST.DATA.settleFileDate,2,2) + MID$(CUST.DATA.settleFileDate,0,2)
 		PRINT(CUST.DATA.tempSettleFileDate)
 	 
 		####################################
