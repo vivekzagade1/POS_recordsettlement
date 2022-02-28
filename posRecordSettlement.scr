@@ -259,9 +259,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#{
 									CUST.DATA.credAccnt=CUST.DATA.TranPurchaseCredit
 									CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOM_PUR
-										##Normal Purchase Compra En
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+										##Normal Purchase Compra en
+										CUST.DATA.Nombre= "Compra en" 
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 									
@@ -274,8 +274,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
 										CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
 										##international purchase
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0')
+										CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + " $" + LTRIM(CUST.DATA.totSourceAmt,'0')
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										
@@ -284,9 +284,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									#{
 										CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 										CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
-										##Normal Purchase Compra En
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+										##Normal Purchase Compra en
+										CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										
@@ -561,9 +561,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#{
 											CUST.DATA.credAccnt=CUST.DATA.TranPurchaseCredit
 											CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOM_PUR
-																					##Normal Purchase Compra En
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+																					##Normal Purchase Compra en
+										CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										#}
@@ -573,8 +573,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											#{
 												CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
 												CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
-																						CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0')
+																						CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + " $" + LTRIM(CUST.DATA.totSourceAmt,'0')
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											#}
@@ -582,9 +582,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											#{
 												CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 												CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
-																						##Normal Purchase Compra En
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+																						##Normal Purchase Compra en
+										CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											#}
@@ -890,9 +890,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#{
 											CUST.DATA.credAccnt=CUST.DATA.TranPurchaseCredit
 											CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOM_PUR
-																					##Normal Purchase Compra En
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+																					##Normal Purchase Compra en
+										CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										#}
@@ -902,8 +902,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											#{
 												CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
 												CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
-																						CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0')
+																						CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + " $" + LTRIM(CUST.DATA.totSourceAmt,'0')
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											#}
@@ -911,9 +911,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											#{
 												CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 												CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
-																						##Normal Purchase Compra En
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+																						##Normal Purchase Compra en
+										CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											#}
@@ -1225,9 +1225,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									CUST.DATA.credAccnt=CUST.DATA.TranPurchaseCredit
 									CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOM_PUR
 									# domestic
-																			##Normal Purchase Compra En
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+										##Normal Purchase Compra en
+										CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 									
@@ -1239,8 +1239,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
 										CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
 										## international
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0')
+										CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + " $" + LTRIM(CUST.DATA.totSourceAmt,'0')
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										
@@ -1250,9 +1250,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
 										CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
 										## domestic
-																				##Normal Purchase Compra En
-										CUST.DATA.Nombre= "Compra En"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+										##Normal Purchase Compra en
+										CUST.DATA.Nombre= "Compra en"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 									#}
