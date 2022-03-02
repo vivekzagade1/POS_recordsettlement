@@ -62,6 +62,8 @@ CUST.TRAN.LienId=""
 CUST.DATA.OFFDEV=""
 CUST.DATA.onlineAmt=""
 CUST.DATA.freeTxt1="" 
+CUST.DATA.custTranId=""
+CUST.DATA.custTranDate=""
 
 
 IF(FIELDEXISTS(CUST.DATA.FIDADQ)) THEN
@@ -356,6 +358,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#{
 									CUST.DATA.respTranId = CUST.DATA.TRANID
 									CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+									CUST.DATA.custTranId=CUST.DATA.TRANID
+									CUST.DATA.custTranDate=CUST.DATA.TRANDATE
 									print(CUST.DATA.respTranId)
 									print(CUST.DATA.respTranDate)
 									CUST.DATA.respCod = "APL00"
@@ -586,6 +590,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
 										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 										#{
+											CUST.DATA.custTranId=CUST.DATA.TRANID
+											CUST.DATA.custTranDate=CUST.DATA.TRANDATE
 											print(CUST.DATA.settleAmtDiff)
 											CUST.DATA.incTranAmt=CDOUBLE(CUST.DATA.settleAmtDiff)
 											print(CUST.DATA.incTranAmt)
@@ -846,6 +852,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
 										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 										#{
+											CUST.DATA.custTranId=CUST.DATA.TRANID
+											CUST.DATA.custTranDate=CUST.DATA.TRANDATE
 											print(CUST.DATA.settleAmtDiff)
 											CUST.DATA.incTranAmt=CDOUBLE(CUST.DATA.settleAmtDiff)
 											print(CUST.DATA.incTranAmt)
@@ -1091,6 +1099,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 					#{
 						CUST.DATA.respTranId = CUST.DATA.TRANID
 						CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+						CUST.DATA.custTranId=CUST.DATA.TRANID
+						CUST.DATA.custTranDate=CUST.DATA.TRANDATE
 						print(CUST.DATA.respTranId)
 						print(CUST.DATA.respTranDate)
 						CUST.DATA.respCod = "ANL00"
@@ -1205,6 +1215,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 							#{
 								CUST.DATA.respTranId = CUST.DATA.TRANID
 								CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+								CUST.DATA.custTranId=CUST.DATA.TRANID
+								CUST.DATA.custTranDate=CUST.DATA.TRANDATE
 								print(CUST.DATA.respTranId)
 								print(CUST.DATA.respTranDate)
 								CUST.DATA.respCod = "APC02"
