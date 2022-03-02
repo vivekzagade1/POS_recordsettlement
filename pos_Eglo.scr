@@ -128,6 +128,9 @@ CUST.DATA.freeText10 = ""
 CUST.DATA.lienAccntParent=""
 CUST.DATA.custTranId=""
 CUST.DATA.custTranDate=""
+CUST.DATA.appliedSettleAmt=""
+CUST.DATA.pendingSettleAmt=""
+CUST.DATA.exchangeAmtDiff=""
 
 CUST.DATA.recordLengthFlg = ""
 sv_i = CUST.DATA.inputRecord
@@ -760,7 +763,8 @@ IF (sv_t == 0) THEN
 		sv_q = sv_q + "SETTLE_FILE_NAME, INP_FILE_DATE, RECORD_STRING, STATUS, DESCRIPTION, RESP_FILE_NAME, REC_PROCESS_DATE,"
 		sv_q = sv_q + "LIEN_ID_SETTLE, LIEN_AMT_SETTLE ,LIEN_EXPIRY_SETTLE, "
 		sv_q = sv_q + "ENTITY_CRE_FLG, DEL_FLG, LCHG_USER_ID, LCHG_TIME,RCRE_USER_ID,RCRE_TIME,BANK_ID,"
-		sv_q = sv_q + "CARD_NUMBER,BLOCK_USER,BLOCK_DATE, FREE_TEXT10, LIEN_ACCT_NUM, CUST_TRAN_ID, CUST_TRAN_DATE"
+		sv_q = sv_q + "CARD_NUMBER,BLOCK_USER,BLOCK_DATE, FREE_TEXT10, LIEN_ACCT_NUM, CUST_TRAN_ID, CUST_TRAN_DATE,"
+		sv_q = sv_q + "APPLIED_AMT, PENDING_AMT_APPLY, EXCHANGE_DIFF_AMT"
 		sv_q = sv_q + ")VALUES("
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
@@ -774,7 +778,8 @@ IF (sv_t == 0) THEN
 		sv_q = sv_q + "?SVAR,SYSDATE,?SVAR,?SVAR, ?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'),"
 		sv_q = sv_q + "?SVAR, ?SVAR,TO_DATE(?SVAR,'DD-MM-YYYY'),"
 		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, SYSDATE ,?SVAR, SYSDATE ,?SVAR,"
-		sv_q = sv_q + "?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'))"
+		sv_q = sv_q + "?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'),"
+		sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR)"
 		
 		PRINT(sv_q)
 		
@@ -790,7 +795,8 @@ IF (sv_t == 0) THEN
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.posSettlementInpFileName + "|" + CUST.DATA.AllFields + "|" + CUST.DATA.status + "|" + CUST.DATA.description + "|" + CUST.DATA.respFileName + "|" + CUST.DATA.bodDate1 + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.LienSettleId + "|" + CUST.DATA.LienSettleAmt + "|" + CUST.DATA.LienExpSettle + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "Y" + "|" + "N" + "|" + BANCS.STDIN.userId  + "|" + BANCS.STDIN.userId + "|" + BANCS.STDIN.contextBankId + "|"
-		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.cardEncr + "|" + CUST.DATA.blockUser + "|" + CUST.DATA.blockDate + "|" + CUST.DATA.freeText10 + "|" + CUST.DATA.lienAccntParent+ "|" + CUST.DATA.custTranId + "|" + CUST.DATA.custTranDate
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.cardEncr + "|" + CUST.DATA.blockUser + "|" + CUST.DATA.blockDate + "|" + CUST.DATA.freeText10 + "|" + CUST.DATA.lienAccntParent+ "|" + CUST.DATA.custTranId + "|" + CUST.DATA.custTranDate + "|"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.appliedSettleAmt + "|" + CUST.DATA.pendingSettleAmt + "|" + CUST.DATA.exchangeAmtDiff
 		
 		PRINT(BANCS.INPARAM.BINDVARS)
 		sv_o = urhk_dbSQLWithBind(sv_q)

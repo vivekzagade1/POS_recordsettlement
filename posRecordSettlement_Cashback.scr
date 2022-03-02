@@ -66,6 +66,9 @@ CUST.DATA.incTranrqd=""
 CUST.DATA.LIENID=""
 CUST.DATA.custTranId=""
 CUST.DATA.custTranDate=""
+CUST.DATA.appliedSettleAmt=""
+CUST.DATA.pendingSettleAmt=""
+CUST.DATA.exchangeAmtDiff=""
 
 IF(FIELDEXISTS(CUST.DATA.FIDADQ)) THEN
 #{
@@ -162,6 +165,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 							CUST.DATA.incidentReason = "Registro duplicado"
 							CUST.DATA.blockUser = ""
 							CUST.DATA.blockDate = ""
+							CUST.DATA.appliedSettleAmt=""
+							CUST.DATA.pendingSettleAmt=CUST.DATA.PurAmt
+							CUST.DATA.exchangeAmtDiff=""
 						
 							
 							CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -341,6 +347,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									CUST.DATA.incidentReason = CUST.DATA.errorMsg
 									CUST.DATA.blockUser = ""
 									CUST.DATA.blockDate = ""
+									CUST.DATA.appliedSettleAmt=CUST.DATA.PurAmt
+									CUST.DATA.pendingSettleAmt=""
+									CUST.DATA.exchangeAmtDiff=""
 									if((CUST.DATA.freeTxt1=="B127") OR ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) ) then
 									#{
 										CUST.DATA.totAppTran01Cashback=CINT(CUST.DATA.totAppTran01Cashback)+1
@@ -402,6 +411,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										CUST.DATA.incidentReason = CUST.DATA.errorMsg
 										CUST.DATA.blockUser = ""
 										CUST.DATA.blockDate = ""
+										CUST.DATA.appliedSettleAmt=""
+										CUST.DATA.pendingSettleAmt=CUST.DATA.PurAmt
+										CUST.DATA.exchangeAmtDiff=""
 									
 										
 										CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -461,7 +473,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									CUST.DATA.incidentReason = CUST.DATA.errorMsg
 									CUST.DATA.blockUser = ""
 									CUST.DATA.blockDate = ""
-								
+									CUST.DATA.appliedSettleAmt=""
+									CUST.DATA.pendingSettleAmt=CUST.DATA.PurAmt
+									CUST.DATA.exchangeAmtDiff=""
 									
 									CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
 									print(CUST.DATA.totInciTran01Cashback)
@@ -524,6 +538,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									CUST.DATA.incidentReason = CUST.DATA.errorMsg
 									CUST.DATA.blockUser = ""
 									CUST.DATA.blockDate = ""
+									CUST.DATA.appliedSettleAmt=CDOUBLE(CUST.DATA.PurAmt) - CDOUBLE(CUST.DATA.TranAmt)
+									CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
+									CUST.DATA.exchangeAmtDiff=""
 								
 									
 									CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -696,7 +713,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 													CUST.DATA.incidentReason = CUST.DATA.errorMsg
 													CUST.DATA.blockUser = ""
 													CUST.DATA.blockDate = ""
-												
+													CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+													CUST.DATA.pendingSettleAmt=""
+													CUST.DATA.exchangeAmtDiff=CUST.DATA.settleAmtDiff
 													
 													CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
 													print(CUST.DATA.totInciTran01Cashback)
@@ -737,6 +756,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												CUST.DATA.incidentReason = CUST.DATA.errorMsg
 												CUST.DATA.blockUser = ""
 												CUST.DATA.blockDate = ""
+												CUST.DATA.appliedSettleAmt=CUST.DATA.PurAmt
+												CUST.DATA.pendingSettleAmt=""
+												CUST.DATA.exchangeAmtDiff=""
 												if((CUST.DATA.freeTxt1=="B127") OR ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) ) then
 												#{
 													CUST.DATA.totAppTran01Cashback=CINT(CUST.DATA.totAppTran01Cashback)+1
@@ -810,6 +832,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												CUST.DATA.incidentReason = CUST.DATA.errorMsg
 												CUST.DATA.blockUser = ""
 												CUST.DATA.blockDate = ""
+												CUST.DATA.appliedSettleAmt=""
+												CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
+												CUST.DATA.exchangeAmtDiff=""
 											
 												
 												CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -878,6 +903,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											CUST.DATA.incidentReason = CUST.DATA.errorMsg
 											CUST.DATA.blockUser = ""
 											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=""
+											CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
+											CUST.DATA.exchangeAmtDiff=""
 										
 											
 											CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -937,7 +965,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											CUST.DATA.incidentReason = CUST.DATA.errorMsg
 											CUST.DATA.blockUser = ""
 											CUST.DATA.blockDate = ""
-										
+											CUST.DATA.appliedSettleAmt=CDOUBLE(CUST.DATA.PurAmt) - CDOUBLE(CUST.DATA.TranAmt)
+											CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
+											CUST.DATA.exchangeAmtDiff=""
 											
 											CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
 											print(CUST.DATA.totInciTran01Cashback)
@@ -1187,6 +1217,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 													CUST.DATA.incidentReason = CUST.DATA.errorMsg
 													CUST.DATA.blockUser = ""
 													CUST.DATA.blockDate = ""
+													CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+													CUST.DATA.pendingSettleAmt=""
+													CUST.DATA.exchangeAmtDiff=CUST.DATA.settleAmtDiff
 												
 													
 													CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -1247,6 +1280,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 														CUST.DATA.incidentReason = CUST.DATA.errorMsg
 														CUST.DATA.blockUser = ""
 														CUST.DATA.blockDate = ""
+														CUST.DATA.appliedSettleAmt=CDOUBLE(CUST.DATA.PurAmt)-CDOUBLE(CUST.DATA.TranAmt)
+														CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
+														CUST.DATA.exchangeAmtDiff=""
 													
 														
 														CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -1284,6 +1320,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 													CUST.DATA.incidentReason = CUST.DATA.errorMsg
 													CUST.DATA.blockUser = ""
 													CUST.DATA.blockDate = ""
+													CUST.DATA.appliedSettleAmt=CUST.DATA.PurAmt
+													CUST.DATA.pendingSettleAmt=""
+													CUST.DATA.exchangeAmtDiff=""
+													
 													if((CUST.DATA.freeTxt1=="B127") OR ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) ) then
 													#{
 														CUST.DATA.totAppTran01Cashback=CINT(CUST.DATA.totAppTran01Cashback)+1
@@ -1350,6 +1390,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												CUST.DATA.incidentReason = CUST.DATA.errorMsg
 												CUST.DATA.blockUser = ""
 												CUST.DATA.blockDate = ""
+												CUST.DATA.appliedSettleAmt=CDOUBLE(CUST.DATA.PurAmt)-CDOUBLE(CUST.DATA.TranAmt)
+												CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
+												CUST.DATA.exchangeAmtDiff=""
+													
 											
 												
 												CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -1406,6 +1450,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											CUST.DATA.incidentReason = CUST.DATA.errorMsg
 											CUST.DATA.blockUser = ""
 											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CDOUBLE(CUST.DATA.PurAmt)-CDOUBLE(CUST.DATA.TranAmt)
+											CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
+											CUST.DATA.exchangeAmtDiff=""
+													
 										
 											
 											CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -1464,6 +1512,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											CUST.DATA.incidentReason = CUST.DATA.errorMsg
 											CUST.DATA.blockUser = ""
 											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CDOUBLE(CUST.DATA.PurAmt)-CDOUBLE(CUST.DATA.TranAmt)
+											CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
+											CUST.DATA.exchangeAmtDiff=""
+													
 										
 											
 											CUST.DATA.totInciTran01Cashback=CINT(CUST.DATA.totInciTran01Cashback)+1
@@ -1752,6 +1804,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										CUST.DATA.incidentReason = ""
 										CUST.DATA.blockUser = ""
 										CUST.DATA.blockDate = ""
+										CUST.DATA.appliedSettleAmt=CUST.DATA.PurAmt
+										CUST.DATA.pendingSettleAmt=""
+										CUST.DATA.exchangeAmtDiff=""
+													
 										if((CUST.DATA.FIDADQ=="B127") OR ((CUST.DATA.FIDADQ!="VISA") AND (CUST.DATA.FIDADQ!="BNET") AND (CUST.DATA.FIDADQ!="MDS")) ) then
 										#{
 											CUST.DATA.totAppTran01Cashback=CINT(CUST.DATA.totAppTran01Cashback)+1
@@ -1981,6 +2037,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									CUST.DATA.incidentReason = ""
 									CUST.DATA.blockUser = ""
 									CUST.DATA.blockDate = ""
+									CUST.DATA.appliedSettleAmt=CUST.DATA.PurAmt
+									CUST.DATA.pendingSettleAmt=""
+									CUST.DATA.exchangeAmtDiff=""
+													
 									if((CUST.DATA.FIDADQ=="B127") OR ((CUST.DATA.FIDADQ!="VISA") AND (CUST.DATA.FIDADQ!="BNET") AND (CUST.DATA.FIDADQ!="MDS")) ) then
 									#{
 										CUST.DATA.totAppTran01Cashback=CINT(CUST.DATA.totAppTran01Cashback)+1
@@ -2094,6 +2154,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 					#{
 						CUST.DATA.respTranId = CUST.DATA.TRANID
 						CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+						CUST.DATA.appliedSettleAmt=CDOUBLE(CUST.DATA.PurAmt)-CDOUBLE(CUST.DATA.TranAmt)
+						CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
+						CUST.DATA.exchangeAmtDiff=""
+													
 						CUST.DATA.incTranAmt="0.00"
 						print(CUST.DATA.respTranId)
 						print(CUST.DATA.respTranDate)
@@ -2209,4 +2273,5 @@ endif
 EXITSCRIPT
 #trace off
 end-->
+
 

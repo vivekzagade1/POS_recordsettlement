@@ -362,7 +362,7 @@ IF(CUST.DATA.odFlg!="E") then
 		#}
 		endif
 		
-		if(CDOUBLE(CUST.DATA.incTranAmt)>CDOUBLE(CUST.DATA.EFFAMT)) then
+		if(CDOUBLE(CUST.DATA.incTranAmt)>CDOUBLE(CUST.DATA.EFFAMT)) then 
 		#{
 			CUST.DATA.incTranrqd="Y"
 			CUST.DATA.debAccnt=CUST.DATA.parentacc
@@ -375,6 +375,8 @@ IF(CUST.DATA.odFlg!="E") then
 			CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
 			IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 			#{
+				CUST.DATA.custTranId=CUST.DATA.TRANID
+				CUST.DATA.custTranDate=CUST.DATA.TRANDATE
 				CUST.DATA.incTranAmt=CDOUBLE(CUST.DATA.incTranAmt)-CDOUBLE(CUST.DATA.EFFAMT)
 				CUST.DATA.coverFlg="Y"
 				CUST.TRAN.accountNum=CUST.DATA.parentacc
@@ -412,6 +414,8 @@ IF(CUST.DATA.odFlg!="E") then
 				CUST.DATA.incTranrqd="N"
 				CUST.DATA.respTranId = CUST.DATA.TRANID
 				CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+				CUST.DATA.custTranId=CUST.DATA.TRANID
+				CUST.DATA.custTranDate=CUST.DATA.TRANDATE
 				print(CUST.DATA.respTranId)
 				print(CUST.DATA.respTranDate)
 				CUST.DATA.respCod = "APL02"
@@ -419,6 +423,9 @@ IF(CUST.DATA.odFlg!="E") then
 				CUST.DATA.incidentReason = CUST.DATA.errorMsg
 				CUST.DATA.blockUser = ""
 				CUST.DATA.blockDate = ""
+				CUST.DATA.appliedSettleAmt=CUST.DATA.TranAmt
+				CUST.DATA.pendingSettleAmt=""
+				CUST.DATA.exchangeAmtDiff=""	
 				
 				if(CUST.DATA.settlemod=="ON") then 
 				#{
@@ -620,4 +627,5 @@ ENDIF
 
 EXITSCRIPT
 END-->
+
 
