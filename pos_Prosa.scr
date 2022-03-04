@@ -17,6 +17,13 @@ IF(sv_r == 0) THEN
 #}
 ENDIF
 
+sv_r = CLASSEXISTS("CUST","TRAN")
+IF(sv_r == 0) THEN
+#{
+        CREATECLASS ("CUST","TRAN",5)
+#}
+ENDIF
+
 CUST.DATA.respTranId = ""
 CUST.DATA.respTranDate = ""
 CUST.DATA.respCod = ""
@@ -134,6 +141,46 @@ CUST.DATA.exchangeAmtDiff=""
 
 sv_i = CUST.DATA.inputRecord
 CUST.DATA.recordLengthFlg=""
+
+### Added as a part of accountstatement
+CUST.DATA.stmtDesc = ""
+CUST.TRAN.TranId  			= ""
+CUST.TRAN.sysTranC          = ""
+CUST.TRAN.UserTrnCode       = ""
+CUST.TRAN.freeText1         = ""
+CUST.TRAN.freeText2         = ""
+CUST.TRAN.freeText3         = ""
+CUST.TRAN.freeText5         = ""
+CUST.TRAN.freeText7         = ""
+CUST.TRAN.freeText9         = ""
+CUST.TRAN.requestId         = ""
+CUST.TRAN.freeText4         = ""
+CUST.TRAN.freeText6         = ""
+CUST.TRAN.NumericRefNum     = ""
+CUST.TRAN.TypeOfRev         = ""
+CUST.TRAN.freeText8         = ""
+CUST.TRAN.b2kId             = ""
+CUST.TRAN.freeText10        = ""
+CUST.TRAN.freeText12        = ""
+CUST.TRAN.user = ""
+CUST.TRAN.branchId = ""
+CUST.TRAN.terminal = ""
+CUST.DATA.TranId		= ""
+CUST.DATA.UserTrnCode   = ""
+CUST.TRAN.channelId     = ""
+CUST.DATA.Terminal		= ""
+CUST.DATA.freeText10    = ""
+CUST.DATA.freeText1     = ""
+CUST.DATA.freeText2     = ""
+CUST.DATA.freeText3     = ""
+CUST.DATA.freeText4     = ""
+CUST.DATA.freeText5     = ""
+CUST.DATA.freeText6     = ""
+CUST.DATA.freeText7     = ""
+CUST.DATA.freeText8     = ""
+CUST.DATA.freeText9     = ""
+
+### End as a part of accountstatement
 
 IF (sv_t == 0) THEN
 #{
