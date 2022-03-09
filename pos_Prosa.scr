@@ -765,34 +765,8 @@ IF (sv_t == 0) THEN
 		sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
 		print(sv_a)
 		
-		####################################################
-		##  Fetching BOD Date
-		####################################################	
-	
-		sv_s = ""
-		sv_s  = "BODDate| select to_date(?SVAR,'dd-mm-yyyy')" 		   
-		sv_s = sv_s + " from dual "
-		print(sv_s)	
+		CUST.DATA.bodDate1 = MID$(BANCS.STDIN.BODDate,0,10)
 
-		BANCS.INPARAM.BINDVARS = CUST.DATA.bodDate  
-		PRINT(sv_s)
-		PRINT(BANCS.INPARAM.BINDVARS)
-
-		sv_u = urhk_dbSelectWithBind(sv_s)
-		print(sv_u)
-		IF(sv_u == 0) THEN
-		#{
-			CUST.DATA.bodDate1 = BANCS.OUTPARAM.BODDate
-			PRINT(CUST.DATA.bodDate1)	
-		#}
-		ENDIF
-		
-		if(CUST.DATA.recErrMsg != "")then
-		#{
-			CUST.DATA.status = "F"
-			CUST.DATA.description = "Failure"
-		#}
-		endif
 		
 		####################################################
 		##  Conversion of 'settleFileDate' from YYMMDD to DDMMYY For Database Insertion
