@@ -26,7 +26,7 @@ IF(sv_r == 0) THEN
 #}
 ENDIF
 
-
+CUST.DATA.freeTextDesc = ""
 CUST.DATA.posOnlineCnt="0"
 CUST.DATA.descType=""
 CUST.DATA.settleAmtDiff=""
@@ -319,11 +319,11 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									##Devolucion Normal Devolucion
 									CUST.DATA.Nombre= "DEVOLUCION EN"
 									CUST.DATA.Nombre1= "CAJERO"
-									CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+									CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 									PRINT(CUST.DATA.stmtDesc)
 									CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+									CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 
-									
 								#}
 								else 
 								#{
@@ -334,9 +334,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 
 										CUST.DATA.Nombre= "DEVOLUCION EN"
 										CUST.DATA.Nombre1= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0')
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + " $" + LTRIM(CUST.DATA.totSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 										
 									#}
 									else 
@@ -347,9 +348,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										##Devolucion Normal Devolucion
 										CUST.DATA.Nombre= "DEVOLUCION EN"
 										CUST.DATA.Nombre1= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 									#}
 									endif
 								#}
@@ -565,9 +567,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											##Devolucion Normal Devolucion
 											CUST.DATA.Nombre= "DEVOLUCION EN"
 											CUST.DATA.Nombre1= "CAJERO"
-											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)
 											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+											CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 										#}
 										else 
 										#{
@@ -577,9 +580,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
 												CUST.DATA.Nombre= "DEVOLUCION EN"
 										CUST.DATA.Nombre1= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') 
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 											#}
 											else 
 											#{
@@ -588,9 +592,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												##Devolucion Normal Devolucion
 											CUST.DATA.Nombre= "DEVOLUCION EN"
 											CUST.DATA.Nombre1= "CAJERO"
-											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 											PRINT(CUST.DATA.stmtDesc)
 											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+											CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 											#}
 											endif
 										#}
@@ -835,9 +840,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											##Devolucion Normal Devolucion
 											CUST.DATA.Nombre= "DEVOLUCION EN"
 											CUST.DATA.Nombre1= "CAJERO"
-											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)
 											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+											CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 										#}
 										else 
 										#{
@@ -847,9 +853,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
 												CUST.DATA.Nombre= "DEVOLUCION EN"
 										CUST.DATA.Nombre1= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') 
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 											#}
 											else 
 											#{
@@ -858,9 +865,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												##Devolucion Normal Devolucion
 											CUST.DATA.Nombre= "DEVOLUCION EN"
 											CUST.DATA.Nombre1= "CAJERO"
-											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 											PRINT(CUST.DATA.stmtDesc)
 											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+											CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 											#}
 											endif
 										#}
@@ -1128,8 +1136,6 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 					#{
 						CUST.DATA.respTranId = CUST.DATA.TRANID
 						CUST.DATA.respTranDate = CUST.DATA.TRANDATE
-						CUST.DATA.custTranId=CUST.DATA.TRANID
-						CUST.DATA.custTranDate=CUST.DATA.TRANDATE
 						print(CUST.DATA.respTranId)
 						print(CUST.DATA.respTranDate)
 						CUST.DATA.respCod = "ANL00"
@@ -1205,9 +1211,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								##Devolucion Normal Devolucion
 											CUST.DATA.Nombre= "DEVOLUCION EN"
 											CUST.DATA.Nombre1= "CAJERO"
-											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)
 											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+											CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 							#}
 							else 
 							#{
@@ -1217,10 +1224,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
 									CUST.DATA.Nombre= "DEVOLUCION EN"
 										CUST.DATA.Nombre1= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') 
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') 
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 								#}
 								else 
 								#{
@@ -1229,9 +1236,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									##Devolucion Normal Devolucion
 											CUST.DATA.Nombre= "DEVOLUCION EN"
 											CUST.DATA.Nombre1= "CAJERO"
-											CUST.DATA.stmtDesc= CUST.DATA.Nombre + "" + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)
 											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+											CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 								#}
 								endif
 							#}

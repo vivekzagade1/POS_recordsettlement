@@ -656,7 +656,7 @@ IF (sv_t == 0) THEN
 				sv_s = sv_s + "accNumber,cardEncr,parentacc|"
 				sv_s = sv_s + "select EMP_ACCNT_NUM,LNKED_CARD_NUM,PARENT_ACCT from CUSTOM.CUST_CARD_ACCT_TBL WHERE CRD_MOD_FRMT "
 				sv_s = sv_s + "IN (select to_char(?SVAR,'XXXXXXXXXXXXXXXX') from dual) AND "
-				sv_s = sv_s + "ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N' AND BANK_ID = ?SVAR"
+				sv_s = sv_s + "ENTITY_CRE_FLG = 'Y' AND BANK_ID = ?SVAR AND ROWNUM=1"
 					
 				print(sv_s)
 				BANCS.INPARAM.BINDVARS = CUST.DATA.cardNum + "|" + BANCS.STDIN.contextBankId
@@ -825,7 +825,10 @@ IF (sv_t == 0) THEN
 		PRINT(sv_o)
 		if(sv_o == 0)then
 		#{
+			sv_r = urhk_dbSQL("commit")
+			PRINT("INSERT SUCCESSFUL")
 			CUST.DATA.inpFilProcStat="S"
+			
 		#}
 		endif
 
@@ -919,3 +922,4 @@ ENDOFSCRIPT:
 EXITSCRIPT
 	
 END-->
+
