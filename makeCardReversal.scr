@@ -74,7 +74,7 @@ CUST.REV.AuthDate = ""
 CUST.REV.AuthId = ""
 CUST.REV.LienId = ""
 CUST.REV.authId = ""
-CUST.TRAN.user = "BUPAYHUB"
+
 
 
 sv_y = urhk_GetChannelInfo("")
@@ -162,6 +162,22 @@ IF((CUST.REV.UniqueRefNum != "") AND (CUST.REV.AuthDate != "") AND (CUST.REV.Aut
 	#sv_s = sv_s + " WHERE AUTHID = ?SVAR AND TRANDATE = TO_DATE(?SVAR,'DD-MM-RRRR') AND SWITCHID = ?SVAR"
 	sv_s = sv_s + " WHERE AUTHID = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY') = ?SVAR AND SWITCHID = ?SVAR"	
 	BANCS.INPARAM.BINDVARS = CUST.REV.AuthId + "|" + CUST.REV.AuthDate + "|" + CUST.REV.UniqueRefNum
+	CUST.REV.errorCode = "ERR000234"
+#}
+ENDIF
+IF((CUST.REV.UniqueRefNum != "") AND (CUST.REV.AuthDate != "") AND (CUST.REV.AuthId == "") )THEN
+#{
+	#sv_s = sv_s + " WHERE AUTHID = ?SVAR AND TRANDATE = TO_DATE(?SVAR,'DD-MM-RRRR') AND SWITCHID = ?SVAR"
+	sv_s = sv_s + " WHERE SWITCHID = ?SVAR"	
+	BANCS.INPARAM.BINDVARS = CUST.REV.UniqueRefNum
+	CUST.REV.errorCode = "ERR000234"
+#}
+ENDIF
+IF((CUST.REV.UniqueRefNum != "") AND (CUST.REV.AuthDate == "") AND (CUST.REV.AuthId != "") )THEN
+#{
+	#sv_s = sv_s + " WHERE AUTHID = ?SVAR AND TRANDATE = TO_DATE(?SVAR,'DD-MM-RRRR') AND SWITCHID = ?SVAR"
+	sv_s = sv_s + " WHERE SWITCHID = ?SVAR"	
+	BANCS.INPARAM.BINDVARS = CUST.REV.UniqueRefNum
 	CUST.REV.errorCode = "ERR000234"
 #}
 ENDIF
@@ -260,6 +276,7 @@ IF((CUST.REV.TrnId != "") AND (CUST.REV.channelId == "ATM"))THEN
 	CUST.TRAN.ChannelId = "ATM"
 	CUST.TRAN.tranCategory = "N"
 	CUST.TRAN.freeText7 = "I"
+	CUST.TRAN.user = "BUPAYHUB"
 	CALLSCRIPTIFEXIST("makeCardReversalXML.scr")
 #}
 ENDIF
