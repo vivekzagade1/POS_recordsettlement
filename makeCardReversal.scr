@@ -1,0 +1,315 @@
+##########################################################################################
+# Source Name           : makeCardReversal.scr
+# Date                  : 16-Nov-2021
+# Description           : This Script is called on firing makeCardReversal API
+# Author                : Edie Ramirez
+# Menu Option           :
+# Calling Script        :
+# Called Script         : makeCardReversal.scr
+# Modification History  :
+# <Serial No.>  <Date>        <Author Name>             <Description>
+# ------------  -----------  -----------------         --------------
+#      1        16-Nov-2021   Edie Ramirez              Base Version
+###########################################################################################
+IMPORT LibCommon001
+<--START
+TRACE ON
+sv_r = REPEXISTS("CUST")
+IF(sv_r == 0) THEN
+#{
+        CREATEREP ("CUST")
+#}
+ENDIF
+
+sv_r = CLASSEXISTS("CUST","REV")
+IF(sv_r == 0) THEN
+#{
+        CREATECLASS ("CUST","REV",5)
+#}
+ENDIF
+
+PRINT(BANCS.STDIN.globalUUID)
+IF(FIELDEXISTS(BANCS.STDIN.globalUUID))THEN
+#{
+	CUST.REV.requestId = BANCS.STDIN.globalUUID
+	PRINT(CUST.REV.requestId)
+	CUST.REV.freeText11 = CUST.REV.requestId
+#}
+ENDIF
+
+sv_a = "SKIP_REPORT|"+"Y"
+sv_b = urhk_putEnv(sv_a)
+print (sv_b)
+
+CUST.REV.successOrFailure = ""
+
+###########################################################################################
+#       Getting the UserInfo details
+###########################################################################################
+CUST.REV.UserApplId = "FCORE"
+CUST.REV.CHANNELID = ""
+CUST.REV.FIJCA_Status = ""
+CUST.REV.MESSAGEDATETIME = ""
+CUST.REV.UsrTranCode = ""
+CUST.REV.REQUESTUUID = ""
+CUST.REV.SERVICEREQUESTVERSION = "11.9"
+CUST.REV.respMessage = ""
+CUST.REV.successCode = "0000"
+CUST.REV.errorMsg = ""
+CUST.REV.errorCode = ""
+CUST.REV.TualraChrgRevFlg = "N"
+CUST.REV.WaiveDDCnclChrgFlg = "N"
+CUST.REV.RevTrnId = ""
+CUST.REV.ResultMessage = ""
+CUST.REV.StatusDesc = ""
+CUST.REV.message = ""
+CUST.REV.TrnId = ""
+CUST.REV.TrnDt = ""
+CUST.REV.UniqueRefNum = ""
+CUST.REV.TypeOfRev = ""
+CUST.REV.Code = ""
+CUST.REV.waiveReturnChargeFlg = "N"
+CUST.REV.Result = ""
+CUST.REV.AuthDate = ""
+CUST.REV.AuthId = ""
+CUST.REV.LienId = ""
+CUST.REV.authId = ""
+CUST.TRAN.user = "BUPAYHUB"
+
+
+sv_y = urhk_GetChannelInfo("")
+print(sv_y)
+if(sv_y == 0) then
+#{
+	CUST.REV.CHANNELID = BANCS.OUTPARAM.DccId
+	print(CUST.REV.CHANNELID)
+#}
+ELSE
+#{
+	CUST.REV.CHANNELID = "ATM"
+#}
+ENDIF
+
+sv_u = urhk_b2k_printrepos("BANCS")
+print(sv_u)
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardReversalRq.AuthId")))THEN
+#{
+	IF(TRIM(("BANCS").("INPUT").("MakeCardReversalRq.AuthId")) != "")THEN
+	#{
+		CUST.REV.AuthId = MID$(TRIM(("BANCS").("INPUT").("MakeCardReversalRq.AuthId")),0,14)
+		PRINT(CUST.REV.AuthId)
+	#}
+	ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardReversalRq.AuthDate")))THEN
+#{
+	IF(TRIM(("BANCS").("INPUT").("MakeCardReversalRq.AuthDate")) != "")THEN
+	#{
+		CUST.REV.AuthDate = TRIM(("BANCS").("INPUT").("MakeCardReversalRq.AuthDate"))
+		PRINT(CUST.REV.AuthDate)
+		sv_a = urhk_B2k_valDate(CUST.REV.AuthDate)
+		IF(sv_a == 1) THEN
+		#{
+			CUST.REV.errorCode = "ERR000243"
+			sv_r = func_cmmsgerrdescWithInputs("ERR000243",BANCS.STDIN.userId, "", BYREF CUST.REV.errorMsg)
+			CUST.REV.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#{
+		ENDIF
+	#}
+	ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardReversalRq.UniqueRefNum")))THEN
+#{
+	IF(TRIM(("BANCS").("INPUT").("MakeCardReversalRq.UniqueRefNum")) != "")THEN
+	#{
+		CUST.REV.UniqueRefNum = TRIM(("BANCS").("INPUT").("MakeCardReversalRq.UniqueRefNum"))
+		PRINT(CUST.REV.UniqueRefNum)
+	#}
+	ENDIF
+#}
+ENDIF
+
+sv_s = ""
+sv_s = "TrnId,TrnDt,LienId,acctId,channelId,authId,terminal| SELECT DISTINCT TRANID,"
+sv_s = sv_s + " concat(to_char(TRANDATE,'RRRR-MM-DD'),'T00:00:00.000'),"
+sv_s = sv_s + " LIENID,ACCTID,CHANNELID,AUTHID,terminal"
+sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL"
+#SwitchId = CUST.REV.UniqueRefNum
+IF((CUST.REV.UniqueRefNum == "") AND (CUST.REV.AuthDate != "") AND (CUST.REV.AuthId != ""))THEN
+#{
+	#sv_s = sv_s + " WHERE AUTHID = ?SVAR AND TRANDATE = TO_DATE(?SVAR,'DD-MM-RRRR')"
+	sv_s = sv_s + " WHERE AUTHID = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY') = ?SVAR"
+	BANCS.INPARAM.BINDVARS = CUST.REV.AuthId + "|" + CUST.REV.AuthDate
+	CUST.REV.errorCode = "ERR000233"
+#}
+ENDIF
+IF((CUST.REV.UniqueRefNum != "") AND (CUST.REV.AuthDate == "") AND (CUST.REV.AuthId == ""))THEN
+#{
+	sv_s = sv_s + " WHERE SWITCHID = ?SVAR"
+	BANCS.INPARAM.BINDVARS = CUST.REV.UniqueRefNum
+	CUST.REV.errorCode = "ERR000236"
+#}
+ENDIF
+#Add searching by 3 fields - No original transaction/lien for reversal
+IF((CUST.REV.UniqueRefNum != "") AND (CUST.REV.AuthDate != "") AND (CUST.REV.AuthId != ""))THEN
+#{
+	#sv_s = sv_s + " WHERE AUTHID = ?SVAR AND TRANDATE = TO_DATE(?SVAR,'DD-MM-RRRR') AND SWITCHID = ?SVAR"
+	sv_s = sv_s + " WHERE AUTHID = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY') = ?SVAR AND SWITCHID = ?SVAR"	
+	BANCS.INPARAM.BINDVARS = CUST.REV.AuthId + "|" + CUST.REV.AuthDate + "|" + CUST.REV.UniqueRefNum
+	CUST.REV.errorCode = "ERR000234"
+#}
+ENDIF
+sv_s = sv_s + " AND BANK_ID = ?SVAR AND MODEOFOPN in ('P','C')"
+BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + BANCS.STDIN.contextBankId 
+
+PRINT(sv_s)
+PRINT(BANCS.INPARAM.BINDVARS)
+
+sv_u = urhk_dbSelectWithBind(sv_s)
+print(sv_u)
+IF(sv_u == 0) THEN
+#{
+	CUST.REV.TrnId = BANCS.OUTPARAM.TrnId
+	PRINT(CUST.REV.TrnId)
+	CUST.REV.TrnDt = BANCS.OUTPARAM.TrnDt
+	PRINT(CUST.REV.TrnDt)
+	CUST.REV.LienId = BANCS.OUTPARAM.LienId
+	PRINT(CUST.REV.LienId)
+	CUST.REV.acctId = BANCS.OUTPARAM.acctId
+        PRINT(CUST.REV.acctId)
+	CUST.REV.channelId = BANCS.OUTPARAM.channelId
+	PRINT(CUST.REV.channelId)
+	CUST.REV.authId = BANCS.OUTPARAM.authId
+	PRINT(CUST.REV.authId)
+	CUST.REV.terminal = BANCS.OUTPARAM.terminal
+	PRINT(CUST.REV.terminal)
+	
+#}
+ELSE
+#{
+	sv_r = func_cmmsgerrdescWithInputs(CUST.REV.errorCode,BANCS.STDIN.userId, "" , BYREF CUST.REV.errorMsg)	
+	PRINT(sv_r)
+	CUST.REV.successOrFailure = "F"
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardReversalRq.UsrTranCode")))THEN
+#{
+	IF(TRIM(("BANCS").("INPUT").("MakeCardReversalRq.UsrTranCode")) != "")THEN
+	#{
+		CUST.REV.UsrTranCode = TRIM(("BANCS").("INPUT").("MakeCardReversalRq.UsrTranCode"))
+		PRINT(CUST.REV.UsrTranCode)
+	#}
+	ELSE
+	#{
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000295",BANCS.STDIN.userId, "" , BYREF CUST.REV.errorMsg)
+		CUST.REV.errorCode = "ERR0000295"
+		CUST.REV.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ELSE
+#{
+	sv_r = func_cmmsgerrdescWithInputs("ERR0000295",BANCS.STDIN.userId, "" , BYREF CUST.REV.errorMsg)
+	CUST.REV.errorCode = "ERR0000295"
+	CUST.REV.successOrFailure = "F"
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardReversalRq.TypeOfRev")))THEN
+#{
+	IF(TRIM(("BANCS").("INPUT").("MakeCardReversalRq.TypeOfRev")) != "")THEN
+	#{
+		CUST.REV.TypeOfRev = TRIM(("BANCS").("INPUT").("MakeCardReversalRq.TypeOfRev"))
+		PRINT(CUST.REV.TypeOfRev)
+	#}
+	ELSE
+	#{
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000285",BANCS.STDIN.userId, "" , BYREF CUST.REV.errorMsg)
+		CUST.REV.errorCode = "ERR0000285"
+		PRINT(sv_r)
+		CUST.REV.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ENDIF
+
+#CALLSCRIPTIFEXIST("makeCardReversal_FtchData.scr")
+#GOTO ENDOFSCRIPT
+
+#ATM validation
+IF((CUST.REV.TrnId != "") AND (CUST.REV.channelId == "ATM"))THEN
+#{
+	sv_r = CLASSEXISTS("CUST","TRAN")
+	IF(sv_r == 0) THEN
+	#{
+        	CREATECLASS ("CUST","TRAN",5)
+	#}
+	ENDIF
+	CUST.TRAN.UserTrnCode = CUST.REV.UsrTranCode
+	CUST.TRAN.ChannelId = "ATM"
+	CUST.TRAN.tranCategory = "N"
+	CUST.TRAN.freeText7 = "I"
+	CALLSCRIPTIFEXIST("makeCardReversalXML.scr")
+#}
+ENDIF
+#LienId is as TranId/LienDate as TranDate/AuthId in response
+#POS validation
+IF((CUST.REV.LienId != "") AND (CUST.REV.channelId == "POS"))THEN
+#{
+	CALLSCRIPTIFEXIST("lienReleaseCard.scr")
+#}
+ENDIF
+
+IF(CUST.REV.successOrFailure == "S") THEN
+#{
+	BANCS.OUTPUT.successOrFailure = "S"
+	#------------------- Auth ID  ---------------------------------#
+	sv_s = ""
+	sv_s = "newAuthId| SELECT LPAD(CUSTOM.C_MCP_AUTH_SEQ.NEXTVAL,6,0) from dual"
+	print(sv_s)
+	sv_u = urhk_dbSelectWithBind(sv_s)
+	IF(sv_u ==0) THEN
+	#{
+		CUST.REV.newAuthId  = BANCS.OUTPARAM.newAuthId
+		print(CUST.REV.newAuthId)
+	#}
+	ENDIF
+	CALLSCRIPTIFEXIST("makeCardReversal_FtchData.scr")
+
+	sv_u = urhk_SetOrbOut("MakeCardReversalRs.AuthId| " + CUST.REV.newAuthId)
+	print(sv_u)
+	sv_b = MID$(CUST.REV.TrnDt,8,2) + "-" + MID$(CUST.REV.TrnDt,5,2) + "-" + MID$(CUST.REV.TrnDt,0,4)
+	print(sv_b)
+	sv_u = urhk_SetOrbOut("MakeCardReversalRs.TranDate| " + sv_b)
+	print(sv_u)
+#}
+ENDIF
+
+ENDOFSCRIPT:
+IF(CLASSEXISTS("CUST","TRAN")==1)THEN
+#{
+	DELETECLASS("CUST","TRAN")
+#}
+ENDIF
+
+PRINT(CUST.REV.successOrFailure)
+IF(CUST.REV.successOrFailure == "F") THEN
+#{
+	BANCS.OUTPUT.successOrFailure = "F"
+	sv_u = urhk_SetOrbErr(CUST.REV.errorCode + "|" + CUST.REV.errorMsg)
+#}
+ENDIF
+
+TRACE OFF
+END-->

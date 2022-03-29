@@ -138,6 +138,7 @@ CUST.DATA.custTranDate=""
 CUST.DATA.appliedSettleAmt=""
 CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
+CUST.DATA.settleFileTypeDb=""
 
 sv_i = CUST.DATA.inputRecord
 CUST.DATA.recordLengthFlg=""
@@ -287,12 +288,12 @@ IF (sv_t == 0) THEN
 	IF(CUST.DATA.recordLengthFlg=="Y") then
 	#{
 		CUST.DATA.identifier = "H"
-		CUST.DATA.settleFileType = "PROSA"
+		CUST.DATA.settleFileTypeDb = "PROSA"
 		CUST.DATA.settleFileDate = MID$(CUST.DATA.inputRecord,72,6)
 		CUST.DATA.settleInstitName = MID$(CUST.DATA.inputRecord,32,15)
 		CUST.DATA.settleFileNum = MID$(CUST.DATA.inputRecord,92,6)
 		CUST.DATA.settleFileChar = MID$(CUST.DATA.inputRecord,113,10)
-		PRINT(CUST.DATA.settleFileType)
+		PRINT(CUST.DATA.settleFileTypeDb)
 		PRINT(CUST.DATA.settleFileDate)
 		PRINT(CUST.DATA.settleInstitName)
 		PRINT(CUST.DATA.settleFileNum)
@@ -811,7 +812,7 @@ IF (sv_t == 0) THEN
 		
 		PRINT(sv_q)
 
-		BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileType + "|" + CUST.DATA.tempSettleFileDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
+		BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileTypeDb + "|" + CUST.DATA.tempSettleFileDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.accNumber + "|" + CUST.DATA.parentacc + "|" + CUST.DATA.purDate + "|" + CUST.DATA.purTime + "|" + CUST.DATA.tranType + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.totSourceAmt + "|" + CUST.DATA.purSourceAmt + "|" + CUST.DATA.destParty + "|" + CUST.DATA.currCode + "|" + CUST.DATA.settParty + "|"
 		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.PurAmt + "|" + CUST.DATA.bussCode + "|" + CUST.DATA.MCC + "|" + CUST.DATA.bussName + "|"

@@ -1150,7 +1150,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 						print(CUST.DATA.totInciTran21Returns)
 						#CUST.DATA.totInciAmtTran21Returns=CDOUBLE(CUST.DATA.totInciAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
 						print(CUST.DATA.totInciAmtTran21Returns)
-						if((CUST.DATA.freeTxt1=="B127") OR ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) ) then
+						if((CUST.DATA.FIDADQ=="B127") OR ((CUST.DATA.FIDADQ!="VISA") AND (CUST.DATA.FIDADQ!="BNET") AND (CUST.DATA.FIDADQ!="MDS")) ) then
 						#{
 							CUST.DATA.totTran21Returns=CINT(CUST.DATA.totTran21Returns)+1
 							print(CUST.DATA.totTran21Returns)
@@ -1204,7 +1204,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 						IF(BANCS.OUTPUT.successOrFailure=="S") then 
 						#{
 							CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.PurAmt),"%0.2f")
-							if(CUST.DATA.freeTxt1=="B127") then
+							if(CUST.DATA.FIDADQ=="B127") then
 							#{
 								CUST.DATA.debAccnt=CUST.DATA.devPurDebit
 								CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
@@ -1218,7 +1218,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 							#}
 							else 
 							#{
-								if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")) then 
+								if ((CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
 								#{
 									CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
 									CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
