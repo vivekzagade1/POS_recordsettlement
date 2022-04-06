@@ -1,0 +1,248 @@
+##########################################################################################
+# Source Name           : lienReleaseCard.scr
+# Date                  : 16-Nov-2021
+# Description           : This Script is called on firing makeCardReversal API
+# Author                : Edie Ramirez
+# Menu Option           :
+# Calling Script        :
+# Called Script         : lienReleaseCard.scr
+# ModIFication History  :
+# <Serial No.>  <Date>        <Author Name>             <Description>
+# ------------  -----------  -----------------         --------------
+#      1        16-Nov-2021   Edie Ramirez              Base Version
+###########################################################################################
+IMPORT LibCommon001
+<--START
+TRACE ON
+
+#--------------------------------
+# Create Repositories and Classes
+#--------------------------------
+
+IF (REPEXISTS("CUST") == 0) THEN
+#{
+CREATEREP("CUST")
+#}
+ENDIF
+
+IF (CLASSEXISTS("CUST", "REV") == 0) THEN
+#{
+	CREATECLASS("CUST", "REV", 5)
+#}
+ENDIF
+
+#CUST.REV.lienId = "MX16170"
+CUST.REV.lienId = CUST.REV.LienId
+CUST.REV.ccy = "MXP"
+CUST.REV.LienAmt = "0.00"
+CUST.REV.LienReasonCode = "0"
+#CUST.REV.accountNum = "00002100156708"
+CUST.REV.accountNum = CUST.REV.acctId
+CUST.REV.valueDate = MID$(BANCS.STDIN.BODDate,0,10)
+CUST.REV.LienType = "ULIEN"
+CUST.REV.recCount = ""
+CUST.REV.recFound = "" 
+
+sv_s = urhk_SetUrhkInp("acctLienMaintCrit.acctNum.foracid|"+CUST.REV.accountNum)
+print(sv_s)
+sv_s = urhk_SetUrhkInp("acctLienMaintCrit.moduleType|"+CUST.REV.LienType)
+print(sv_s)
+#######################################################
+#	CALLING SRV_validateLienMaintCritForAdd
+#######################################################
+sv_u = urhk_ExecSrvNoCommit("SRV_validateLienMaintCritForAdd|retain_all_output = Y|same_user_verIFy = Y")
+PRINT(sv_u)
+
+IF(sv_u!=0) THEN
+#{
+	CUST.REV.lienRemoveErrFlg="Y"
+	sv_c = BANCS.OUTPARAM.Error_num
+	print(sv_c)
+	IF (sv_c > 0) then
+	#{
+		sv_i = 1
+		sv_e = ""
+		WHILE (sv_i <= sv_c)
+		#{
+			sv_j = FORMAT$(sv_i,"%d")
+			print(sv_j)
+			("CUST").("REV").("errorCode_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorCode_"+sv_j)
+			("CUST").("REV").("errorDesc_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorMesg_"+sv_j) + " " + ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+			sv_f = ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+			CUST.REV.lienRemoveErr=("CUST").("REV").("errorDesc_"+sv_j)
+			
+			sv_i = sv_i + 1
+		#}
+		DO
+		Print(CUST.REV.lienRemoveErr)
+		GOTO ENDOFSCRIPT
+	#}
+	ELSE
+	#{
+		PRINT("GENERIC ERROR FOUND")
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ENDIF
+
+#######################################################
+#	CALLING SRV_FetchLienDtlsOnAcForMod
+#######################################################
+sv_u = urhk_CopyOutToIn("")
+PRINT(sv_u)
+sv_u = urhk_ExecSrvNoCommit("SRV_FetchLienDtlsOnAcForMod|retain_all_output = Y|same_user_verIFy = Y")
+PRINT(sv_u)
+	   
+IF(sv_u != 0)THEN
+#{
+	CUST.REV.lienRemoveErrFlg="Y"
+	sv_c = BANCS.OUTPARAM.Error_num
+	print(sv_c)
+	IF (sv_c > 0) then
+	#{
+		sv_i = 1
+		sv_e = ""
+		WHILE (sv_i <= sv_c)
+		#{
+			sv_j = FORMAT$(sv_i,"%d")
+			print(sv_j)
+			("CUST").("REV").("errorCode_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorCode_"+sv_j)
+			("CUST").("REV").("errorDesc_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorMesg_"+sv_j) + " " + ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+			sv_f = ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+			CUST.REV.lienRemoveErr=("CUST").("REV").("errorDesc_"+sv_j)
+			
+			sv_i = sv_i + 1
+		#}
+		DO
+		Print(CUST.REV.lienRemoveErr)
+		GOTO ENDOFSCRIPT
+	#}
+	ELSE
+	#{
+		PRINT("GENERIC ERROR FOUND")
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ELSE
+#{
+	sv_u = urhk_GetUrhkNum("lienMaintLL")
+	IF(sv_u == 0) THEN
+	#{
+		PRINT(BANCS.OUTPARAM.srvValue)
+		CUST.REV.recCount= BANCS.OUTPARAM.srvValue
+	#}
+	ELSE
+	#{
+		GOTO OUTOFLOOP
+	#}
+	ENDIF 
+	sv_n = 0
+	PRINT(CUST.REV.recCount)
+	WHILE(CINT(CUST.REV.recCount) > sv_n)
+	#{
+		PRINT(sv_n)	
+		sv_u = urhk_GetUrhkOut("lienMaintLL.<rec_"+FORMAT$(sv_n,"%d")+">.b2kId") 
+		CUST.REV.b2kId = BANCS.OUTPARAM.srvValue
+		PRINT(CUST.REV.b2kId)
+		PRINT(CUST.REV.lienId)
+		
+		IF(CUST.REV.b2kId == CUST.REV.lienId) then
+		#{
+		  CUST.REV.RECNUMBER = sv_n
+		  CUST.REV.recFound = "Y"
+		  PRINT(CUST.REV.RECNUMBER)
+		  GOTO OUTOFLOOP
+		#}
+		ENDIF
+		sv_n = sv_n + 1
+	#}
+	DO
+#}
+ENDIF
+
+#######################################################
+#	CALLING SRV_ModifyLienOnAcctAndVerify
+#######################################################
+OUTOFLOOP:
+IF(CUST.REV.recFound == "Y")THEN
+#{
+	#sv_n = CUST.REV.RECNUMBER
+	print(sv_n)
+	sv_u = urhk_CopyOutToIn("")
+	PRINT(sv_u)
+	sv_s = urhk_SetUrhkInp("acctLienMaintCrit.acctNum.foracid|"+TRIM(CUST.REV.accountNum))
+	print(sv_s)
+	sv_u = urhk_SetUrhkInp("lienMaintLL.<rec_"+FORMAT$(sv_n,"%d")+">.key.serial_num|1")
+	print(sv_u)
+	sv_u = urhk_SetUrhkInp("lienMaintLL.<rec_"+FORMAT$(sv_n,"%d")+">.b2kType|"+CUST.REV.LienType)
+	print(sv_u)
+	sv_u = urhk_SetUrhkInp("lienMaintLL.<rec_"+FORMAT$(sv_n,"%d")+">.newLienAmt|"+CUST.REV.LienAmt+"|"+CUST.REV.ccy)
+	print(sv_u)
+	PRINT(CUST.REV.LienReasonCode)
+	sv_u = urhk_SetUrhkInp("lienMaintLL.<rec_"+FORMAT$(sv_n,"%d")+">.lienReasonCode.refCode|"+CUST.REV.LienReasonCode)
+	print(sv_u)
+	sv_s = urhk_SetUrhkInp("lienMaintLL.<rec_"+FORMAT$(sv_n,"%d")+">.effFromDate|"+BANCS.STDIN.BODDate)
+	print(sv_s)
+	sv_s = urhk_SetUrhkInp("lienMaintLL.<rec_"+FORMAT$(sv_n,"%d")+">.b2kId|"+CUST.REV.lienId)
+	print(sv_s)
+	
+
+	sv_u = urhk_ExecSrvNoCommit("SRV_ModifyLienOnAcctAndVerify|retain_all_output = Y|same_user_verIFy = Y")
+	PRINT(sv_u)
+
+	IF(sv_u != 0)THEN
+	#{
+		CUST.REV.lienRemoveErrFlg="Y"
+		sv_c = BANCS.OUTPARAM.Error_num
+		print(sv_c)
+		IF (sv_c > 0) then
+		#{
+			sv_i = 1
+			sv_e = ""
+			WHILE (sv_i <= sv_c)
+			#{
+				sv_j = FORMAT$(sv_i,"%d")
+				print(sv_j)
+				("CUST").("REV").("errorCode_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorCode_"+sv_j)
+				("CUST").("REV").("errorDesc_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorMesg_"+sv_j) + " " + ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+				sv_f = ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+				CUST.REV.lienRemoveErr=("CUST").("REV").("errorDesc_"+sv_j)
+				
+				sv_i = sv_i + 1
+			#}
+			DO
+			Print(CUST.REV.lienRemoveErr)
+		#}
+		ENDIF
+	#}
+	ELSE
+	#{
+		CUST.REV.successOrFailure = "S"
+		PRINT("Lien released succesfully")
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ELSE
+#{
+	CUST.REV.successOrFailure = "F"
+	CUST.REV.errorMsg = "No lien found on the account for debit cards"
+	PRINT("No lien found on the account for debit cards")
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+
+ENDOFSCRIPT:
+IF(CUST.REV.successOrFailure=="S")THEN
+#{
+	sv_u = urhk_SetOrbOut("MakeCardReversalRs.RevTrnIdRec.RevLienId| "+CUST.REV.LienId)
+	print(sv_u)
+#}
+ENDIF
+EXITSCRIPT
+
+TRACE OFF
+END--> 

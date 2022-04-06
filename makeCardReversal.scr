@@ -27,6 +27,18 @@ IF(sv_r == 0) THEN
         CREATECLASS ("CUST","REV",5)
 #}
 ENDIF
+###########################################################################################
+# Check whether TRAN Class exists else create it
+###########################################################################################
+
+sv_r = CLASSEXISTS("CUST","TRAN")
+
+IF(sv_r == 0) THEN
+#{
+	CREATECLASS ("CUST","TRAN",5)
+#}
+ENDIF
+
 
 PRINT(BANCS.STDIN.globalUUID)
 IF(FIELDEXISTS(BANCS.STDIN.globalUUID))THEN
@@ -74,8 +86,49 @@ CUST.REV.AuthDate = ""
 CUST.REV.AuthId = ""
 CUST.REV.LienId = ""
 CUST.REV.authId = ""
-
-
+CUST.TRAN.freeText1 = ""
+CUST.TRAN.freeText2 = ""
+CUST.TRAN.freeText3 = ""
+CUST.TRAN.freeText4 = ""
+CUST.TRAN.freeText5 = ""
+CUST.TRAN.freeText6 = ""
+CUST.TRAN.freeText7 = "N"
+CUST.TRAN.freeText8 = ""
+CUST.TRAN.freeText9 = ""
+CUST.TRAN.freeText10 = ""
+CUST.TRAN.freeText11 = ""
+CUST.TRAN.freeText12 = ""
+CUST.TRAN.TypeOfRev = ""
+CUST.TRAN.sysTranC = ""
+CUST.TRAN.userTranC = ""
+CUST.TRAN.tranCategory = "N"
+CUST.TRAN.channelId    = ""
+CUST.TRAN.placeholder = ""
+CUST.TRAN.beneficiary = ""
+CUST.TRAN.TranAmount = ""
+CUST.TRAN.chrgReqForCrFlg = "N"
+CUST.TRAN.chrgReqForDbFlg = "N"
+CUST.TRAN.eventIdCr = ""
+CUST.TRAN.ChqCount = ""
+CUST.TRAN.eventIdDb = ""
+CUST.TRAN.terminal = ""
+CUST.TRAN.user = ""
+CUST.TRAN.branchId = ""
+CUST.TRAN.tranDate = ""
+CUST.TRAN.valueDate = ""
+CUST.TRAN.PmtInstDt =	""
+CUST.TRAN.PmtInstType = ""
+CUST.TRAN.channelId = ""
+CUST.TRAN.terminal  = ""
+CUST.TRAN.user = ""
+CUST.TRAN.branchId = ""
+CUST.TRAN.valueDate= ""
+CUST.TRAN.requestId = ""
+CUST.TRAN.NumericRefNum = ""
+CUST.TRAN.b2kId = ""
+CUST.TRAN.TranId= ""
+CUST.TRAN.tranDate = ""
+CUST.TRAN.TranDate = ""
 
 sv_y = urhk_GetChannelInfo("")
 print(sv_y)
@@ -87,6 +140,16 @@ if(sv_y == 0) then
 ELSE
 #{
 	CUST.REV.CHANNELID = "ATM"
+#}
+ENDIF
+
+PRINT(BANCS.STDIN.globalUUID)
+IF(FIELDEXISTS(BANCS.STDIN.globalUUID))THEN
+#{
+	CUST.TRAN.requestId = BANCS.STDIN.globalUUID
+	CUST.TRAN.requestId1 = CUST.TRAN.requestId
+	PRINT(CUST.TRAN.requestId)
+	CUST.TRAN.freeText11 = CUST.TRAN.requestId
 #}
 ENDIF
 
