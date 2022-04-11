@@ -41,7 +41,7 @@ CUST.REV.accountNum = CUST.REV.acctId
 CUST.REV.valueDate = MID$(BANCS.STDIN.BODDate,0,10)
 CUST.REV.LienType = "ULIEN"
 CUST.REV.recCount = ""
-CUST.REV.recFound = "" 
+CUST.REV.recFound = ""
 
 sv_s = urhk_SetUrhkInp("acctLienMaintCrit.acctNum.foracid|"+CUST.REV.accountNum)
 print(sv_s)
@@ -228,8 +228,12 @@ IF(CUST.REV.recFound == "Y")THEN
 ELSE
 #{
 	CUST.REV.successOrFailure = "F"
-	CUST.REV.errorMsg = "No lien found on the account for debit cards"
-	PRINT("No lien found on the account for debit cards")
+	CUST.REV.respMessage = "No lien found on the account for debit cards"
+	PRINT(CUST.REV.respMessage)
+	CUST.REV.errorCode = "ERR000234"
+	sv_r = func_cmmsgerrdescWithInputs("ERR000234",BANCS.STDIN.userId, "", BYREF CUST.REV.errorMsg)
+	PRINT(sv_r)
+	PRINT(CUST.REV.errorMsg)
 	GOTO ENDOFSCRIPT
 #}
 ENDIF

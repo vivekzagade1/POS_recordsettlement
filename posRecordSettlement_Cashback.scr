@@ -265,13 +265,13 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 								#{
 									if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")) then 
 									#{
-										CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
-										CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
+										CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+										CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 									#}
 									else 
 									#{
-										CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
-										CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+										CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+										CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 										#domestic
 									CUST.DATA.amount = "0"	
 IF(CUST.DATA.PurAmt!="")THEN
@@ -612,13 +612,13 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 										#{
 											if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")) then 
 											#{
-												CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
-												CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
+												CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+												CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 											#}
 											else 
 											#{
-												CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
-												CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+												CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+												CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 												#domestic
 																					#domestic
 									CUST.DATA.amount = "0"	
@@ -1115,13 +1115,13 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 										#{
 											if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")) then 
 											#{
-												CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
-												CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
+												CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+												CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 											#}
 											else 
 											#{
-												CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
-												CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+												CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+												CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 																					#domestic
 									CUST.DATA.amount = "0"	
 IF(CUST.DATA.PurAmt!="")THEN
@@ -1622,13 +1622,13 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 									#{
 										if ((CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
 										#{
-											CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
-											CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
+											CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+											CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 										#}
 										else 
 										#{
-											CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
-											CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+											CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+											CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 																				#domestic
 									CUST.DATA.amount = "0"	
 IF(CUST.DATA.PurAmt!="")THEN
@@ -1725,13 +1725,13 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 									#{
 										if ((CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
 										#{
-											CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
-											CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
+											CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+											CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 										#}
 										else 
 										#{
-											CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
-											CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+											CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+											CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 																				#domestic
 									CUST.DATA.amount = "0"	
 IF(CUST.DATA.PurAmt!="")THEN
@@ -1849,13 +1849,13 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 										#{
 											if ((CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
 											#{
-												CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
-												CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
+												CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+												CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 											#}
 											else 
 											#{
-												CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
-												CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+												CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+												CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 																					#domestic
 									CUST.DATA.amount = "0"	
 IF(CUST.DATA.PurAmt!="")THEN
@@ -1965,13 +1965,13 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 								#{
 									if ((CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
 									#{
-										CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
-										CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
+										CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+										CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 									#}
 									else 
 									#{
-										CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
-										CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
+										CUST.DATA.credAccnt=CUST.DATA.cahbackWithDrawCredit
+										CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
 																			#domestic
 									CUST.DATA.amount = "0"	
 IF(CUST.DATA.PurAmt!="")THEN
