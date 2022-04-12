@@ -68,6 +68,8 @@ CUST.DATA.appliedSettleAmt=""
 CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
 
+CUST.DATA.totSourceAmt=format$(CDOUBLE(CUST.DATA.totSourceAmt),"%0.2f")
+
 IF(FIELDEXISTS(CUST.DATA.FIDADQ)) THEN
 #{
 	IF(CUST.DATA.FIDADQ=="") then
@@ -311,13 +313,13 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 							IF(BANCS.OUTPUT.successOrFailure=="S") then 
 							#{
 								CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.PurAmt),"%0.2f")
-								if(CUST.DATA.freeTxt1=="B127") then
+								if((CUST.DATA.freeTxt1=="B127")OR(CUST.DATA.FIDADQ=="B127")) then
 								#{
 									CUST.DATA.debAccnt=CUST.DATA.devPurDebit
 									CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
 									
 									##Devolucion Normal Devolucion
-									CUST.DATA.Nombre= "DEVOLUCION EN"
+									CUST.DATA.Nombre= "DEVOLUCION"
 									CUST.DATA.Nombre1= "CAJERO"
 									CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 									PRINT(CUST.DATA.stmtDesc)
@@ -327,14 +329,13 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#}
 								else 
 								#{
-									if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")) then 
+									if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")OR(CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
 									#{
 										CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
 										CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
-
-										CUST.DATA.Nombre= "DEVOLUCION EN"
+										CUST.DATA.Nombre= "DEVOLUCION"
 										CUST.DATA.Nombre1= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + " $" + LTRIM(CUST.DATA.totSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + " $" + CUST.DATA.totSourceAmt + " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -346,7 +347,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										CUST.TRAN.UserTrnCode = CUST.DATA.PUR_DEV_BAZ
 										
 										##Devolucion Normal Devolucion
-										CUST.DATA.Nombre= "DEVOLUCION EN"
+										CUST.DATA.Nombre= "DEVOLUCION"
 										CUST.DATA.Nombre1= "CAJERO"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
@@ -560,12 +561,12 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#{
 									
 										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.onlineAmt),"%0.2f")
-										if(CUST.DATA.freeTxt1=="B127") then
+										if((CUST.DATA.freeTxt1=="B127")OR(CUST.DATA.FIDADQ=="B127")) then
 										#{
 											CUST.DATA.debAccnt=CUST.DATA.devPurDebit
 											CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
 											##Devolucion Normal Devolucion
-											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre= "DEVOLUCION"
 											CUST.DATA.Nombre1= "CAJERO"
 											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)
@@ -574,13 +575,13 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#}
 										else 
 										#{
-											if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")) then 
+											if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")OR(CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
 											#{
 												CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
 												CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
-												CUST.DATA.Nombre= "DEVOLUCION EN"
+												CUST.DATA.Nombre= "DEVOLUCION"
 										CUST.DATA.Nombre1= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + CUST.DATA.totSourceAmt + " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -590,7 +591,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												CUST.DATA.debAccnt=CUST.DATA.devPurComDebit
 												CUST.TRAN.UserTrnCode = CUST.DATA.PUR_DEV_BAZ
 												##Devolucion Normal Devolucion
-											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre= "DEVOLUCION"
 											CUST.DATA.Nombre1= "CAJERO"
 											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 											PRINT(CUST.DATA.stmtDesc)
@@ -644,14 +645,14 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											
 												CUST.DATA.respTranId = CUST.DATA.TRANID
 												CUST.DATA.respTranDate = CUST.DATA.TRANDATE
-												CUST.DATA.respCod = "INC00"
-												CUST.DATA.respMsg = "INCIDENCIA"
+												CUST.DATA.respCod = "APL01"
+												CUST.DATA.respMsg = "APLICADO C/DIFERENCIA CAMBIARIA"
 												CUST.DATA.incidentReason = CUST.DATA.errorMsg
 												CUST.DATA.blockUser = ""
 												CUST.DATA.blockDate = ""
 												CUST.DATA.appliedSettleAmt=""
 												CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
-												CUST.DATA.exchangeAmtDiff=""
+												CUST.DATA.exchangeAmtDiff=CUST.DATA.settleAmtDiff
 												
 												CUST.DATA.totInciTran21Returns=CINT(CUST.DATA.totInciTran21Returns)+1
 												print(CUST.DATA.totInciTran21Returns)
@@ -670,6 +671,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 													print(CUST.DATA.totIntTran21Returns)
 													CUST.DATA.totIntAmtTran21Returns=CDOUBLE(CUST.DATA.totIntAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
 													print(CUST.DATA.totIntAmtTran21Returns)
+													CUST.DATA.totTrans = CINT(CUST.DATA.totTrans)+1
+													PRINT(CUST.DATA.totTrans)
+													CUST.DATA.totAmtTrans=CDOUBLE(CUST.DATA.totAmtTrans)+CDOUBLE(CUST.DATA.TranAmt)
+													PRINT(CUST.DATA.totAmtTrans)
 																									
 												#}
 												endif
@@ -833,12 +838,12 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								IF(BANCS.OUTPUT.successOrFailure=="S") then 
 								#{
 										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.onlineAmt),"%0.2f")
-										if(CUST.DATA.freeTxt1=="B127") then
+										if((CUST.DATA.freeTxt1=="B127")OR(CUST.DATA.FIDADQ=="B127")) then
 										#{
 											CUST.DATA.debAccnt=CUST.DATA.devPurDebit
 											CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
 											##Devolucion Normal Devolucion
-											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre= "DEVOLUCION"
 											CUST.DATA.Nombre1= "CAJERO"
 											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)
@@ -847,13 +852,13 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										#}
 										else 
 										#{
-											if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")) then 
+											if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")OR(CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
 											#{
 												CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
 												CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
-												CUST.DATA.Nombre= "DEVOLUCION EN"
+												CUST.DATA.Nombre= "DEVOLUCION"
 										CUST.DATA.Nombre1= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + CUST.DATA.totSourceAmt + " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -863,7 +868,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												CUST.DATA.debAccnt=CUST.DATA.devPurComDebit
 												CUST.TRAN.UserTrnCode = CUST.DATA.PUR_DEV_BAZ
 												##Devolucion Normal Devolucion
-											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre= "DEVOLUCION"
 											CUST.DATA.Nombre1= "CAJERO"
 											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
 											PRINT(CUST.DATA.stmtDesc)
@@ -919,14 +924,14 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											
 												CUST.DATA.respTranId = CUST.DATA.TRANID
 												CUST.DATA.respTranDate = CUST.DATA.TRANDATE
-												CUST.DATA.respCod = "INC00"
-												CUST.DATA.respMsg = "INCIDENCIA"
+												CUST.DATA.respCod = "APL01"
+												CUST.DATA.respMsg = "APLICADO C/DIFERENCIA CAMBIARIA"
 												CUST.DATA.incidentReason = CUST.DATA.errorMsg
 												CUST.DATA.blockUser = ""
 												CUST.DATA.blockDate = ""
 												CUST.DATA.appliedSettleAmt=""
 												CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
-												CUST.DATA.exchangeAmtDiff=""
+												CUST.DATA.exchangeAmtDiff=CUST.DATA.settleAmtDiff
 											
 												
 												CUST.DATA.totInciTran21Returns=CINT(CUST.DATA.totInciTran21Returns)+1
@@ -946,7 +951,10 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 													print(CUST.DATA.totIntTran21Returns)
 													CUST.DATA.totIntAmtTran21Returns=CDOUBLE(CUST.DATA.totIntAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
 													print(CUST.DATA.totIntAmtTran21Returns)
-																									
+													CUST.DATA.totTrans = CINT(CUST.DATA.totTrans)+1
+													PRINT(CUST.DATA.totTrans)
+													CUST.DATA.totAmtTrans=CDOUBLE(CUST.DATA.totAmtTrans)+CDOUBLE(CUST.DATA.TranAmt)
+													PRINT(CUST.DATA.totAmtTrans)					
 												#}
 												endif
 											#}
@@ -1209,7 +1217,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								CUST.DATA.debAccnt=CUST.DATA.devPurDebit
 								CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
 								##Devolucion Normal Devolucion
-											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre= "DEVOLUCION"
 											CUST.DATA.Nombre1= "CAJERO"
 											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)
@@ -1222,9 +1230,9 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#{
 									CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
 									CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
-									CUST.DATA.Nombre= "DEVOLUCION EN"
+									CUST.DATA.Nombre= "DEVOLUCION"
 										CUST.DATA.Nombre1= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + CUST.DATA.totSourceAmt + " RFC:" + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1234,7 +1242,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									CUST.DATA.debAccnt=CUST.DATA.devPurComDebit
 									CUST.TRAN.UserTrnCode = CUST.DATA.PUR_DEV_BAZ
 									##Devolucion Normal Devolucion
-											CUST.DATA.Nombre= "DEVOLUCION EN"
+											CUST.DATA.Nombre= "DEVOLUCION"
 											CUST.DATA.Nombre1= "CAJERO"
 											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)

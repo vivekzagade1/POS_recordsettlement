@@ -72,12 +72,18 @@ CUST.DATA.EFFAMT="0.00"
 CUST.DATA.ACCTBALAMT1="0.00"
 CUST.DATA.ACCTBALAMT1="0.00"
 
-
-
-
 CUST.DATA.bodDate = MID$(BANCS.STDIN.BODDate,0,10)
 PRINT(CUST.DATA.bodDate)
 
+IF(FIELDEXISTS(CUST.DATA.accNumber)) THEN
+#{
+	PRINT(CUST.DATA.accNumber)
+#}
+ELSE
+#{
+	CUST.DATA.accNumber = ""
+#}
+ENDIF
 
 # Parent Account status validation
 
@@ -171,9 +177,10 @@ IF(CUST.DATA.odFlg!="E") then
                                 CUST.TRAN.ChannelId = "POS"
                                 ##Normal Purchase Compra En
                                 CUST.DATA.Nombre= "Compra En"
-                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation
+                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                 PRINT(CUST.DATA.stmtDesc)
                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+								CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
                         #}
                         else
                         #{
@@ -183,9 +190,10 @@ IF(CUST.DATA.odFlg!="E") then
                                         CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
                                         CUST.TRAN.ChannelId = "POS"
                                         CUST.DATA.Nombre= "Compra En"
-                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0')
+                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                         PRINT(CUST.DATA.stmtDesc)
                                         CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
                                 #}
                                 else
                                 #{
@@ -194,9 +202,10 @@ IF(CUST.DATA.odFlg!="E") then
                                         CUST.TRAN.ChannelId = "POS"
                                         ##Normal Purchase Compra En
                                         CUST.DATA.Nombre= "Compra En"
-                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation
+                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                         PRINT(CUST.DATA.stmtDesc)
                                         CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
                                 #}
                                 endif
                         #}
@@ -214,9 +223,10 @@ IF(CUST.DATA.odFlg!="E") then
                                         # domestic
                                         ##Normal Purchase Compra En
                                         CUST.DATA.Nombre= "Compra En"
-                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation
+                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                         PRINT(CUST.DATA.stmtDesc)
                                         CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 
                                 #}
                                 else
@@ -228,9 +238,10 @@ IF(CUST.DATA.odFlg!="E") then
                                                 CUST.TRAN.ChannelId = "POS"
                                                 ## international
                                                 CUST.DATA.Nombre= "Compra En"
-                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0')
+                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                                 PRINT(CUST.DATA.stmtDesc)
                                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 
                                         #}
                                         else
@@ -241,9 +252,10 @@ IF(CUST.DATA.odFlg!="E") then
                                                 ## domestic
                                                 ##Normal Purchase Compra En
                                                 CUST.DATA.Nombre= "Compra En"
-                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation
+                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                                 PRINT(CUST.DATA.stmtDesc)
                                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
                                         #}
                                         endif
                                 #}
@@ -266,9 +278,10 @@ IF(CUST.DATA.odFlg!="E") then
                                                 CUST.DATA.Nombre= "CUNSULTA EN"
                                                 CUST.DATA.Nombre2= "CONSULTA DE USO DE CAJERO $"
                                                 CUST.DATA.Nombre3= "CAJERO"
-                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.sourceAmt + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount
+                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.sourceAmt + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount + " POR LA CUENTA " + CUST.DATA.accNumber
                                                 PRINT(CUST.DATA.stmtDesc)
                                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
                                         #}
                                         else
                                         #{
@@ -281,12 +294,14 @@ IF(CUST.DATA.odFlg!="E") then
                                                         ### Added as a part of tranParticular value passed
 
                                                         ##CONSULTA DE SALDO +Amount + Bankname+CAJERO+terminal+city+COMISION USO DE CAJERO:$+amount
-                                                        CUST.DATA.Nombre= "CONSULTA DE SALDO"
+                                                        CUST.DATA.amount=format$(CDOUBLE(CUST.DATA.amount),"%0.2f")
+														CUST.DATA.Nombre= "CONSULTA DE SALDO"
                                                         CUST.DATA.Nombre2= "CONSULTA DE USO DE CAJERO $"
                                                         CUST.DATA.Nombre3= "CAJERO"
-                                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + "$" + CUST.DATA.amount + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount
+                                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + "$" + CUST.DATA.amount + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount + " POR LA CUENTA " + CUST.DATA.accNumber
                                                         PRINT(CUST.DATA.stmtDesc)
                                                         CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+														CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
                                                 #}
                                                 endif
                                         #}
@@ -300,9 +315,10 @@ IF(CUST.DATA.odFlg!="E") then
                                                 CUST.DATA.Nombre= "RETIRO EN EFFECTIVO"
                                                 CUST.DATA.Nombre2= "COMISION DE USO DE CAJERO $"
                                                 CUST.DATA.Nombre3= "CAJERO"
-                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
+                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee + " POR LA CUENTA " + CUST.DATA.accNumber
                                                 PRINT(CUST.DATA.stmtDesc)
                                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 
 
                                         #}
@@ -334,9 +350,10 @@ IF(CUST.DATA.odFlg!="E") then
                                                                 CUST.DATA.Nombre4= "COMISION USO DE CAJERO:"
                                                                 CUST.DATA.amount1 = CDOUBLE(CUST.DATA.amount) - CDOUBLE(CUST.DATA.surchargeFee)
 
-                                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.amount + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + "" + CUST.DATA.surchargeFee
+                                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.amount + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + "" + CUST.DATA.surchargeFee + " POR LA CUENTA " + CUST.DATA.accNumber
                                                                 PRINT(CUST.DATA.stmtDesc)
                                                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+																CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
                                                         #}
                                                         else
                                                         #{
@@ -344,9 +361,10 @@ IF(CUST.DATA.odFlg!="E") then
                                                                 ### With comission other bank  #RETIRO EN EFFECTIVO $ + amount +BankName+CAJERO+terminal+place
                                                                 CUST.DATA.Nombre= "RETIRO EN EFFECTIVO $"
                                                                 CUST.DATA.Nombre3= "CAJERO"
-                                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.amount + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM
+                                                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.amount + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " POR LA CUENTA " + CUST.DATA.accNumber
                                                                 PRINT(CUST.DATA.stmtDesc)
                                                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+																CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
                                                         #}
                                                         ENDIF
                                                 #}
@@ -603,6 +621,23 @@ IF(CUST.DATA.odFlg!="E") then
                         ELSE
                         #{
                                 CUST.DATA.incTranrqd="Y"
+								CUST.TRAN.accountNum=CUST.DATA.parentacc
+								CUST.TRAN.LienAmt=CUST.DATA.incTranAmt
+								CUST.TRAN.blockMode="A"
+								CALLSCRIPTIFEXIST("lienMarkCardSettlement.scr")
+								if(CUST.TRAN.LienId!="") then
+								#{
+										CUST.DATA.LienSettleId=CUST.TRAN.LienId
+										CUST.DATA.LienSettleAmt=CUST.TRAN.LienAmt
+										CUST.DATA.LienExpSettle=CUST.TRAN.LienExpDate
+										CUST.DATA.lienAccntParent=CUST.DATA.parentacc
+								#}
+								endif
+								if(CUST.DATA.LIENID!="") then
+								#{
+										CALLSCRIPTIFEXIST("lienReleaseCardSettlement.scr")
+								#}
+								endif
                         #}
                         ENDIF
                 #}
@@ -611,6 +646,23 @@ IF(CUST.DATA.odFlg!="E") then
         else
         #{
                 CUST.DATA.incTranrqd="Y"
+				CUST.TRAN.accountNum=CUST.DATA.parentacc
+				CUST.TRAN.LienAmt=CUST.DATA.incTranAmt
+				CUST.TRAN.blockMode="A"
+				CALLSCRIPTIFEXIST("lienMarkCardSettlement.scr")
+				if(CUST.TRAN.LienId!="") then
+				#{
+						CUST.DATA.LienSettleId=CUST.TRAN.LienId
+						CUST.DATA.LienSettleAmt=CUST.TRAN.LienAmt
+						CUST.DATA.LienExpSettle=CUST.TRAN.LienExpDate
+						CUST.DATA.lienAccntParent=CUST.DATA.parentacc
+				#}
+				endif
+				if(CUST.DATA.LIENID!="") then
+				#{
+						CALLSCRIPTIFEXIST("lienReleaseCardSettlement.scr")
+				#}
+				endif
         #}
         endif
 
@@ -622,17 +674,29 @@ IF(CUST.DATA.odFlg == "E")THEN
 #{
         BANCS.OUTPUT.successOrFailure = "F"
         CUST.DATA.incTranrqd="Y"
+		CUST.TRAN.accountNum=CUST.DATA.parentacc
+		CUST.TRAN.LienAmt=CUST.DATA.incTranAmt
+		CUST.TRAN.blockMode="A"
+		CALLSCRIPTIFEXIST("lienMarkCardSettlement.scr")
+		if(CUST.TRAN.LienId!="") then
+		#{
+				CUST.DATA.LienSettleId=CUST.TRAN.LienId
+				CUST.DATA.LienSettleAmt=CUST.TRAN.LienAmt
+				CUST.DATA.LienExpSettle=CUST.TRAN.LienExpDate
+				CUST.DATA.lienAccntParent=CUST.DATA.parentacc
+		#}
+		endif
+		if(CUST.DATA.LIENID!="") then
+		#{
+				CALLSCRIPTIFEXIST("lienReleaseCardSettlement.scr")
+		#}
+		endif
         PRINT(CUST.DATA.errorCode)
         PRINT(CUST.DATA.errorMsg)
         PRINT(CUST.DATA.odFlg)
         PRINT(BANCS.OUTPUT.successOrFailure)
-
 #}
 ENDIF
-
-
-
-
 
 EXITSCRIPT
 END-->

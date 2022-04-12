@@ -69,6 +69,8 @@ CUST.DATA.custTranDate=""
 CUST.DATA.appliedSettleAmt=""
 CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
+CUST.DATA.lienExpired=""
+CUST.DATA.lienAmtVal=""
 
 IF(FIELDEXISTS(CUST.DATA.FIDADQ)) THEN
 #{
@@ -195,6 +197,37 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 					#}
 					ENDIF
 					
+					IF(CUST.DATA.LIENID!="") then 
+					#{
+						BANCS.INPARAM.BINDVARS = CUST.DATA.LIENID +"|"+ BANCS.STDIN.contextBankId
+						sv_s = "lienAmtVal|"
+						sv_s = sv_s + " SELECT lien_amt "
+						sv_s = sv_s + " FROM    tbaadm.ALT ALT "
+						sv_s = sv_s + " WHERE  ALT.B2K_ID = ?SVAR "
+						sv_s = sv_s + " AND ALT.DEL_FLG != 'Y' "
+						sv_s = sv_s + " AND ALT.ENTITY_CRE_FLG != 'N' "
+						sv_s = sv_s + " AND ALT.B2K_TYPE = 'ULIEN' "
+						sv_s = sv_s + " AND ALT.BANK_ID = ?SVAR "
+						print(sv_s)
+
+						sv_d = urhk_dbSelectWithBind(sv_s)
+						print(sv_d)
+
+						IF(sv_d == 0) THEN
+						#{
+							CUST.DATA.lienAmtVal = BANCS.OUTPARAM.lienAmtVal
+							print(CUST.DATA.lienAmtVal)
+							
+						#}
+						ELSE
+						#{
+							CUST.DATA.lienExpired="Y"
+							GOTO OFFLINEREC
+						#}
+						ENDIF
+					
+					#}
+					endif
 										
 					if(CDOUBLE(CUST.DATA.onlineAmt)==CDOUBLE(CUST.DATA.PurAmt)) then  
 					#{
@@ -1530,6 +1563,8 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 				#Offline POS Transactions
 				
 				# Account status validation
+				
+				OFFLINEREC:
 				BANCS.OUTPUT.successOrFailure="S"
 				CUST.DATA.incAcctTrnType="C"
 				CUST.DATA.incTranAmt="0.00"
@@ -1774,8 +1809,17 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 										print(CUST.DATA.respTranId)
 										print(CUST.DATA.respTranDate)
 										print(CUST.DATA.incTranAmt)
-										CUST.DATA.respCod = "APC02"
-										CUST.DATA.respMsg = "APLICADO SIN CONCILIAR"
+										IF(CUST.DATA.lienExpired=="Y") then 
+										#{
+											CUST.DATA.respCod = "APL00"
+											CUST.DATA.respMsg = "APPLICADO"
+										#}
+										else
+										#{
+											CUST.DATA.respCod = "APC02"
+											CUST.DATA.respMsg = "APLICADO SIN CONCILIAR"
+										#}
+										endif
 										CUST.DATA.incidentReason = ""
 										CUST.DATA.blockUser = ""
 										CUST.DATA.blockDate = ""
@@ -2011,8 +2055,17 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 									print(CUST.DATA.respTranId)
 									print(CUST.DATA.respTranDate)
 									print(CUST.DATA.incTranAmt)
-									CUST.DATA.respCod = "APC02"
-									CUST.DATA.respMsg = "APLICADO SIN CONCILIAR"
+									IF(CUST.DATA.lienExpired=="Y") then 
+									#{
+										CUST.DATA.respCod = "APL00"
+										CUST.DATA.respMsg = "APPLICADO"
+									#}
+									else
+									#{
+										CUST.DATA.respCod = "APC02"
+										CUST.DATA.respMsg = "APLICADO SIN CONCILIAR"
+									#}
+									endif
 									CUST.DATA.incidentReason = ""
 									CUST.DATA.blockUser = ""
 									CUST.DATA.blockDate = ""
@@ -2108,7 +2161,15 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 					CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.incTranAmt),"%0.2f")
 					if(CUST.DATA.lienAccntParent=="") then 
 					#{
-						CUST.TRAN.accountNum=CUST.DATA.accNumber
+						if(CUST.DATA.parentacc!="") then 
+						#{
+							CUST.TRAN.accountNum=CUST.DATA.parentacc
+						#}
+						else
+						#{
+							CUST.TRAN.accountNum=CUST.DATA.accNumber
+						#}
+						endif
 						CUST.TRAN.LienAmt=CUST.DATA.TranAmt
 						CUST.TRAN.blockMode="A"
 						CALLSCRIPTIFEXIST("lienMarkCardSettlement.scr")
@@ -2117,6 +2178,7 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 							CUST.DATA.LienSettleId=CUST.TRAN.LienId
 							CUST.DATA.LienSettleAmt=CUST.TRAN.LienAmt
 							CUST.DATA.LienExpSettle=CUST.TRAN.LienExpDate
+							CUST.DATA.lienAccntParent=CUST.TRAN.accountNum
 						#}
 						endif
 					#}
@@ -2252,5 +2314,6 @@ endif
 EXITSCRIPT
 #trace off
 end-->
+
 
 
