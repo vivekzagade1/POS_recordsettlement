@@ -134,7 +134,7 @@ CUST.DATA.respTranId = ""
 
 CUST.DATA.stmtDesc = ""
 CUST.DATA.freeText10 = ""
-CUST.DATA.settleFileTypeDb=""
+CUST.DATA.settleFileTypeDb = "ADQ"
 
 CUST.DATA.lienAccntParent=""
 CUST.DATA.custTranId=""
@@ -292,7 +292,6 @@ IF (sv_t == 0) THEN
 	IF(CUST.DATA.recordLengthFlg=="Y") then
 	#{
 		CUST.DATA.identifier = "H"
-		CUST.DATA.settleFileTypeDb = "ADQ"
 		CUST.DATA.settleFileDate = MID$(CUST.DATA.inputRecord,72,6)
 		CUST.DATA.settleInstitName = MID$(CUST.DATA.inputRecord,32,15)
 		CUST.DATA.settleFileNum = MID$(CUST.DATA.inputRecord,92,6)

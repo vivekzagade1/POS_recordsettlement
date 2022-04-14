@@ -198,6 +198,7 @@ CUST.DATA.totTrans1 = "0"
 CUST.DATA.totAmtTrans1 = "0.00"
 
 CUST.DATA.settleFileType = "" 
+CUST.DATA.settleFileTypeDb=""
 CUST.DATA.settleFileDate = ""
 CUST.DATA.settleInstitName = ""
 CUST.DATA.settleFileNum = ""

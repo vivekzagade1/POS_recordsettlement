@@ -138,7 +138,7 @@ CUST.DATA.custTranDate=""
 CUST.DATA.appliedSettleAmt=""
 CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
-CUST.DATA.settleFileTypeDb=""
+CUST.DATA.settleFileTypeDb = "PROSA"
 
 sv_i = CUST.DATA.inputRecord
 CUST.DATA.recordLengthFlg=""
@@ -288,7 +288,6 @@ IF (sv_t == 0) THEN
 	IF(CUST.DATA.recordLengthFlg=="Y") then
 	#{
 		CUST.DATA.identifier = "H"
-		CUST.DATA.settleFileTypeDb = "PROSA"
 		CUST.DATA.settleFileDate = MID$(CUST.DATA.inputRecord,72,6)
 		CUST.DATA.settleInstitName = MID$(CUST.DATA.inputRecord,32,15)
 		CUST.DATA.settleFileNum = MID$(CUST.DATA.inputRecord,92,6)

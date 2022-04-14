@@ -1038,6 +1038,7 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 								#{
 									if ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) then 
 									#{
+										CUST.DATA.AcctId=CUST.DATA.accNumber
 										CALLSCRIPTIFEXIST("balanceCheckATM_inq.scr")
 										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 										#{

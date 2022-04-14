@@ -1,0 +1,1485 @@
+#######################################################################
+# File Name             - BalanceInq.scr
+# Description           - This script is is to process a payment order
+# Inputs                        - NA
+# Date                          - 15-09-2021
+# Author name           - Shanthi S
+# Modification History:
+# S.no  Date            Author name             Change Description
+# ---------------------------------------------------------------------
+#  01   15-09-2021      Shanthi S               Base draft
+#  02   03-01-2022  Edie Ramirez        Added as Part of MDPC-4771 enhancement
+#                                                                       Add freeText 1 to 10 fields
+#######################################################################
+IMPORT LibCommon001
+<--START
+
+TRACE ON
+LIBNAME CUSTOMSO
+
+#-----------------------------------------------------------------
+# Creat from API
+#
+# ReDATAsitories and classes
+#-----------------------------------------------------------------
+
+sv_r = REPEXISTS("CUST")
+IF(sv_r == 0) THEN
+#{
+        CREATEREP ("CUST")
+#}
+ENDIF
+sv_r = CLASSEXISTS("CUST","DATA")
+IF(sv_r == 0) THEN
+#{
+        CREATECLASS ("CUST","DATA",5)
+#}
+ENDIF
+
+sv_r = CLASSEXISTS("CUST","TRAN")
+IF(sv_r == 0) THEN
+#{
+        CREATECLASS ("CUST","TRAN",5)
+#}
+ENDIF
+
+#-----------------------------------------------------------------
+# Print BANCS ReDATAsitories
+#-----------------------------------------------------------------
+
+sv_d = urhk_B2K_PRINTRepos("BANCS")
+
+#-----------------------------------------------------------------
+# Print the values from API
+#-----------------------------------------------------------------
+CUST.DATA.UserTrnCode = ""
+CUST.DATA.AcctId = ""
+CUST.DATA.Currency = ""
+CUST.DATA.CardNum = ""
+CUST.DATA.feeAmt = "0"
+CUST.DATA.Terminal = ""
+CUST.DATA.errorMsg = ""
+CUST.DATA.errorCode = ""
+BANCS.OUTPUT.successOrFailure = "S"
+CUST.DATA.TranType= ""
+CUST.DATA.AuthId= ""
+CUST.DATA.TranId=""
+CUST.DATA.TranDate=""
+CUST.DATA.feeAmt=""
+CUST.DATA.FeeAmt=""
+CUST.DATA.AvailBal=""
+CUST.DATA.EffAvaiBal=""
+CUST.DATA.Currency=""
+CUST.DATA.card=""
+CUST.DATA.cardCnt=""
+CUST.DATA.ACCTBALAMT1="0.00"
+CUST.DATA.rate = "0.00"
+CUST.DATA.code=""
+CUST.DATA.RAuthId =""
+CUST.DATA.SwitchId =""
+CUST.DATA.homefeeAmt="0.00"
+CUST.DATA.homeCrncyCode="MXP"
+CUST.DATA.reqFeeAmt="0.00"
+CUST.DATA.reqCurrency=""
+CUST.DATA.Crncy=""
+CUST.DATA.Amount="0.00"
+CUST.DATA.CHANNEL_ID="ATM"
+CUST.DATA.partTran=""
+CUST.DATA.revCnt=0
+CUST.DATA.TranId="null"
+CUST.DATA.TranDate=""
+CUST.DATA.rate1 = ""
+CUST.DATA.code1=""
+CUST.DATA.revFlg="N"
+CUST.DATA.switchCnt=0
+CUST.DATA.revCnt1=0
+CUST.DATA.paramLvl="BNKL"
+CUST.DATA.modName="LIABILITIES"
+CUST.DATA.inputParam1="BALINQ_FEE_CRNCY_RATE"
+CUST.DATA.crncyRatecode=""
+CUST.DATA.reqFeeLength=""
+CUST.DATA.reqFeeNumeric=""
+CUST.DATA.reqFeeDecimal=""
+CUST.DATA.reqFeeDecimalPos=""
+CUST.DATA.totAmt="0.00"
+CUST.DATA.OrigAmt="0.00"
+CUST.DATA.OrigCnt=""
+CUST.DATA.EFFAMT="0.00"
+CUST.DATA.reqAuthId=""
+CUST.DATA.tranAmount=""
+CUST.DATA.tranCrncy="MXP"
+CUST.DATA.settleCnt=""
+#Added as Part of MDPC-4771 enhancement
+CUST.DATA.freeText1 = ""
+CUST.DATA.freeText2 = ""
+CUST.DATA.freeText3 = ""
+CUST.DATA.freeText4 = ""
+CUST.DATA.freeText5 = ""
+CUST.DATA.freeText6 = ""
+CUST.DATA.freeText7 = ""
+CUST.DATA.freeText8 = ""
+CUST.DATA.freeText9 = ""
+CUST.DATA.freeText10 = ""
+CUST.DATA.stmtDesc = ""
+CUST.TRAN.TranId                        = ""
+CUST.TRAN.sysTranC          = ""
+CUST.TRAN.UserTrnCode       = ""
+CUST.TRAN.freeText1         = ""
+CUST.TRAN.freeText2         = ""
+CUST.TRAN.freeText3         = ""
+CUST.TRAN.freeText5         = ""
+CUST.TRAN.freeText7         = ""
+CUST.TRAN.freeText9         = ""
+CUST.TRAN.requestId         = ""
+CUST.TRAN.freeText4         = ""
+CUST.TRAN.freeText6         = ""
+CUST.TRAN.NumericRefNum     = ""
+CUST.TRAN.TypeOfRev         = ""
+CUST.TRAN.freeText8         = ""
+CUST.TRAN.b2kId             = ""
+CUST.TRAN.freeText10        = ""
+CUST.TRAN.freeText12        = ""
+CUST.TRAN.user = ""
+CUST.TRAN.branchId = ""
+CUST.TRAN.terminal = ""
+CUST.TRAN.channelId = CUST.DATA.CHANNEL_ID
+
+PRINT(BANCS.STDIN.globalUUID)
+IF(FIELDEXISTS(BANCS.STDIN.globalUUID))THEN
+#{
+        CUST.TRAN.requestId = BANCS.STDIN.globalUUID
+        PRINT(CUST.TRAN.requestId)
+        CUST.TRAN.freeText11 = CUST.TRAN.requestId
+#}
+ENDIF
+
+
+BANCS.INPARAM.BINDVARS = CUST.DATA.inputParam1+ "|" + CUST.DATA.paramLvl+ "|" + CUST.DATA.modName+ "|" + BANCS.STDIN.contextBankId
+        PRINT(BANCS.INPARAM.BINDVARS)
+        sv_s = ""
+        sv_s = sv_s + "crncyRatecode|"
+        sv_s = sv_s + "select A.PARAMETER_VALUE from "
+        sv_s = sv_s + "custom.C_CPVALUE A,custom.C_CPMASTER B where A.PARAMETER_ID=?SVAR "
+        sv_s = sv_s + "and A.PARAMETER_ID=B.PARAMETER_ID and A.bank_id=B.bank_id "
+        sv_s = sv_s + "and B.PARAMETER_LEVEL=?SVAR and B.MODULE_NAME=?SVAR "
+        sv_s = sv_s + "and A.bank_id=?SVAR and A.ENTITY_CRE_FLG='Y' AND A.DEL_FLG!='Y'"
+        print(sv_s)
+        sv_d = urhk_dbSelectWithBind(sv_s)
+        print(sv_d)
+        IF(sv_d == 0)THEN
+        #{
+                CUST.DATA.crncyRatecode = BANCS.OUTPARAM.crncyRatecode
+                print(CUST.DATA.crncyRatecode)
+
+        #}
+        ELSE
+        #{
+                CUST.DATA.respCode="ERR00028"
+                sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.inputParam1, BYREF CUST.DATA.statMessage)
+                PRINT(sv_r)
+                PRINT(CUST.DATA.statMessage)
+                BANCS.OUTPUT.successOrFailure = "F"
+                GOTO FAIL
+        #}
+        ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.UserTrnCode")))THEN
+#{
+        IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.UserTrnCode")) != "")THEN
+        #{
+                CUST.DATA.UserTrnCode = TRIM(("BANCS").("INPUT").("BalanceInqRq.UserTrnCode"))
+                PRINT(CUST.DATA.UserTrnCode)
+
+                IF(STRLEN(CUST.DATA.UserTrnCode) > 10) THEN
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0258"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0258",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+
+                sv_s = ""
+                sv_s  = "cntTrnCode|   select count(*) from CUSTOM.CUST_PART_TRAN_CODE_MAINT_TABLE   "
+                sv_s = sv_s + " WHERE user_tran_code = ?SVAR AND BANK_ID = ?SVAR AND ENTITY_CRE_FLG = 'Y' "
+                sv_s = sv_s + " AND DEL_FLG = 'N' AND channel_id = ?SVAR "
+                print(sv_s)
+                BANCS.INPARAM.BINDVARS = CUST.DATA.UserTrnCode +"|"+ BANCS.STDIN.contextBankId +"|ATM"
+                PRINT(sv_s)
+                PRINT(BANCS.INPARAM.BINDVARS)
+                sv_u = urhk_dbSelectWithBind(sv_s)
+                print(sv_u)
+
+                IF(sv_u != 0) THEN
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0258"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0258",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ELSE
+                #{
+                        PRINT(BANCS.OUTPARAM.cntTrnCode)
+
+                        IF(BANCS.OUTPARAM.cntTrnCode < 1 )THEN
+                        #{
+                                CUST.DATA.errorCode = "ERRMGD0258"
+                                sv_r = func_cmmsgerrdescWithInputs("ERRMGD0258",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO FAIL
+                        #}
+                        ENDIF
+
+                #}
+                ENDIF
+
+                #==============================================
+                #Finding the suspense account for Balance Inquiry
+                #==============================================
+
+        BANCS.INPARAM.BINDVARS = CUST.DATA.UserTrnCode + "|" + CUST.DATA.CHANNEL_ID
+        BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" +BANCS.STDIN.contextBankId+"|Y|Y"
+                print(BANCS.INPARAM.BINDVARS)
+
+        sv_s="balFeeSuspAcctBacid,partTran|select account_placeholder,tran_type "
+        sv_s = sv_s + "from CUSTOM.C_PTCM where user_tran_code=?SVAR and channel_id=?SVAR  and bank_id=?SVAR  "
+        sv_s = sv_s + "and  ENTITY_CRE_FLG=?SVAR and del_flg!=?SVAR and account_placeholder is not null and rownum='1' "
+
+        print(sv_s)
+        sv_d = urhk_dbSelectWithBind(sv_s)
+        print(sv_d)
+
+        IF(sv_d == 0) THEN
+        #{
+            CUST.DATA.balFeeSuspAcctBacid = BANCS.OUTPARAM.balFeeSuspAcctBacid
+            print(CUST.DATA.balFeeSuspAcctBacid)
+                        CUST.DATA.partTran = BANCS.OUTPARAM.partTran
+            print(CUST.DATA.partTran)
+
+                        IF(CUST.DATA.partTran =="D") THEN
+                        #{
+                                CUST.DATA.revFlg="R"
+                        #}
+                        ENDIF
+
+        #}
+        ELSE
+        #{
+                        CUST.DATA.errorCode = "ERRMGD0269"+CUST.DATA.UserTrnCode
+                        sv_r = func_cmmsgerrdescWithInputs(CUST.DATA.errorCode,BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+        #}
+        ENDIF
+
+                if(CUST.DATA.balFeeSuspAcctBacid!="") then
+        #{
+            sv_s = ""
+            sv_s  = "balFeeSuspAcct| SELECT FORACID "
+            sv_s = sv_s + " FROM TBAADM.GAM "
+            sv_s = sv_s + " WHERE BACID = ?SVAR "
+            sv_s = sv_s + " AND SOL_ID = ?SVAR "
+            sv_s = sv_s + " AND ENTITY_CRE_FLG = 'Y' "
+            sv_s = sv_s + " AND DEL_FLG = 'N' "
+            sv_s = sv_s + " AND ACCT_CLS_FLG = 'N' "
+            sv_s = sv_s + " AND BANK_ID = ?SVAR AND ACCT_CRNCY_CODE=?SVAR"
+            print(sv_s)
+
+            BANCS.INPARAM.BINDVARS= TRIM(CUST.DATA.balFeeSuspAcctBacid) + "|" + BANCS.STDIN.homeSolId+ "|" + BANCS.STDIN.contextBankId + "|" +BANCS.STDIN.homeCrncyCode
+            PRINT(sv_s)
+            PRINT(BANCS.INPARAM.BINDVARS)
+
+            sv_u = urhk_dbSelectWithBind(sv_s)
+            print(sv_u)
+            IF(sv_u == 0) THEN
+            #{
+                CUST.DATA.balFeeSuspAcct=BANCS.OUTPARAM.balFeeSuspAcct
+                print(CUST.DATA.balFeeSuspAcct)
+                        #}
+            ELSE
+            #{
+                CUST.DATA.errorCode = "ERRMGD0270"
+                                sv_r = func_cmmsgerrdescWithInputs(CUST.DATA.errorCode,BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO ENDOFSCRIPT
+            #}
+                        ENDIF
+                #}
+                ENDIF
+        #}
+        ELSE
+        #{
+                CUST.DATA.errorCode = "ERR0000385"
+                sv_r = func_cmmsgerrdescWithInputs(CUST.DATA.errorCode,BANCS.STDIN.userId, "" , BYREF CUST.DATA.errorMsg)
+                PRINT(sv_r)
+                BANCS.OUTPUT.successOrFailure = "F"
+                GOTO FAIL
+        #}
+        ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.AcctId")))THEN
+#{
+        IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.AcctId")) != "")THEN
+        #{
+                CUST.DATA.AcctId = TRIM(("BANCS").("INPUT").("BalanceInqRq.AcctId"))
+                PRINT(CUST.DATA.AcctId)
+
+                IF(STRLEN(CUST.DATA.AcctId) > 34) THEN
+                #{
+                        CUST.DATA.errorCode = "ERR0000101"
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000101",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+
+                sv_s = ""
+                sv_s  = "cifId| SELECT CIF_ID FROM TBAADM.GAM "
+                sv_s = sv_s + " WHERE FORACID = ?SVAR AND BANK_ID = ?SVAR AND ENTITY_CRE_FLG = 'Y' "
+                sv_s = sv_s + " AND DEL_FLG = 'N' AND ACCT_CLS_FLG = 'N' "
+                print(sv_s)
+                BANCS.INPARAM.BINDVARS = CUST.DATA.AcctId +"|"+ BANCS.STDIN.contextBankId
+                PRINT(sv_s)
+                PRINT(BANCS.INPARAM.BINDVARS)
+                sv_u = urhk_dbSelectWithBind(sv_s)
+                print(sv_u)
+                IF(sv_u == 0) THEN
+                #{
+                        CUST.DATA.cifId = BANCS.OUTPARAM.cifId
+                        PRINT(CUST.DATA.cifId)
+                #}
+                ELSE
+                #{
+                        CUST.DATA.errorCode = "ERR0000101"
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000101",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+        #}
+        ELSE
+        #{
+                CUST.DATA.errorCode = "ERR0000395"
+                sv_r = func_cmmsgerrdescWithInputs(CUST.DATA.errorCode,BANCS.STDIN.userId, "" , BYREF CUST.DATA.errorMsg)
+                PRINT(sv_r)
+                BANCS.OUTPUT.successOrFailure = "F"
+                GOTO FAIL
+        #}
+        ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FeeAmt")))THEN
+#{
+        IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.FeeAmt")) != "")THEN
+        #{
+                CUST.DATA.feeAmt = TRIM(("BANCS").("INPUT").("BalanceInqRq.FeeAmt"))
+                PRINT(CUST.DATA.feeAmt)
+                CUST.DATA.reqFeeAmt = CUST.DATA.feeAmt
+                PRINT(CUST.DATA.reqFeeAmt)
+
+
+
+                CUST.DATA.reqFeeLength=STRLEN(CUST.DATA.reqFeeAmt)
+                PRINT(CUST.DATA.reqFeeLength)
+                CUST.DATA.reqFeeDecimalPos= getposition(CUST.DATA.reqFeeAmt,".")
+                PRINT(CUST.DATA.reqFeeDecimalPos)
+                if(CINT(CUST.DATA.reqFeeDecimalPos)<CINT(CUST.DATA.reqFeeLength)) then
+                #{
+
+                        CUST.DATA.reqFeeNumeric=MID$(CUST.DATA.reqFeeAmt,0,CINT(CUST.DATA.reqFeeDecimalPos)-1)
+                        PRINT(CUST.DATA.reqFeeNumeric)
+                        if(CUST.DATA.reqFeeNumeric!="") THEN
+                        #{
+                                sv_u = urhk_B2k_isStringNumeric(CUST.DATA.reqFeeNumeric)
+                                print(sv_u)
+                                IF(sv_u != 0)THEN
+                                #{
+                                        CUST.DATA.errorCode = "ERRMGD0249"
+                                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0249",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                        PRINT(sv_r)
+                                        BANCS.OUTPUT.successOrFailure = "F"
+                                        GOTO FAIL
+                                #}
+                                ENDIF
+                        #}
+                        ENDIF
+                        CUST.DATA.reqFeeDecimal=MID$(CUST.DATA.reqFeeAmt,CINT(CUST.DATA.reqFeeDecimalPos)+1,CINT(CUST.DATA.reqFeeLength))
+                        PRINT(CUST.DATA.reqFeeDecimal)
+                        if(CUST.DATA.reqFeeDecimal!="") THEN
+                        #{
+                                sv_u = urhk_B2k_isStringNumeric(CUST.DATA.reqFeeDecimal)
+                                print(sv_u)
+                                IF(sv_u != 0)THEN
+                                #{
+                                        CUST.DATA.errorCode = "ERRMGD0249"
+                                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0249",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                        PRINT(sv_r)
+                                        BANCS.OUTPUT.successOrFailure = "F"
+                                        GOTO FAIL
+                                #}
+                                ENDIF
+                        #}
+                        ENDIF
+                #}
+                else
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0249"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0249",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                endif
+
+                IF(CUST.DATA.reqFeeDecimalPos == "") THEN
+                #{
+                        sv_u = urhk_B2k_isStringNumeric(CUST.DATA.feeAmt)
+                        print(sv_u)
+                        IF(sv_u != 0)THEN
+                        #{
+                                CUST.DATA.errorCode = "ERRMGD0249"
+                                sv_r = func_cmmsgerrdescWithInputs("ERRMGD0249",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO FAIL
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+
+
+
+                IF(STRLEN(CUST.DATA.feeAmt) > 20) THEN
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0250"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0250",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+        #}
+        ELSE
+        #{
+                CUST.DATA.feeAmt = "0.00"
+                PRINT(CUST.DATA.feeAmt)
+        #}
+        ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.Currency")))THEN
+#{
+        IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.Currency")) != "")THEN
+        #{
+                CUST.DATA.Currency = TRIM(("BANCS").("INPUT").("BalanceInqRq.Currency"))
+                PRINT(CUST.DATA.Currency)
+                CUST.DATA.reqCurrency = CUST.DATA.Currency
+                PRINT(CUST.DATA.reqCurrency)
+
+                IF(STRLEN(CUST.DATA.Currency) > 3) THEN
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0259"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0259",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+
+                #Rate code conversion for crncy code other than MXP
+                        IF(CUST.DATA.Currency!="MXP")  THEN
+                        #{
+                                sv_s = ""
+                                sv_s = "rate,code|select var_crncy_units,RATECODE from tbaadm.rtl"
+                                sv_s = sv_s + " where FXd_crncy_code ='MXP'  and RATECODE=?SVAR and var_crncy_code =?SVAR"
+                                sv_s = sv_s + " and entity_cre_flg ='Y' and del_flg ='N' "
+                                sv_s = sv_s + " and rtlist_date=(select max(r.rtlist_date) from tbaadm.rtl r "
+                                sv_s = sv_s + " where r.FXd_crncy_code ='MXP' and RATECODE=?SVAR and r.var_crncy_code =?SVAR "
+                                sv_s = sv_s + " and r.entity_cre_flg ='Y' and r.del_flg ='N' "
+                                sv_s = sv_s + " and rownum =1) and rownum =1 "
+
+
+                                BANCS.INPARAM.BINDVARS = ""
+                                BANCS.INPARAM.BINDVARS = CUST.DATA.crncyRatecode+"|" + CUST.DATA.Currency + "|"+CUST.DATA.crncyRatecode + "|"+ CUST.DATA.Currency
+
+                                PRINT(BANCS.INPARAM.BINDVARS)
+
+                                print(sv_s)
+
+                                sv_u = urhk_dbSelectWithBind(sv_s)
+                                print(sv_u)
+                                IF(sv_u == 0)THEN
+                                #{
+
+                                        CUST.DATA.rate = BANCS.OUTPARAM.rate
+                                        CUST.DATA.code = BANCS.OUTPARAM.code
+                                        PRINT(CUST.DATA.rate)
+                                        PRINT(CUST.DATA.code)
+
+                                        BANCS.INPARAM.InputAmount=CUST.DATA.feeAmt
+                                        BANCS.INPARAM.FromCurrency=CUST.DATA.Currency
+                                        BANCS.INPARAM.ToCurrency=BANCS.STDIN.homeCrncyCode
+                                        BANCS.INPARAM.RateCode=BANCS.OUTPARAM.code
+                                        BANCS.INPARAM.Rate=BANCS.OUTPARAM.rate
+
+                                        print(BANCS.INPARAM.InputAmount)
+                                        print(BANCS.INPARAM.FromCurrency)
+                                        print(BANCS.INPARAM.ToCurrency)
+                                        print(BANCS.INPARAM.RateCode)
+                                        print(BANCS.INPARAM.Rate)
+
+                                        IF(CUST.DATA.feeAmt > 0) THEN
+                                        #{
+
+                                                CUST.DATA.feeAmt = CDOUBLE(BANCS.INPARAM.InputAmount) * CDOUBLE(BANCS.INPARAM.Rate)
+                                                PRINT(CUST.DATA.feeAmt)
+
+                                                sv_d = format$(CDOUBLE(CUST.DATA.feeAmt),"%0.2f")
+                                                print(sv_d)
+                                                CUST.DATA.feeAmt = sv_d
+                                                PRINT(CUST.DATA.feeAmt)
+                                                CUST.DATA.tranAmount=CUST.DATA.feeAmt
+
+
+                                                #sv_r = urhk_B2k_ConvertAmount("")
+
+                                                #IF(sv_r == 0)THEN
+                                                #{
+                                                #       CUST.DATA.feeAmt = CDOUBLE(BANCS.OUTPARAM.OutputAmount)
+                                                #       PRINT(CUST.DATA.feeAmt)
+
+                                                #       CUST.DATA.homefeeAmt = CUST.DATA.feeAmt
+                                                #       PRINT(CUST.DATA.homefeeAmt)
+
+                                                #}
+                                                #ELSE
+                                                #{
+                                                #       CUST.DATA.errorCode = "ERRMGD0261"
+                                                #       sv_b = func_cmmsgerrdescWithInputs("ERRMGD0261",BANCS.STDIN.userId,"",BYREF CUST.DATA.errorMsg)
+                                                #       PRINT(CUST.DATA.errorMsg)
+                                                #       BANCS.OUTPUT.successOrFailure ="F"
+                                                #       GOTO FAIL
+                                                #}
+                                                #ENDIF
+                                        #}
+                    ENDIF
+
+                                #}
+                                ELSE
+                                #{
+                                        IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Crncy")))THEN
+                                        #{
+                                                IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Crncy")) != "")THEN
+                                                #{
+                                                        CUST.DATA.Crncy = TRIM(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Crncy"))
+                                                        PRINT(CUST.DATA.Crncy)
+
+                                                        IF(CUST.DATA.Crncy != "MXP") THEN
+                                                        #{
+                                                                CUST.DATA.errorCode = "ERRMGD0266"
+                                                                sv_b = func_cmmsgerrdescWithInputs("ERRMGD0266",BANCS.STDIN.userId,"",BYREF CUST.DATA.errorMsg)
+                                                                PRINT(CUST.DATA.errorMsg)
+                                                                BANCS.OUTPUT.successOrFailure ="F"
+                                                                GOTO FAIL
+                                                        #}
+                                                        ENDIF
+                                                #}
+                                                ELSE
+                                                #{
+
+                                                                CUST.DATA.errorCode = "ERRMGD0266"
+                                                                sv_b = func_cmmsgerrdescWithInputs("ERRMGD0266",BANCS.STDIN.userId,"",BYREF CUST.DATA.errorMsg)
+                                                                PRINT(CUST.DATA.errorMsg)
+                                                                BANCS.OUTPUT.successOrFailure ="F"
+                                                                GOTO FAIL
+
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+
+                                        IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Amount")))THEN
+                                        #{
+                                                IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Amount")) != "")THEN
+                                                #{
+                                                        CUST.DATA.Amount = TRIM(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Amount"))
+                                                        PRINT(CUST.DATA.Amount)
+
+                                                        CUST.DATA.feeAmt = CUST.DATA.Amount
+                                                        PRINT(CUST.DATA.feeAmt)
+                                                        GOTO SKIP
+                                                #}
+                                                ELSE
+                                                #{
+
+                                                                CUST.DATA.errorCode = "ERRMGD0265"
+                                                                sv_b = func_cmmsgerrdescWithInputs("ERRMGD0265",BANCS.STDIN.userId,"",BYREF CUST.DATA.errorMsg)
+                                                                PRINT(CUST.DATA.errorMsg)
+                                                                BANCS.OUTPUT.successOrFailure ="F"
+                                                                GOTO FAIL
+
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+                                #}
+                                ENDIF
+                        #}
+                        ENDIF
+
+        #}
+        ELSE
+        #{
+                CUST.DATA.errCode = "ERRMGD0260"
+                                sv_r = func_cmmsgerrdescWithInputs(CUST.DATA.errCode,BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                PRINT(sv_r)
+                                PRINT(CUST.DATA.errorMsg)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO FAIL
+        #}
+        ENDIF
+#}
+ENDIF
+
+
+        IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Crncy")))THEN
+        #{
+                IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Crncy")) != "")THEN
+                #{
+                        CUST.DATA.Crncy = TRIM(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Crncy"))
+                        PRINT(CUST.DATA.Crncy)
+
+                #}
+
+                ENDIF
+        #}
+        ENDIF
+
+        IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Amount")))THEN
+        #{
+                IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Amount")) != "")THEN
+                #{
+                        CUST.DATA.Amount = TRIM(("BANCS").("INPUT").("BalanceInqRq.HomeCrncyAmt.Amount"))
+                        PRINT(CUST.DATA.Amount)
+
+                #}
+                ENDIF
+        #}
+        ENDIF
+SKIP:
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.Terminal")))THEN
+#{
+        IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.Terminal")) != "")THEN
+        #{
+                CUST.DATA.Terminal = TRIM(("BANCS").("INPUT").("BalanceInqRq.Terminal"))
+                PRINT(CUST.DATA.Terminal)
+                CUST.TRAN.terminal = CUST.DATA.Terminal
+                PRINT(CUST.TRAN.terminal)
+
+                IF(STRLEN(CUST.DATA.Terminal) > 30) THEN
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0252"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0252",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+        #}
+        ELSE
+        #{
+                CUST.DATA.errorCode = "ERRMGD0262"
+                sv_r = func_cmmsgerrdescWithInputs(CUST.DATA.errorCode,BANCS.STDIN.userId, "" , BYREF CUST.DATA.errorMsg)
+                PRINT(sv_r)
+                BANCS.OUTPUT.successOrFailure = "F"
+                GOTO FAIL
+        #}
+        ENDIF
+#}
+ELSE
+#{
+        CUST.TRAN.terminal = "H2C0"
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.CardNum")))THEN
+#{
+        IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.CardNum")) != "")THEN
+        #{
+                CUST.DATA.CardNum = TRIM(("BANCS").("INPUT").("BalanceInqRq.CardNum"))
+                PRINT(CUST.DATA.CardNum)
+
+                sv_u = urhk_B2k_isStringNumeric(CUST.DATA.CardNum)
+        print(sv_u)
+        IF(sv_u != 0)THEN
+        #{
+            CUST.DATA.errorCode = "ERRMGD0254"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0254",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+        #}
+        ENDIF
+
+
+                IF(STRLEN(CUST.DATA.CardNum) != 16) THEN
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0255"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0255",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+
+
+                        sv_s = ""
+                        sv_s  = sv_s + "card| select to_char(?SVAR,'XXXXXXXXXXXXXXXX') from dual "
+
+                        print(sv_s)
+                        BANCS.INPARAM.BINDVARS = CUST.DATA.CardNum
+                        PRINT(sv_s)
+                        PRINT(BANCS.INPARAM.BINDVARS)
+                        sv_u = urhk_dbSelectWithBind(sv_s)
+                        print(sv_u)
+                        IF(sv_u == 0) THEN
+                        #{
+                                CUST.DATA.card = BANCS.OUTPARAM.card
+                                PRINT(CUST.DATA.card)
+
+                                CUST.DATA.card = LPAD(CUST.DATA.card,17,' ')
+                                print(CUST.DATA.card)
+
+
+                                sv_t = ""
+                                sv_t  = sv_t + "cardCnt| SELECT LNKED_CARD_NUM FROM CUSTOM.CUST_CARD_ACCT_TBL "
+                                sv_t = sv_t + " WHERE EMP_ACCNT_NUM=?SVAR AND CRD_MOD_FRMT=?SVAR AND BANK_ID = ?SVAR  "
+                                sv_t = sv_t + " AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N'  "
+                                print(sv_t)
+                                BANCS.INPARAM.BINDVARS = CUST.DATA.AcctId +"|"+ CUST.DATA.card +"|"+ BANCS.STDIN.contextBankId
+                                PRINT(sv_t)
+                                PRINT(BANCS.INPARAM.BINDVARS)
+                                sv_u = urhk_dbSelectWithBind(sv_t)
+                                print(sv_u)
+
+                                IF(sv_u == 0) THEN
+                                #{
+                                        CUST.DATA.cardCnt = BANCS.OUTPARAM.cardCnt
+                                        PRINT(CUST.DATA.cardCnt)
+
+                                #}
+                                ELSE
+                                #{
+                                        CUST.DATA.errorCode = "ERRMGD0256"
+                                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0256",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                        PRINT(sv_r)
+                                        BANCS.OUTPUT.successOrFailure = "F"
+                                        GOTO FAIL
+                                #}
+                                ENDIF
+                        #}
+                        ELSE
+                        #{
+                                CUST.DATA.errorCode = "ERRMGD0256"
+                                sv_r = func_cmmsgerrdescWithInputs("ERRMGD0256",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO FAIL
+                        #}
+                        ENDIF
+        #}
+        ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.TranType")))THEN
+#{
+        IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.TranType")) != "")THEN
+        #{
+                CUST.DATA.TranType = TRIM(("BANCS").("INPUT").("BalanceInqRq.TranType"))
+                PRINT(CUST.DATA.TranType)
+
+                IF(STRLEN(CUST.DATA.TranType) > 4) THEN
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0257"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0257",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+
+        #}
+        ELSE
+        #{
+                CUST.DATA.errorCode = "ERRMGD0257"
+                sv_r = func_cmmsgerrdescWithInputs(CUST.DATA.errorCode,BANCS.STDIN.userId, "" , BYREF CUST.DATA.errorMsg)
+                PRINT(sv_r)
+                BANCS.OUTPUT.successOrFailure = "F"
+                GOTO FAIL
+        #}
+        ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.SwitchId")))THEN
+#{
+        IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.SwitchId")) != "")THEN
+        #{
+                CUST.DATA.SwitchId = TRIM(("BANCS").("INPUT").("BalanceInqRq.SwitchId"))
+                PRINT(CUST.DATA.SwitchId)
+
+                sv_u = urhk_B2k_isStringNumeric(CUST.DATA.SwitchId)
+        print(sv_u)
+        IF(sv_u != 0)THEN
+        #{
+            CUST.DATA.errorCode = "ERRMGD0268"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0268",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+        #}
+        ENDIF
+
+                IF(STRLEN(CUST.DATA.SwitchId) != 11) THEN
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0268"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0268",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+
+                sv_t = ""
+                sv_t  = sv_t + "settleCnt| SELECT count(*) FROM CUSTOM.C_BAL_INQ "
+                sv_t = sv_t + " WHERE  ACCTID=?SVAR AND SWITCH_ID=?SVAR AND SETTLEMENT_FILE_FLG=?SVAR "
+                sv_t = sv_t + " AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N' AND BANK_ID=?SVAR"
+                print(sv_t)
+
+                BANCS.INPARAM.BINDVARS =  CUST.DATA.AcctId +"|"+ CUST.DATA.SwitchId +"|Y|"+ BANCS.STDIN.contextBankId
+                PRINT(sv_t)
+                PRINT(BANCS.INPARAM.BINDVARS)
+                sv_u = urhk_dbSelectWithBind(sv_t)
+                print(sv_u)
+                IF(sv_u == 0) THEN
+                #{
+                        CUST.DATA.settleCnt = BANCS.OUTPARAM.settleCnt
+                        PRINT(CUST.DATA.settleCnt)
+                        IF(CUST.DATA.settleCnt=="0") then
+                        #{
+
+                                sv_t = ""
+                                sv_t  = sv_t + "switchCnt| SELECT count(*) FROM CUSTOM.C_BAL_INQ "
+                                sv_t = sv_t + " WHERE  ACCTID=?SVAR AND SWITCH_ID=?SVAR AND REV_FLG=?SVAR "
+                                sv_t = sv_t + " AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N' AND BANK_ID=?SVAR"
+                                print(sv_t)
+
+                                BANCS.INPARAM.BINDVARS =  CUST.DATA.AcctId +"|"+ CUST.DATA.SwitchId +"|"+ CUST.DATA.revFlg+"|"+ BANCS.STDIN.contextBankId
+                                PRINT(sv_t)
+                                PRINT(BANCS.INPARAM.BINDVARS)
+                                sv_u = urhk_dbSelectWithBind(sv_t)
+                                print(sv_u)
+
+                                IF(sv_u == 0) THEN
+                                #{
+                                        CUST.DATA.switchCnt = BANCS.OUTPARAM.switchCnt
+                                        PRINT(CUST.DATA.switchCnt)
+
+                                        IF((CUST.DATA.switchCnt > 0) and (CUST.DATA.revFlg=="N")) THEN
+                                        #{
+                                                CUST.DATA.errorCode = "ERRMGD0273"
+                                                sv_r = func_cmmsgerrdescWithInputs("ERRMGD0273",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                                PRINT(sv_r)
+                                                BANCS.OUTPUT.successOrFailure = "F"
+                                                GOTO FAIL
+                                        #}
+                                        ELSE
+                                        #{
+                                                IF((CUST.DATA.switchCnt > 0) and (CUST.DATA.revFlg=="R")) THEN
+                                                #{
+                                                        sv_t = ""
+                                                        sv_t  = sv_t + "totAmt| SELECT sum(RES_FEE_AMT) FROM CUSTOM.C_BAL_INQ "
+                                                        sv_t = sv_t + " WHERE  ACCTID=?SVAR AND SWITCH_ID=?SVAR AND REV_FLG=?SVAR "
+                                                        sv_t = sv_t + " AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N' AND BANK_ID=?SVAR"
+                                                        print(sv_t)
+                                                        BANCS.INPARAM.BINDVARS =  CUST.DATA.AcctId +"|"+ CUST.DATA.SwitchId +"|"+ CUST.DATA.revFlg+"|"+ BANCS.STDIN.contextBankId
+                                                        PRINT(sv_t)
+                                                        PRINT(BANCS.INPARAM.BINDVARS)
+                                                        sv_u = urhk_dbSelectWithBind(sv_t)
+                                                        print(sv_u)
+
+                                                        IF(sv_u == 0) THEN
+                                                        #{
+                                                                CUST.DATA.totAmt=BANCS.OUTPARAM.totAmt
+                                                                PRINT(CUST.DATA.totAmt)
+                                                        #}
+                                                        ENDIF
+
+                                                        IF(CDOUBLE(CUST.DATA.totAmt)>CDOUBLE("0.00")) THEN
+                                                        #{
+                                                                sv_t = ""
+                                                                sv_t  = sv_t + "OrigAmt| SELECT sum(RES_FEE_AMT) FROM CUSTOM.C_BAL_INQ "
+                                                                sv_t = sv_t + " WHERE  ACCTID=?SVAR AND SWITCH_ID=?SVAR AND REV_FLG=?SVAR "
+                                                                sv_t = sv_t + " AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N' AND BANK_ID=?SVAR"
+                                                                print(sv_t)
+                                                                BANCS.INPARAM.BINDVARS =  CUST.DATA.AcctId +"|"+ CUST.DATA.SwitchId +"|N|"+ BANCS.STDIN.contextBankId
+                                                                PRINT(sv_t)
+                                                                PRINT(BANCS.INPARAM.BINDVARS)
+                                                                sv_u = urhk_dbSelectWithBind(sv_t)
+                                                                print(sv_u)
+                                                                IF(sv_u == 0) THEN
+                                                                #{
+                                                                        CUST.DATA.OrigAmt=BANCS.OUTPARAM.OrigAmt
+                                                                        PRINT(CUST.DATA.OrigAmt)
+                                                                #}
+                                                                ENDIF
+                                                                CUST.DATA.totAmt=CDOUBLE(CUST.DATA.totAmt)+CDOUBLE(CUST.DATA.reqFeeAmt)
+                                                                PRINT(CUST.DATA.totAmt)
+                                                                IF(CDOUBLE(CUST.DATA.totAmt)>CDOUBLE(CUST.DATA.OrigAmt)) THEN
+                                                                #{
+                                                                        CUST.DATA.errorCode = "ERRMGD0275"
+                                                                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0275",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                                                        PRINT(sv_r)
+                                                                        BANCS.OUTPUT.successOrFailure = "F"
+                                                                        GOTO FAIL
+                                                                #}
+                                                                ENDIF
+
+                                                        #}
+                                                        ENDIF
+
+
+                                                #}
+                                                ELSE
+                                                #{
+                                                        IF((CUST.DATA.switchCnt =="0") and (CUST.DATA.revFlg=="R")) THEN
+                                                        #{
+                                                                sv_t = ""
+                                                                sv_t  = sv_t + "OrigCnt| SELECT count(*) FROM CUSTOM.C_BAL_INQ "
+                                                                sv_t = sv_t + " WHERE  ACCTID=?SVAR AND SWITCH_ID=?SVAR AND REV_FLG=?SVAR "
+                                                                sv_t = sv_t + " AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N' AND BANK_ID=?SVAR"
+                                                                print(sv_t)
+                                                                BANCS.INPARAM.BINDVARS =  CUST.DATA.AcctId +"|"+ CUST.DATA.SwitchId +"|N|"+ BANCS.STDIN.contextBankId
+                                                                PRINT(sv_t)
+                                                                PRINT(BANCS.INPARAM.BINDVARS)
+                                                                sv_u = urhk_dbSelectWithBind(sv_t)
+                                                                print(sv_u)
+                                                                IF(sv_u == 0) THEN
+                                                                #{
+                                                                        CUST.DATA.OrigCnt=BANCS.OUTPARAM.OrigCnt
+                                                                        PRINT(CUST.DATA.OrigCnt)
+                                                                #}
+                                                                ENDIF
+
+                                                                IF(CUST.DATA.OrigCnt!="1")  then
+                                                                #{
+                                                                        CUST.DATA.errorCode = "ERRMGD0271"
+                                                                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0271",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                                                        PRINT(sv_r)
+                                                                        BANCS.OUTPUT.successOrFailure = "F"
+                                                                        GOTO FAIL
+                                                                #}
+                                                                ELSE
+                                                                #{
+                                                                        sv_t = ""
+                                                                        sv_t  = sv_t + "reqAuthId,orgFeeAmt| SELECT RES_AUTH_ID,req_fee_amt FROM CUSTOM.C_BAL_INQ "
+                                                                        sv_t = sv_t + " WHERE  ACCTID=?SVAR AND SWITCH_ID=?SVAR AND REV_FLG=?SVAR "
+                                                                        sv_t = sv_t + " AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N' AND BANK_ID=?SVAR AND ROWNUM=1"
+                                                                        print(sv_t)
+                                                                        BANCS.INPARAM.BINDVARS =  CUST.DATA.AcctId +"|"+ CUST.DATA.SwitchId +"|N|"+ BANCS.STDIN.contextBankId
+                                                                        PRINT(sv_t)
+                                                                        PRINT(BANCS.INPARAM.BINDVARS)
+                                                                        sv_u = urhk_dbSelectWithBind(sv_t)
+                                                                        print(sv_u)
+                                                                        IF(sv_u == 0) THEN
+                                                                        #{
+                                                                                CUST.DATA.reqAuthId=BANCS.OUTPARAM.reqAuthId
+                                                                                PRINT(CUST.DATA.reqAuthId)
+                                                                                CUST.DATA.orgFeeAmt=BANCS.OUTPARAM.orgFeeAmt
+                                                                                PRINT(CUST.DATA.orgFeeAmt)
+
+                                                                                #IF(CDOUBLE(CUST.DATA.feeAmt > CUST.DATA.orgFeeAmt)THEN
+                                IF(CDOUBLE(CUST.DATA.feeAmt) > CDOUBLE(CUST.DATA.orgFeeAmt))THEN
+#{
+                                                                                        CUST.DATA.errorCode = "ERR0000098"
+                                                                                        sv_r = func_cmmsgerrdescWithInputs("ERR0000098",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                                                                        PRINT(sv_r)
+                                                                                        BANCS.OUTPUT.successOrFailure = "F"
+                                                                                        GOTO FAIL
+
+                                                                                #}
+                                                                                ENDIF
+
+                                                                        #}
+                                                                        ENDIF
+                                                                #}
+                                                                ENDIF
+
+
+                                                        #}
+                                                        ENDIF
+
+                                                #}
+                                                ENDIF
+
+                                        #}
+                                        ENDIF
+
+                                #}
+                                ELSE
+                                #{
+
+                                        CUST.DATA.errorCode = "ERRMGD0273"
+                                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0273",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                        PRINT(sv_r)
+                                        BANCS.OUTPUT.successOrFailure = "F"
+                                        GOTO FAIL
+                                #}
+                                ENDIF
+                        #}
+                        ELSE
+                        #{
+                                CUST.DATA.errorCode = "ERR0000454"
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000454",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO FAIL
+                        #}
+                        ENDIF
+
+                #}
+                ENDIF
+        #}
+        ELSE
+        #{
+                CUST.DATA.errorCode = "ERRMGD0268"
+                sv_r = func_cmmsgerrdescWithInputs(CUST.DATA.errorCode,BANCS.STDIN.userId, "" , BYREF CUST.DATA.errorMsg)
+                PRINT(sv_r)
+                BANCS.OUTPUT.successOrFailure = "F"
+                GOTO FAIL
+        #}
+        ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.AuthId")))THEN
+#{
+        IF(TRIM(("BANCS").("INPUT").("BalanceInqRq.AuthId")) != "")THEN
+        #{
+                CUST.DATA.RAuthId = TRIM(("BANCS").("INPUT").("BalanceInqRq.AuthId"))
+                PRINT(CUST.DATA.RAuthId)
+
+                sv_u = urhk_B2k_isStringNumeric(CUST.DATA.RAuthId)
+        print(sv_u)
+        IF(sv_u != 0)THEN
+        #{
+            CUST.DATA.errorCode = "ERRMGD0267"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0267",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+        #}
+        ENDIF
+
+                IF(STRLEN(CUST.DATA.RAuthId) > 6) THEN
+                #{
+                        CUST.DATA.errorCode = "ERRMGD0267"
+                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0267",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+
+        #}
+        ENDIF
+#}
+ENDIF
+#Added as Part of MDPC-4771 enhancement
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText1")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText1") != "")THEN
+        #{
+                CUST.DATA.freeText1 = ("BANCS").("INPUT").("BalanceInqRq.FreeText1")
+                PRINT(CUST.DATA.freeText1)
+        #}
+        ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText2")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText2") != "")THEN
+        #{
+                CUST.DATA.freeText2 = ("BANCS").("INPUT").("BalanceInqRq.FreeText2")
+                PRINT(CUST.DATA.freeText2)
+        #}
+        ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText3")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText3") != "")THEN
+        #{
+                CUST.DATA.freeText3 = ("BANCS").("INPUT").("BalanceInqRq.FreeText3")
+                PRINT(CUST.DATA.freeText3)
+        #}
+        ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText4")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText4") != "")THEN
+        #{
+                CUST.DATA.freeText4 = ("BANCS").("INPUT").("BalanceInqRq.FreeText4")
+                PRINT(CUST.DATA.freeText4)
+        #}
+        ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText5")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText5") != "")THEN
+        #{
+                CUST.DATA.freeText5 = ("BANCS").("INPUT").("BalanceInqRq.FreeText5")
+                PRINT(CUST.DATA.freeText5)
+        #}
+        ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText6")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText6") != "")THEN
+        #{
+                CUST.DATA.freeText6 = ("BANCS").("INPUT").("BalanceInqRq.FreeText6")
+                PRINT(CUST.DATA.freeText6)
+        #}
+        ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText7")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText7") != "")THEN
+        #{
+                CUST.DATA.freeText7 = ("BANCS").("INPUT").("BalanceInqRq.FreeText7")
+                PRINT(CUST.DATA.freeText7)
+        #}
+        ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText8")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText8") != "")THEN
+        #{
+                CUST.DATA.freeText8 = ("BANCS").("INPUT").("BalanceInqRq.FreeText8")
+                PRINT(CUST.DATA.freeText8)
+        #}
+        ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText9")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText9") != "")THEN
+        #{
+                CUST.DATA.freeText9 = ("BANCS").("INPUT").("BalanceInqRq.FreeText9")
+                PRINT(CUST.DATA.freeText9)
+        #}
+        ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.FreeText10")))THEN
+#{
+        IF(("BANCS").("INPUT").("BalanceInqRq.FreeText10") != "")THEN
+        #{
+                CUST.DATA.freeText10 = ("BANCS").("INPUT").("BalanceInqRq.FreeText10")
+                PRINT(CUST.DATA.freeText10)
+        #}
+        ENDIF
+#}
+ENDIF
+#End of MDPC-4771 enhancement
+
+#Reversal fee transaction
+
+IF(CUST.DATA.partTran =="D") THEN
+#{
+                        print(CUST.DATA.feeAmt)
+                        CUST.DATA.tranAmount=CUST.DATA.feeAmt
+                        IF( CDOUBLE(CUST.DATA.feeAmt) > "0.00") THEN
+                        #{
+                                CALLSCRIPTIFEXIST("balInq_makeTransaction.scr")
+                                GOTO REV
+
+                        #}
+                        ELSE
+                        #{
+                                CUST.DATA.errorCode = "ERRMGD0271"
+                                sv_r = func_cmmsgerrdescWithInputs("ERRMGD0271",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO FAIL
+                        #}
+                        ENDIF
+#}
+ENDIF
+
+
+CALLSCRIPTIFEXIST("balanceCheckATM_inq.scr")
+
+
+ENDOFSCRIPT:
+PRINT(BANCS.OUTPUT.successOrFailure)
+
+IF(BANCS.OUTPUT.successOrFailure =="S")THEN
+#{
+
+        print(CUST.DATA.feeAmt)
+        print(CUST.DATA.ACCTBALAMT1)
+        print(CUST.DATA.Currency)
+        print(CUST.DATA.EFFAMT)
+
+        IF(CUST.DATA.partTran == "D") THEN
+        #{
+                GOTO REV
+        #}
+        ENDIF
+
+        IF( CDOUBLE(CUST.DATA.feeAmt) > "0.00") THEN
+        #{
+                IF(CUST.DATA.EFFAMT >= CDOUBLE(CUST.DATA.feeAmt)) THEN
+                #{
+                        ## Added logic to derive TranParticular
+
+                        IF((CUST.DATA.freeText1 != "")AND((CUST.DATA.freeText1 =="MDS")OR(CUST.DATA.freeText1 =="BNET")OR(CUST.DATA.freeText1 =="VISA")))THEN
+                        #{
+                                CUST.DATA.Nombre= "CONSULTA EN"
+                                CUST.DATA.Nombre1= "CAJERO"
+                                CUST.DATA.Nombre2= "COMISION USO DE CAJERO:"
+                                CUST.DATA.stmtDesc= CUST.DATA.Nombre+ " " + CUST.DATA.freeText2 + " " + CUST.DATA.Nombre1 + " " + CUST.DATA.Terminal + " " + CUST.DATA.freeText3 + " " + CUST.DATA.Currency + " " + CUST.DATA.reqFeeAmt + " " + CUST.DATA.Nombre2 + "$" + CUST.DATA.feeAmt
+                                PRINT(CUST.DATA.stmtDesc)
+                                CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,200)
+
+                        #}
+                        ELSE
+                        #{
+                                CUST.DATA.Nombre= "CONSULTA DE SALDO $"
+                                CUST.DATA.Nombre1= "CAJERO"
+                                CUST.DATA.Nombre2= "COMISION USO DE CAJERO:"
+                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.freeText2 + " " + CUST.DATA.Nombre1 + " " + CUST.DATA.Terminal + " " + CUST.DATA.freeText3 + " " + CUST.DATA.Nombre2 + "$" + CUST.DATA.feeAmt
+                                PRINT(CUST.DATA.stmtDesc)
+                                CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,200)
+
+                        #}
+                        ENDIF
+
+                        CUST.DATA.tranAmount=CUST.DATA.feeAmt
+                        CALLSCRIPTIFEXIST("balInq_makeTransaction.scr")
+
+                        print(CUST.DATA.EFFAMT)
+                        print(CUST.DATA.feeAmt)
+                        print(CUST.DATA.ACCTBALAMT1)
+
+                        sv_o =  CDOUBLE(CUST.DATA.EFFAMT) - CDOUBLE(CUST.DATA.feeAmt)
+                        print(sv_o)
+                        CUST.DATA.EFFAMT = sv_o
+                        print(CUST.DATA.EFFAMT)
+
+                        sv_l =  CDOUBLE(CUST.DATA.ACCTBALAMT1) - CDOUBLE(CUST.DATA.feeAmt)
+                        print(sv_l)
+                        if(sv_l<0) then
+                        #{
+                                sv_l=CDOUBLE("0.00")
+                        #}
+                        endif
+                        CUST.DATA.ACCTBALAMT1 = sv_l
+                        print(CUST.DATA.ACCTBALAMT1)
+
+                #}
+                ELSE
+                #{
+                        #Insufficient bal for fee transaction
+                        CUST.DATA.errorCode = "ERRMGD0247"
+                        sv_r = func_cmmsgerrdescWithInputs(CUST.DATA.errorCode,BANCS.STDIN.userId, "" , BYREF CUST.DATA.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO FAIL
+                #}
+                ENDIF
+
+        #}
+        ENDIF
+
+        REV:
+        #Response Auth ID sequence creation
+        sv_t = ""
+        sv_t  = sv_t + "AuthId| SELECT LPAD(CUSTOM.CUST_BAL_INQ_SEQ.NEXTVAL,6,0) FROM DUAL "
+        print(sv_t)
+
+        sv_u = urhk_dbSelectWithBind(sv_t)
+        print(sv_u)
+
+        IF(sv_u == 0) THEN
+        #{
+                CUST.DATA.AuthId = BANCS.OUTPARAM.AuthId
+                PRINT(CUST.DATA.AuthId)
+
+        #}
+        ELSE
+        #{
+                CUST.DATA.AuthId= " "
+        #}
+        ENDIF
+
+        IF(CUST.DATA.partTran == "D") THEN
+        #{
+                GOTO DISP
+        #}
+        ENDIF
+
+
+        #Currency Conversion as in request currency
+
+        PRINT(CUST.DATA.reqCurrency)
+        PRINT(CUST.DATA.Currency)
+        PRINT(CUST.DATA.reqFeeAmt)
+        PRINT(CUST.DATA.feeAmt)
+
+        IF(CUST.DATA.reqCurrency!="MXP")  THEN
+        #{
+                sv_s = ""
+                sv_s = "rate1,code1|select var_crncy_units,RATECODE from tbaadm.rtl"
+                sv_s = sv_s + " where FXd_crncy_code ='MXP'  and RATECODE=?SVAR and var_crncy_code =?SVAR"
+                sv_s = sv_s + " and entity_cre_flg ='Y' and del_flg ='N' "
+                sv_s = sv_s + " and rtlist_date=(select max(r.rtlist_date) from tbaadm.rtl r "
+                sv_s = sv_s + " where r.FXd_crncy_code ='MXP' and RATECODE=?SVAR and r.var_crncy_code =?SVAR "
+                sv_s = sv_s + " and r.entity_cre_flg ='Y' and r.del_flg ='N' "
+                sv_s = sv_s + " and rownum =1) and rownum =1 "
+
+
+                BANCS.INPARAM.BINDVARS = ""
+                BANCS.INPARAM.BINDVARS =  CUST.DATA.crncyRatecode+"|" + CUST.DATA.reqCurrency + "|"+CUST.DATA.crncyRatecode + "|"+ CUST.DATA.reqCurrency
+
+                PRINT(BANCS.INPARAM.BINDVARS)
+
+                print(sv_s)
+
+                sv_u = urhk_dbSelectWithBind(sv_s)
+                print(sv_u)
+                IF(sv_u == 0)THEN
+                #{
+
+                        CUST.DATA.rate1 = BANCS.OUTPARAM.rate1
+                        CUST.DATA.code1 = BANCS.OUTPARAM.code1
+                        PRINT(CUST.DATA.rate1)
+                        PRINT(CUST.DATA.code1)
+
+                        CUST.DATA.feeAmt = CUST.DATA.reqFeeAmt
+                        PRINT(CUST.DATA.feeAmt)
+                        IF(CUST.DATA.feeAmt > 0) THEN
+                        CUST.DATA.feeAmt = CUST.DATA.feeAmt +"|"+ CUST.DATA.reqCurrency
+                        PRINT(CUST.DATA.feeAmt)
+                        ENDIF
+
+                        PRINT("AvailBal in MXP "+CUST.DATA.ACCTBALAMT1)
+                        if (CDOUBLE(CUST.DATA.ACCTBALAMT1)>CDOUBLE("0.00")) THEN
+                        #{
+                                CUST.DATA.ACCTBALAMT1 = CDOUBLE(CUST.DATA.ACCTBALAMT1) / CDOUBLE(CUST.DATA.rate1)
+                                PRINT(CUST.DATA.ACCTBALAMT1)
+                        #}
+                        ELSE
+                        #{
+                                CUST.DATA.ACCTBALAMT1 ="0.00"
+                        #}
+                        ENDIF
+
+                        PRINT("EffAmt in MXP "+CUST.DATA.EFFAMT)
+                        if (CDOUBLE(CUST.DATA.EFFAMT)>CDOUBLE("0.00")) THEN
+                        #{
+                                CUST.DATA.EFFAMT = CDOUBLE(CUST.DATA.EFFAMT) / CDOUBLE(CUST.DATA.rate1)
+                                PRINT(CUST.DATA.EFFAMT)
+                        #}
+                        ELSE
+                        #{
+                                CUST.DATA.EFFAMT ="0.00"
+                        #}
+                        ENDIF
+
+                        CUST.DATA.Currency = CUST.DATA.reqCurrency
+                        PRINT(CUST.DATA.Currency)
+                #}
+                ENDIF
+        #}
+        ENDIF
+
+        DISP:
+
+        CALLSCRIPTIFEXIST("balInq_Insert.scr")
+
+        IF(CUST.DATA.TranId =="")THEN
+        #{
+                CUST.DATA.TranId = "null"
+        #}
+        ENDIF
+        IF(CUST.DATA.TranDate =="")THEN
+        #{
+                CUST.DATA.TranDate = MID$(BANCS.STDIN.BODDate,0,10)
+        #}
+        ENDIF
+
+        IF(CUST.DATA.partTran == "D") THEN
+        #{
+                sv_u = urhk_SetOrbOut("BalanceInqRs.TranId|"+ CUST.DATA.TranId)
+                sv_u = urhk_SetOrbOut("BalanceInqRs.TranDate|"+CUST.DATA.TranDate)
+                sv_u = urhk_SetOrbOut("BalanceInqRs.AuthId|"+ CUST.DATA.AuthId)
+                sv_u = urhk_SetOrbOut("BalanceInqRs.FeeAmt|"+ CUST.DATA.feeAmt)
+                sv_u = urhk_SetOrbOut("BalanceInqRs.Crncy|"+ CUST.DATA.Currency)
+
+        #}
+        ELSE
+        #{
+
+                sv_u = urhk_SetOrbOut("BalanceInqRs.TranId|"+ CUST.DATA.TranId)
+                sv_u = urhk_SetOrbOut("BalanceInqRs.TranDate|"+CUST.DATA.TranDate)
+                sv_u = urhk_SetOrbOut("BalanceInqRs.AuthId|"+ CUST.DATA.AuthId)
+                sv_u = urhk_SetOrbOut("BalanceInqRs.FeeAmt|"+ CUST.DATA.feeAmt)
+        sv_u = urhk_SetOrbOut("BalanceInqRs.AvailBal|"+ CUST.DATA.ACCTBALAMT1)
+        sv_u = urhk_SetOrbOut("BalanceInqRs.EffAvaiBal|"+ CUST.DATA.EFFAMT)
+        sv_u = urhk_SetOrbOut("BalanceInqRs.Crncy|"+ CUST.DATA.Currency)
+
+        #}
+        ENDIF
+
+#}
+ENDIF
+
+FAIL:
+IF(BANCS.OUTPUT.successOrFailure == "F") THEN
+#{
+        BANCS.OUTPUT.successOrFailure = "F"
+        PRINT(CUST.DATA.errorMsg)
+        sv_u = urhk_SetOrbOut("SuccessOrFailure|FAILURE")
+        sv_u = urhk_SetOrbOut("numOfErrors|1")
+        sv_u = urhk_SetOrbOut("Error.FIBusinessException.ErrorDetail.ErrorCode| "+CUST.DATA.errorCode)
+        sv_u = urhk_SetOrbOut("Error.FIBusinessException.ErrorDetail.ErrorDesc| "+CUST.DATA.errorMsg)
+        #sv_u = urhk_SetOrbErr(CUST.DATA.errorMsg)
+
+#}
+ENDIF
+
+
+
+TRACE OFF
+EXITSCRIPT
+END-->
+

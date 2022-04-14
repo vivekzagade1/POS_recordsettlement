@@ -140,7 +140,7 @@ CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
 
 CUST.DATA.recordLengthFlg = ""
-CUST.DATA.settleFileTypeDb=""
+CUST.DATA.settleFileTypeDb = "EGLO"
 
 ### Added as a part of accountstatement
 CUST.DATA.stmtDesc = ""
@@ -287,7 +287,6 @@ IF (sv_t == 0) THEN
 	IF(CUST.DATA.recordLengthFlg=="Y") then
 	#{
 		CUST.DATA.identifier = "H"
-		CUST.DATA.settleFileTypeDb = "EGLO"
 		CUST.DATA.settleFileDate = MID$(CUST.DATA.inputRecord,72,6)
 		CUST.DATA.settleInstitName = MID$(CUST.DATA.inputRecord,32,15)
 		CUST.DATA.settleFileNum = MID$(CUST.DATA.inputRecord,92,6)

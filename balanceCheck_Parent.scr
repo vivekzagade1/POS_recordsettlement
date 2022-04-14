@@ -273,9 +273,9 @@ IF(CUST.DATA.odFlg!="E") then
                                                 CUST.TRAN.ChannelId = "ATM"
                                                 #### Deriving TranParticular for settlement transaction record Inquiry ####
 
-                                                #CUNSULTA EN + bankname+CAJERO+terminal+Location+Currency+Amount+CONSULTA DE USO DE CAJERO + Amount
+                                                #CONSULTA EN + bankname+CAJERO+terminal+Location+Currency+Amount+CONSULTA DE USO DE CAJERO + Amount
 
-                                                CUST.DATA.Nombre= "CUNSULTA EN"
+                                                CUST.DATA.Nombre= "CONSULTA EN"
                                                 CUST.DATA.Nombre2= "CONSULTA DE USO DE CAJERO $"
                                                 CUST.DATA.Nombre3= "CAJERO"
                                                 CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.sourceAmt + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount + " POR LA CUENTA " + CUST.DATA.accNumber
@@ -298,7 +298,7 @@ IF(CUST.DATA.odFlg!="E") then
 														CUST.DATA.Nombre= "CONSULTA DE SALDO"
                                                         CUST.DATA.Nombre2= "CONSULTA DE USO DE CAJERO $"
                                                         CUST.DATA.Nombre3= "CAJERO"
-                                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + "$" + CUST.DATA.amount + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount + " POR LA CUENTA " + CUST.DATA.accNumber
+                                                        CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount + " POR LA CUENTA " + CUST.DATA.accNumber
                                                         PRINT(CUST.DATA.stmtDesc)
                                                         CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 														CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)

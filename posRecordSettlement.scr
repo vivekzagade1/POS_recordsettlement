@@ -971,6 +971,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								#{
 									if ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) then 
 									#{
+										CUST.DATA.AcctId=CUST.DATA.accNumber
 										CALLSCRIPTIFEXIST("balanceCheckATM_inq.scr")
 										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 										#{
