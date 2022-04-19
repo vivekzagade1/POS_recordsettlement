@@ -1273,10 +1273,10 @@ IF(BANCS.OUTPUT.successOrFailure =="S")THEN
                         #}
                         ELSE
                         #{
-                                CUST.DATA.Nombre= "CONSULTA DE SALDO $"
+                                CUST.DATA.Nombre= "CONSULTA DE SALDO"
                                 CUST.DATA.Nombre1= "CAJERO"
                                 CUST.DATA.Nombre2= "COMISION USO DE CAJERO:"
-                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.freeText2 + " " + CUST.DATA.Nombre1 + " " + CUST.DATA.Terminal + " " + CUST.DATA.freeText3 + " " + CUST.DATA.Nombre2 + "$" + CUST.DATA.feeAmt
+                                CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.freeText2 + " " + CUST.DATA.Terminal + " " + CUST.DATA.freeText3 + " " + CUST.DATA.Nombre2 + "$" + CUST.DATA.feeAmt
                                 PRINT(CUST.DATA.stmtDesc)
                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,200)
 
