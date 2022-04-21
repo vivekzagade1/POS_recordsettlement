@@ -197,7 +197,7 @@ CUST.DATA.totAmtTrans = "0.00"
 CUST.DATA.totTrans1 = "0"
 CUST.DATA.totAmtTrans1 = "0.00"
 
-CUST.DATA.settleFileType = ""
+CUST.DATA.settleFileType = "" 
 CUST.DATA.settleFileTypeDb=""
 CUST.DATA.settleFileDate = ""
 CUST.DATA.settleInstitName = ""
@@ -258,8 +258,6 @@ CUST.DATA.cancelCahbackWithDrawDebit=""
 
 CUST.DATA.CASHBACK_WD=""
 CUST.DATA.CANCELCASHBACK_WD=""
-CUST.DATA.encryptionFlg = ""
-CUST.DATA.toEncryptFilePath = ""
 
 
 ###############################################
@@ -318,77 +316,6 @@ IF(FIELDEXISTS(MTT.InputDetails.Argument1))THEN
 ELSE
 #{
 	CUST.DATA.actionFlag = ""	
-#}
-ENDIF
-
-##################################################################
-# Check if encrypted files are used 
-##################################################################
-
-CUST.DATA.encryptParam = "ENCRYPTION_FLAG"
-BANCS.INPARAM.BINDVARS = CUST.DATA.encryptParam + "|" + BANCS.STDIN.contextBankId
-sv_s = "encryptionFlg|SELECT PARAMETER_VALUE FROM CUSTOM.C_CPVALUE WHERE PARAMETER_ID = ?SVAR"
-sv_s = sv_s + "AND BANK_ID = ?SVAR AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N'"
-PRINT(sv_s)
-PRINT(BANCS.INPARAM.BINDVARS)
-sv_d = urhk_dbSelectWithBind(sv_s)
-print(sv_d)
-IF(sv_d == 0) THEN
-#{
-	CUST.DATA.encryptionFlg = BANCS.OUTPARAM.encryptionFlg
-	PRINT(CUST.DATA.encryptionFlg)
-	IF(CUST.DATA.encryptionFlg == "Y") THEN
-	#{
-		CUST.DATA.encryptedFilePath = ""
-		IF(CUST.DATA.actionFlag == "A")then
-		#{
-			CUST.DATA.inputVar = "POS_ADQUIRENTE_RESPONSE"
-		#}
-		endif
-		IF(CUST.DATA.actionFlag == "P")then
-		#{
-			CUST.DATA.inputVar = "POS_PROSA_RESPONSE"
-		#}
-		endif
-		IF(CUST.DATA.actionFlag == "E")then
-		#{
-			CUST.DATA.inputVar = "POS_EGLO_RESPONSE"
-		#}
-		endif
-		
-		CUST.DATA.encryptedFilePath = ""
-		########################################################################################
-		# Fetching error path for decryption error from response filempath CPARAM
-		########################################################################################
-		BANCS.INPARAM.BINDVARS = ""
-		BANCS.INPARAM.BINDVARS = CUST.DATA.inputVar + "|" + BANCS.STDIN.contextBankId
-		sv_s = "errorPath|SELECT PARAMETER_VALUE FROM CUSTOM.C_CPVALUE WHERE PARAMETER_ID = ?SVAR "
-		sv_s = sv_s + "AND BANK_ID = ?SVAR AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N'"
-		PRINT(BANCS.INPARAM.BINDVARS)
-		PRINT(sv_s)
-		
-		sv_d = urhk_dbSelectWithBind(sv_s)
-		print(sv_d)
-		
-		IF(sv_d == 0) THEN
-		#{
-			CUST.DATA.errorPath = BANCS.OUTPARAM.errorPath
-			PRINT(CUST.DATA.errorPath)
-		#}
-		ENDIF
-	#}
-	ENDIF
-#}
-ELSE
-#{
-	BANCS.OUTPUT.errMsg = "CPARAM is not set for "+CUST.DATA.encryptParam
-	PRINT(BANCS.OUTPUT.errMsg)
-	CUST.DATA.failStatus="Y"
-	CUST.DATA.respCode="ERR00028"
-	sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.encryptParam, BYREF CUST.DATA.statMessage)
-	PRINT(sv_r)
-	PRINT(CUST.DATA.statMessage)
-	GOTO ENDOFSCRIPT
 #}
 ENDIF
 
@@ -468,64 +395,31 @@ print(CUST.DATA.outRecCntFile)
 ######################
 #Write comfile calling
 ######################
-
-IF(CUST.DATA.encryptionFlg != "Y") THEN
+CUST.DATA.comFileType = ""
+IF(CUST.DATA.actionFlag == "A")then
 #{
-	CUST.DATA.comFileType = ""
-	IF(CUST.DATA.actionFlag == "A")then
-	#{
-		CUST.DATA.comFileType = "pos_settlement_adq_inpFileFetch.com"
-		sv_r = urhk_getFileLocation("COM|pos_settlement_adq_inpFileFetch.com")
-	#}
-	ENDIF
-	IF(CUST.DATA.actionFlag == "P")then
-	#{
-		CUST.DATA.comFileType = "pos_settlement_prosa_inpFileFetch.com"
-		sv_r = urhk_getFileLocation("COM|pos_settlement_prosa_inpFileFetch.com")
-	#}
-	ENDIF
-	IF(CUST.DATA.actionFlag == "E")then
-	#{
-		CUST.DATA.comFileType = "pos_settlement_eglo_inpFileFetch.com"
-		sv_r = urhk_getFileLocation("COM|pos_settlement_eglo_inpFileFetch.com")
-	#}
-	ENDIF
-	IF(sv_r == 0) THEN
-	#{
-		CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + CUST.DATA.comFileType
-		print(CUST.DATA.comFile)
-	#}
-	ENDIF
+	CUST.DATA.comFileType = "pos_settlement_adq_inpFileFetch.com"
+	sv_r = urhk_getFileLocation("COM|pos_settlement_adq_inpFileFetch.com")
 #}
-ELSE
+endif
+IF(CUST.DATA.actionFlag == "P")then
 #{
-	CUST.DATA.comFileType = ""
-	IF(CUST.DATA.actionFlag == "A")then
-	#{
-		CUST.DATA.comFileType = "pos_settlement_adq_inpFileFetch_EncryptedFiles.com"
-		sv_r = urhk_getFileLocation("COM|pos_settlement_adq_inpFileFetch_EncryptedFiles.com")
-	#}
-	ENDIF
-	IF(CUST.DATA.actionFlag == "P")then
-	#{
-		CUST.DATA.comFileType = "pos_settlement_prosa_inpFileFetch_EncryptedFiles.com"
-		sv_r = urhk_getFileLocation("COM|pos_settlement_prosa_inpFileFetch_EncryptedFiles.com")
-	#}
-	ENDIF
-	IF(CUST.DATA.actionFlag == "E")then
-	#{
-		CUST.DATA.comFileType = "pos_settlement_eglo_inpFileFetch_EncryptedFiles.com"
-		sv_r = urhk_getFileLocation("COM|pos_settlement_eglo_inpFileFetch_EncryptedFiles.com")
-	#}
-	ENDIF
-	IF(sv_r == 0) THEN
-	#{
-		CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + CUST.DATA.comFileType
-		print(CUST.DATA.comFile)
-	#}
-	ENDIF	
+	CUST.DATA.comFileType = "pos_settlement_prosa_inpFileFetch.com"
+	sv_r = urhk_getFileLocation("COM|pos_settlement_prosa_inpFileFetch.com")
 #}
-ENDIF
+endif
+IF(CUST.DATA.actionFlag == "E")then
+#{
+	CUST.DATA.comFileType = "pos_settlement_eglo_inpFileFetch.com"
+	sv_r = urhk_getFileLocation("COM|pos_settlement_eglo_inpFileFetch.com")
+#}
+endif
+IF(sv_r == 0) THEN
+#{
+	CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + CUST.DATA.comFileType
+	print(CUST.DATA.comFile)
+#}
+endif
 
 sv_d = CUST.DATA.cpFlPath + " " + CUST.DATA.outRecCntFile
 print(sv_d)
@@ -638,41 +532,6 @@ if((CUST.DATA.posSettlementFileCnt=="O") or (CUST.DATA.posSettlementFileCnt=="M"
 	
 	
 
-#}
-ENDIF
-
-IF(CUST.DATA.encryptionFlg == "Y") THEN
-#{
-	#AEGC 2022/01/31 Add Decrypting process
-	CUST.DATA.encryptedFilePath = CUST.DATA.posSettlementReqPath
-	CALLSCRIPTIFEXIST("DC_Decrypt001_mn.scr")
-	sv_t = urtn_fileAccess(CUST.DATA.posSettlementReqPath)
-	PRINT(sv_t)
-	IF (sv_t !=0) THEN
-	#{
-		CUST.DATA.posSettlementReqPath = MID$(CUST.DATA.posSettlementReqPath,0,CINT(CUST.DATA.posSettlementReqPath)-4)
-		CUST.DATA.posSettlementReqPath = CUST.DATA.posSettlementReqPath + ".err"
-		sv_t = urtn_fileAccess(CUST.DATA.posSettlementReqPath)
-		IF(sv_t == 0) THEN 
-		#{
-			CUST.DATA.processFlg = "FAILURE"
-			CUST.DATA.errMsg="Unable to Decrypt Input File."
-			PRINT(CUST.DATA.errMsg)
-			CUST.DATA.failStatus = "Y"
-			#CUST.DATA.inpFilProcStat = "F"
-			CUST.DATA.respCode="ERR00056"
-			sv_r = func_cmmsgerrdescWithInputs("ERR00056",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
-			PRINT(sv_r)
-			PRINT(CUST.DATA.statMessage)
-			GOTO ENDOFSCRIPT
-		#}
-		ENDIF
-	#}
-	ENDIF
-	CUST.DATA.posSettlementReqPath = MID$(CUST.DATA.posSettlementReqPath,0,CINT(CUST.DATA.posSettlementReqPathLen)-4)
-	PRINT(CUST.DATA.posSettlementReqPath)
-	CUST.DATA.posSettlementInpFileName = MID$(CUST.DATA.posSettlementInpFileName,0,CINT(CUST.DATA.inputFileNameLen)-4)
-	PRINT( CUST.DATA.posSettlementInpFileName)
 #}
 ENDIF
 
@@ -1144,44 +1003,15 @@ ENDOFSCRIPT:
 
 if(CUST.DATA.failStatus=="Y") then
 #{
-	IF(CUST.DATA.inpFilProcStat=="F" AND CUST.DATA.posSettlementInpFileName!="") THEN
+	IF(CUST.DATA.inpFilProcStat=="F") then
 	#{
 		sv_y = ""
 		sv_y = sv_y + "mv " + CUST.DATA.posSettlementReqPath+" "+CUST.DATA.posSettlementReqPath+".ERR"
 		sv_v = system(sv_y)
 		print(sv_v)
-		#New name as per bank request
-		CUST.DATA.posSettlementInpFileNameValid = CUST.DATA.posSettlementInpFileName + ".LOG.ERR"
-		CUST.DATA.repIndex = urtn_fileOpen(CUST.DATA.posSettlementInpFileNameValid + "|w")
-		
-		IF(CUST.DATA.encryptionFlg == "Y") THEN
-		#{
-			sv_y = "rm " + CUST.DATA.posSettlementReqPath + ".enc"
-			sv_v = system(sv_y)
-			sv_y = "rm " + CUST.DATA.posSettlementReqPath + ".sec"
-			sv_v = system(sv_y)
-			
-			PRINT(CUST.DATA.posSettlementReqPath)
-			CUST.DATA.posSettlementReqPath = CUST.DATA.posSettlementReqPath + ".ERR"
-			CUST.DATA.toEncryptFilePath = CUST.DATA.posSettlementReqPath
-			CALLSCRIPTIFEXIST("DC_Encrypt001_mn.scr")
-			sv_y = "rm " + CUST.DATA.posSettlementReqPath
-			sv_v = system(sv_y)
-			CUST.DATA.toEncryptFilePath = CUST.DATA.posSettlementResPath
-			CALLSCRIPTIFEXIST("DC_Encrypt001_mn.scr")
-			sv_y = "rm " + CUST.DATA.posSettlementResPath
-			sv_v = system(sv_y)
-		#}
-		ENDIF
 	#}
-	ELSE
-	#{
-		#If the source file is not found or if the processing is succesful, the status report will keep its current name.
-		CUST.DATA.repIndex = urtn_fileOpen(CUST.DATA.possettlementStatusReportFile + "|w")
-	#}
-	ENDIF
-
-	#rest of the content remain same.
+	endif
+	CUST.DATA.repIndex = urtn_fileOpen(CUST.DATA.possettlementStatusReportFile + "|w")
 	CUST.DATA.statContent="                                                                                 "
 	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		
 	print(sv_b)
@@ -1284,28 +1114,8 @@ else
 		sv_y = sv_y + "mv " + CUST.DATA.posSettlementReqPath+" "+CUST.DATA.posSettlementReqPath+".OK"
 		sv_v = system(sv_y)
 		print(sv_v)
-		IF(CUST.DATA.encryptionFlg == "Y") THEN
-		#{
-			sv_y = "rm " + CUST.DATA.posSettlementReqPath + ".enc"
-			sv_v = system(sv_y)
-			sv_y = "rm " + CUST.DATA.posSettlementReqPath + ".sec"
-			sv_v = system(sv_y)
-	
-			PRINT(CUST.DATA.posSettlementReqPath)
-			CUST.DATA.posSettlementReqPath = CUST.DATA.posSettlementReqPath + ".OK"
-			CUST.DATA.toEncryptFilePath = CUST.DATA.posSettlementReqPath
-			CALLSCRIPTIFEXIST("DC_Encrypt001_mn.scr")
-            sv_y = "rm " + CUST.DATA.posSettlementReqPath
-            sv_v = system(sv_y)
-			CUST.DATA.toEncryptFilePath = CUST.DATA.posSettlementResPath
-			CALLSCRIPTIFEXIST("DC_Encrypt001_mn.scr")
-            sv_y = "rm " + CUST.DATA.posSettlementResPath
-            sv_v = system(sv_y)
-		#}
-		ENDIF
 	#}
 	endif
-	
 	CUST.DATA.repIndex = urtn_fileOpen(CUST.DATA.possettlementStatusReportFile + "|w")
 	CUST.DATA.statContent="                                                                                 "
 	sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)		

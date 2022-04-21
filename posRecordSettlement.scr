@@ -71,7 +71,7 @@ CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
 CUST.DATA.lienExpired=""
 CUST.DATA.lienAmtVal=""
-
+CUST.DATA.userid=""
 
 IF(FIELDEXISTS(CUST.DATA.FIDADQ)) THEN
 #{
@@ -115,7 +115,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 			#{
 				CUST.DATA.settlemod="ON"
 				sv_s = ""
-				sv_s = "onlineAmt,freeTxt1,TRANDATE,LIENID,settleFlg|SELECT TRUNC(LIENAMT,2),FREETEXT1,TO_CHAR(TRANDATE,'DD-MM-YYYY'),LIENID,SETTLEMENT_FILE_FLG "
+				sv_s = "onlineAmt,freeTxt1,TRANDATE,LIENID,settleFlg,userid|SELECT TRUNC(LIENAMT,2),FREETEXT1,TO_CHAR(TRANDATE,'DD-MM-YYYY'),LIENID,SETTLEMENT_FILE_FLG,userid "
 				sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL "  
 				sv_s = sv_s + " WHERE ACCTID=?SVAR AND AuthId = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND CHANNELID=?SVAR AND BANK_ID = ?SVAR AND MODEOFOPN=?SVAR AND ROWNUM=1"
 				
@@ -138,6 +138,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 					print(CUST.DATA.LIENID)
 					CUST.DATA.settleFlg=BANCS.OUTPARAM.settleFlg
 					print(CUST.DATA.settleFlg)
+					CUST.DATA.userid=BANCS.OUTPARAM.userid
+					print(CUST.DATA.userid)
 				#}
 				endif
 				
@@ -1477,13 +1479,16 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 				ENDIF	
 						
 			#}
-			ELSE
+			ENDIF
+			
+			OFFLINEREC:
+			IF( (posOnlineCnt == 0) OR (CUST.DATA.lienExpired == "Y") )THEN
 			#{
-
+			
 				#Offline POS Transactions
 				
 				# Account status validation
-				OFFLINEREC:
+				
 				BANCS.OUTPUT.successOrFailure="S"
 				CUST.DATA.incAcctTrnType="C"
 				CUST.DATA.incTranAmt="0.00"

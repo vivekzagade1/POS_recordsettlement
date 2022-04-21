@@ -840,18 +840,6 @@ IF(FIELDEXISTS(("BANCS").("INPUT").("BalanceInqRq.SwitchId")))THEN
                 CUST.DATA.SwitchId = TRIM(("BANCS").("INPUT").("BalanceInqRq.SwitchId"))
                 PRINT(CUST.DATA.SwitchId)
 
-                sv_u = urhk_B2k_isStringNumeric(CUST.DATA.SwitchId)
-        print(sv_u)
-        IF(sv_u != 0)THEN
-        #{
-            CUST.DATA.errorCode = "ERRMGD0268"
-                        sv_r = func_cmmsgerrdescWithInputs("ERRMGD0268",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
-                        PRINT(sv_r)
-                        BANCS.OUTPUT.successOrFailure = "F"
-                        GOTO FAIL
-        #}
-        ENDIF
-
                 IF(STRLEN(CUST.DATA.SwitchId) != 11) THEN
                 #{
                         CUST.DATA.errorCode = "ERRMGD0268"
@@ -1482,4 +1470,3 @@ ENDIF
 TRACE OFF
 EXITSCRIPT
 END-->
-

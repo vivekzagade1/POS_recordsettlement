@@ -67,7 +67,7 @@ CUST.DATA.custTranDate=""
 CUST.DATA.appliedSettleAmt=""
 CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
-
+CUST.DATA.userid=""
 CUST.DATA.totSourceAmt=format$(CDOUBLE(CUST.DATA.totSourceAmt),"%0.2f")
 
 IF(FIELDEXISTS(CUST.DATA.FIDADQ)) THEN
@@ -119,7 +119,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 			if((CUST.DATA.posOnlineCnt>0) and (CUST.DATA.OFFDEV!="Y")) then
 			#{
 				sv_s = ""
-				sv_s = "onlineAmt,freeTxt1,TRANDATE,LIENID,settleFlg|SELECT TRUNC(TRANAMT,2),FREETEXT1,TO_CHAR(TRANDATE,'DD-MM-YYYY'),LIENID,SETTLEMENT_FILE_FLG "
+				sv_s = "onlineAmt,freeTxt1,TRANDATE,LIENID,settleFlg,userid|SELECT TRUNC(TRANAMT,2),FREETEXT1,TO_CHAR(TRANDATE,'DD-MM-YYYY'),LIENID,SETTLEMENT_FILE_FLG,userid "
 				sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL "  
 				sv_s = sv_s + " WHERE ACCTID=?SVAR AND NUMERICREFNUM = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND CHANNELID=?SVAR AND MODEOFOPN=?SVAR AND BANK_ID = ?SVAR AND ROWNUM=1"
 				
@@ -142,6 +142,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 					print(CUST.DATA.LIENID)
 					CUST.DATA.settleFlg=BANCS.OUTPARAM.settleFlg
 					print(CUST.DATA.settleFlg)
+					CUST.DATA.userid=BANCS.OUTPARAM.userid
+					print(CUST.DATA.userid)
 				#}
 				endif
 				
