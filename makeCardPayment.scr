@@ -2012,9 +2012,9 @@ IF(CUST.TRAN.channelId == "ATM") THEN
 		IF((CUST.TRAN.freeText1 != "") AND (CUST.TRAN.freeText1 =="B127"))THEN
 		#{
 			#Nombre de Banco + free Text 2 + free Text 3
-			CUST.TRAN.Nombre= "RETIRO DE EFECTIVO $"
+			CUST.TRAN.Nombre= "RETIRO DE EFECTIVO"
 			CUST.TRAN.Nombre1= "CAJERO"
-			CUST.TRAN.stmtDesc= CUST.TRAN.Nombre + " " + CUST.TRAN.TranAmt + " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.Nombre1 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3
+			CUST.TRAN.stmtDesc= CUST.TRAN.Nombre + " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.Nombre1 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3
 			PRINT(CUST.TRAN.stmtDesc)
 			CUST.TRAN.freeText10 = LEFT$(CUST.TRAN.stmtDesc,200)
 			
@@ -2025,7 +2025,7 @@ IF(CUST.TRAN.channelId == "ATM") THEN
 			#{
 				## originalAmt(requestamt) along with currency+ "COMISION DE USO DE CAJERO" feeamt from the request 
 				## CUST.TRAN.TranAmt + CUST.TRAN.TranCurr + CUST.TRAN.FeeAmtAmount
-				CUST.TRAN.Nombre= "RETIRO EN EFECTIVO"
+				CUST.TRAN.Nombre= "RETIRO DE EFECTIVO"
 				CUST.TRAN.Nombre1= "CAJERO"
 				CUST.TRAN.Nombre2= "COMISION DE USO DE CAJERO"
 				CUST.TRAN.stmtDesc= CUST.TRAN.Nombre+ " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.Nombre1 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3 + " " + CUST.TRAN.TranAmtCrncy + " $" + CUST.TRAN.TranAmtAmount + " " + CUST.TRAN.Nombre2 + " $" + CUST.TRAN.FeeAmtAmount
@@ -2043,11 +2043,11 @@ IF(CUST.TRAN.channelId == "ATM") THEN
 				
 					## With Commission
 					#RETIRO DE EFECTIVO+amt+free2+terminal+free3+"MONTO RETIRO"+originalAmt-commsion(without fee and iva)+comision USO DE CAJERO  fee
-					CUST.TRAN.Nombre= "RETIRO DE EFECTIVO $"
+					CUST.TRAN.Nombre= "RETIRO DE EFECTIVO"
 					CUST.TRAN.Nombre1= "MONTO RETIRO:"
 					CUST.TRAN.Nombre2= "COMISION USO DE CAJERO: $"
 					CUST.TRAN.Nombre3= "CAJERO"
-					CUST.TRAN.stmtDesc= CUST.TRAN.Nombre + "" + CUST.TRAN.TranAmt + " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.Nombre3 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3 + " " + CUST.TRAN.Nombre1 + " $" + CUST.TRAN.withoutComm + " " + CUST.TRAN.Nombre2 + "" + CUST.TRAN.FeeAmtAmount
+					CUST.TRAN.stmtDesc= CUST.TRAN.Nombre + " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.Nombre3 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3 + " " + CUST.TRAN.Nombre1 + " $" + CUST.TRAN.withoutComm + " " + CUST.TRAN.Nombre2 + "" + CUST.TRAN.FeeAmtAmount
 					PRINT(CUST.TRAN.stmtDesc)
 					CUST.TRAN.freeText10 = LEFT$(CUST.TRAN.stmtDesc,200)
 	
@@ -2055,7 +2055,7 @@ IF(CUST.TRAN.channelId == "ATM") THEN
 				ELSE
 				#{
 					## Without Commission
-					CUST.TRAN.Nombre= "RETIRO DE EFECTIVO $-"
+					CUST.TRAN.Nombre= "RETIRO DE EFECTIVO"
 					CUST.TRAN.Nombre3= "CAJERO"
 					CUST.TRAN.stmtDesc= CUST.TRAN.Nombre + " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3
 					PRINT(CUST.TRAN.stmtDesc)

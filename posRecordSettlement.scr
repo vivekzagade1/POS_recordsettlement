@@ -1482,7 +1482,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 			ENDIF
 			
 			OFFLINEREC:
-			IF( (posOnlineCnt == 0) OR (CUST.DATA.lienExpired == "Y") )THEN
+			IF( (CUST.DATA.posOnlineCnt == 0) OR (CUST.DATA.lienExpired == "Y") )THEN
 			#{
 			
 				#Offline POS Transactions

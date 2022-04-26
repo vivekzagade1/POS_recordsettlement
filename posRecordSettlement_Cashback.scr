@@ -290,7 +290,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -323,7 +323,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -638,7 +638,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "$" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -671,7 +671,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1142,7 +1142,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1174,7 +1174,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)	
@@ -1563,7 +1563,7 @@ CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 			ENDIF
 			
 			OFFLINEREC:
-			IF( (posOnlineCnt == 0) OR (lienExpired == "Y") )THEN
+			IF( (CUST.DATA.posOnlineCnt == 0) OR (CUST.DATA.lienExpired == "Y") )THEN
 			#{
 
 				#Offline POS Transactions
@@ -1653,7 +1653,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1685,7 +1685,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1756,7 +1756,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1788,7 +1788,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)	
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1889,7 +1889,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)	
@@ -1921,7 +1921,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + "" + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + "" + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)	
@@ -2005,7 +2005,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)	
@@ -2037,7 +2037,7 @@ ENDIF
 CUST.DATA.Nombre= "COMPRA EN"
 CUST.DATA.Nombre1= "COMPRA"
 CUST.DATA.Nombre2= "RETIRO"
-CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
+CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation  + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0')+ " RFC:" + CUST.DATA.RFC
 PRINT(CUST.DATA.stmtDesc)
 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)	

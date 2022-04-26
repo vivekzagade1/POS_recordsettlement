@@ -91,7 +91,15 @@ ENDIF
         sv_b= sv_b +" count|SELECT count(*)  from  TBAADM.GAM A,TBAADM.SMT D "
         sv_b= sv_b +" WHERE  A.FORACID=?SVAR AND A.ACID = D.ACID AND A.BANK_ID=D.BANK_ID AND A.BANK_ID=?SVAR "
         sv_b= sv_b +" AND A.ACCT_CLS_FLG!='Y' AND A.ACTIVE_STATUS not in ('D','I') "
-        sv_b= sv_b +" and A.frez_code not in ('D','T')"
+		if(CUST.DATA.settlemod == "DEV")then
+		#{
+			sv_b= sv_b +" and A.frez_code not in ('C','T')"
+		#}
+		else
+		#{
+			sv_b= sv_b +" and A.frez_code not in ('D','T')"
+		#}
+		endif
         sv_b= sv_b +" AND D.acct_status not in ('D','I')"
         print(sv_b)
 
@@ -116,11 +124,11 @@ ENDIF
         #}
         ENDIF
 
-
-
-        sv_u = urhk_getAcctDetailsInRepository(CUST.DATA.parentacc)
-        IF (sv_u == 0) THEN
-        #{
+		if(CUST.DATA.settlemod!="DEV") then
+		#{
+			sv_u = urhk_getAcctDetailsInRepository(CUST.DATA.parentacc)
+			IF (sv_u == 0) THEN
+			#{
                 CUST.DATA.AVAILBALUSRHK       =BANCS.OUTPARAM.FullEffAvailableAmt
                 PRINT(CUST.DATA.AVAILBALUSRHK)
                 CUST.DATA.systemGeneratedLimit=BANCS.OUTPARAM.systemGeneratedLimit
@@ -139,9 +147,9 @@ ENDIF
 
                 sv_f = BANCS.OUTPARAM.FullEffAvailableAmt
                 PRINT("Full Effective Available Amount : " + sv_f)
-        #}
-        ELSE
-        #{
+			#}
+			ELSE
+			#{
                 CUST.DATA.odFlg="E"
                 CUST.DATA.errorCode = "ERR0000408"
                 sv_r = func_cmmsgerrdescWithInputs("ERR0000408",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
@@ -150,15 +158,18 @@ ENDIF
 
                 # Error - Unable to fetch the balance
                 GOTO ENDOFSCRIPT
-        #}
-        ENDIF
+			#}
+			ENDIF
+		#}
+		endif
+        
 
 
 ENDOFSCRIPT:
 
 # check if BANCS.OUTPUT.successOrFailure = "F" and throw error ; else ,
 
-IF(CUST.DATA.odFlg!="E") then
+IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod!="DEV") ) then
 #{
 
 
@@ -172,40 +183,124 @@ IF(CUST.DATA.odFlg!="E") then
                 #{
                         if(CUST.DATA.freeTxt1=="B127") then
                         #{
-                                CUST.DATA.credAccnt=CUST.DATA.TranPurchaseCredit
+							if(CUST.DATA.tranType == "01")then
+							#{
+								CUST.DATA.credAccnt=CUST.DATA.TranPurchaseCredit
                                 CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOM_PUR
                                 CUST.TRAN.ChannelId = "POS"
-                                ##Normal Purchase Compra En
-                                CUST.DATA.Nombre= "Compra En"
+                                ##Normal Purchase COMPRA EN
+                                CUST.DATA.Nombre= "COMPRA EN"
                                 CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                 PRINT(CUST.DATA.stmtDesc)
                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 								CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+							#}
+							else
+							#{
+								CUST.DATA.credAccnt=CUST.DATA.cashbackWithDrawCredit
+                                CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+                                CUST.TRAN.ChannelId = "POS"
+								CUST.DATA.amount = "0"	
+								IF(CUST.DATA.PurAmt!="")THEN
+								#{
+									CUST.DATA.PurAmt = LTRIM(CUST.DATA.PurAmt,'0')
+									CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+									CUST.DATA.amount = CDOUBLE(CUST.DATA.PurAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+									CUST.DATA.amount=format$(CDOUBLE(CUST.DATA.amount),"%0.2f")
+									PRINT(CUST.DATA.amount)
+								#}
+								ENDIF
+                                ##Normal Purchase COMPRA EN
+                                CUST.DATA.Nombre= "COMPRA EN"
+								CUST.DATA.Nombre1= "COMPRA"
+								CUST.DATA.Nombre2= "RETIRO"
+								CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+								PRINT(CUST.DATA.stmtDesc)
+                                CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+								CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+							#}
+							endif	
+                                
                         #}
                         else
                         #{
                                 if ((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")) then
                                 #{
-                                        CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
+									if(CUST.DATA.tranType == "01")then
+									#{
+										CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
                                         CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
                                         CUST.TRAN.ChannelId = "POS"
-                                        CUST.DATA.Nombre= "Compra En"
+                                        CUST.DATA.Nombre= "COMPRA EN"
                                         CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                         PRINT(CUST.DATA.stmtDesc)
                                         CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+									#}
+									else
+									#{
+										CUST.DATA.credAccnt=CUST.DATA.cashbackWithDrawCredit
+										CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+										CUST.TRAN.ChannelId = "POS"
+										CUST.DATA.amount = "0"	
+										IF(CUST.DATA.PurAmt!="")THEN
+										#{
+											CUST.DATA.PurAmt = LTRIM(CUST.DATA.PurAmt,'0')
+											CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+											CUST.DATA.amount = CDOUBLE(CUST.DATA.PurAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+											CUST.DATA.amount=format$(CDOUBLE(CUST.DATA.amount),"%0.2f")
+											PRINT(CUST.DATA.amount)
+										#}
+										ENDIF
+										##International Cashback
+										CUST.DATA.Nombre= "COMPRA EN"
+										CUST.DATA.Nombre1= "COMPRA"
+										CUST.DATA.Nombre2= "RETIRO"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+										PRINT(CUST.DATA.stmtDesc)
+										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+									#}
+                                    endif    
                                 #}
                                 else
                                 #{
-                                        CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
+									if(CUST.DATA.tranType == "01")then
+									#{
+										CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
                                         CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
                                         CUST.TRAN.ChannelId = "POS"
-                                        ##Normal Purchase Compra En
-                                        CUST.DATA.Nombre= "Compra En"
+                                        ##Normal Purchase COMPRA EN
+                                        CUST.DATA.Nombre= "COMPRA EN"
                                         CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                         PRINT(CUST.DATA.stmtDesc)
                                         CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+									#}
+									else
+									#{
+										CUST.DATA.credAccnt=CUST.DATA.cashbackWithDrawCredit
+										CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+										CUST.TRAN.ChannelId = "POS"
+										CUST.DATA.amount = "0"	
+										IF(CUST.DATA.PurAmt!="")THEN
+										#{
+											CUST.DATA.PurAmt = LTRIM(CUST.DATA.PurAmt,'0')
+											CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+											CUST.DATA.amount = CDOUBLE(CUST.DATA.PurAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+											CUST.DATA.amount=format$(CDOUBLE(CUST.DATA.amount),"%0.2f")
+											PRINT(CUST.DATA.amount)
+										#}
+										ENDIF
+										CUST.DATA.Nombre= "COMPRA EN"
+										CUST.DATA.Nombre1= "COMPRA"
+										CUST.DATA.Nombre2= "RETIRO"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+										PRINT(CUST.DATA.stmtDesc)
+										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+									#}
+                                    endif    
                                 #}
                                 endif
                         #}
@@ -217,45 +312,134 @@ IF(CUST.DATA.odFlg!="E") then
                         #{
                                 if(CUST.DATA.FIDADQ=="B127") then
                                 #{
-                                        CUST.DATA.credAccnt=CUST.DATA.TranPurchaseCredit
+									if(CUST.DATA.tranType == "01")then
+									#{
+										CUST.DATA.credAccnt=CUST.DATA.TranPurchaseCredit
                                         CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOM_PUR
                                         CUST.TRAN.ChannelId = "POS"
                                         # domestic
-                                        ##Normal Purchase Compra En
-                                        CUST.DATA.Nombre= "Compra En"
+                                        ##Normal Purchase COMPRA EN
+                                        CUST.DATA.Nombre= "COMPRA EN"
                                         CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                         PRINT(CUST.DATA.stmtDesc)
                                         CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
-
+									#}
+									else
+									#{
+										CUST.DATA.credAccnt=CUST.DATA.cashbackWithDrawCredit
+										CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+										CUST.TRAN.ChannelId = "POS"
+										CUST.DATA.amount = "0"	
+										IF(CUST.DATA.PurAmt!="")THEN
+										#{
+											CUST.DATA.PurAmt = LTRIM(CUST.DATA.PurAmt,'0')
+											CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+											CUST.DATA.amount = CDOUBLE(CUST.DATA.PurAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+											CUST.DATA.amount=format$(CDOUBLE(CUST.DATA.amount),"%0.2f")
+											PRINT(CUST.DATA.amount)
+										#}
+										ENDIF
+										CUST.DATA.Nombre= "COMPRA EN"
+										CUST.DATA.Nombre1= "COMPRA"
+										CUST.DATA.Nombre2= "RETIRO"
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+										PRINT(CUST.DATA.stmtDesc)
+										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+									#}
+                                    endif
                                 #}
                                 else
                                 #{
                                         if ((CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then
                                         #{
-                                                CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
+											if(CUST.DATA.tranType == "01")then
+											#{
+												CUST.DATA.credAccnt=CUST.DATA.foreignTranPurchaseCredit
                                                 CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
                                                 CUST.TRAN.ChannelId = "POS"
                                                 ## international
-                                                CUST.DATA.Nombre= "Compra En"
+                                                CUST.DATA.Nombre= "COMPRA EN"
                                                 CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                                 PRINT(CUST.DATA.stmtDesc)
                                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
-
+											#}
+											else
+											#{
+												CUST.DATA.credAccnt=CUST.DATA.cashbackWithDrawCredit
+												CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+												CUST.TRAN.ChannelId = "POS"
+												CUST.DATA.amount = "0"	
+												IF(CUST.DATA.PurAmt!="")THEN
+												#{
+													CUST.DATA.PurAmt = LTRIM(CUST.DATA.PurAmt,'0')
+													CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+													CUST.DATA.amount = CDOUBLE(CUST.DATA.PurAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+													CUST.DATA.amount=format$(CDOUBLE(CUST.DATA.amount),"%0.2f")
+													PRINT(CUST.DATA.amount)
+												#}
+												ENDIF
+												CUST.DATA.Nombre= "COMPRA EN"
+												CUST.DATA.Nombre1= "COMPRA"
+												CUST.DATA.Nombre2= "RETIRO"
+												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+												PRINT(CUST.DATA.stmtDesc)
+												CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+											#}
+                                            endif
                                         #}
                                         else
                                         #{
-                                                CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
+											if(CUST.DATA.tranType == "01")then
+											#{
+												CUST.DATA.credAccnt=CUST.DATA.TranPurchaseRedCredit
                                                 CUST.TRAN.UserTrnCode = CUST.DATA.REDCOM_PUR
                                                 CUST.TRAN.ChannelId = "POS"
+												CUST.DATA.amount = "0"	
+												IF(CUST.DATA.PurAmt!="")THEN
+												#{
+													CUST.DATA.PurAmt = LTRIM(CUST.DATA.PurAmt,'0')
+													CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+													CUST.DATA.amount = CDOUBLE(CUST.DATA.PurAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+													CUST.DATA.amount=format$(CDOUBLE(CUST.DATA.amount),"%0.2f")
+													PRINT(CUST.DATA.amount)
+												#}
+												ENDIF
                                                 ## domestic
-                                                ##Normal Purchase Compra En
-                                                CUST.DATA.Nombre= "Compra En"
+                                                ##Normal Purchase COMPRA EN
+                                                CUST.DATA.Nombre= "COMPRA EN"
                                                 CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
                                                 PRINT(CUST.DATA.stmtDesc)
                                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+											#}
+											else
+											#{
+												CUST.DATA.credAccnt=CUST.DATA.cashbackWithDrawCredit
+												CUST.TRAN.UserTrnCode = CUST.DATA.CASHBACK_WD
+												CUST.TRAN.ChannelId = "POS"
+												CUST.DATA.amount = "0"	
+												IF(CUST.DATA.PurAmt!="")THEN
+												#{
+													CUST.DATA.PurAmt = LTRIM(CUST.DATA.PurAmt,'0')
+													CUST.DATA.purSourceAmt = LTRIM(CUST.DATA.purSourceAmt,'0')
+													CUST.DATA.amount = CDOUBLE(CUST.DATA.PurAmt) - CDOUBLE(CUST.DATA.purSourceAmt)
+													CUST.DATA.amount=format$(CDOUBLE(CUST.DATA.amount),"%0.2f")
+													PRINT(CUST.DATA.amount)
+												#}
+												ENDIF
+												CUST.DATA.Nombre= "COMPRA EN"
+												CUST.DATA.Nombre1= "COMPRA"
+												CUST.DATA.Nombre2= "RETIRO"
+												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+												PRINT(CUST.DATA.stmtDesc)
+												CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
+											#}
+                                            endif
                                         #}
                                         endif
                                 #}
@@ -669,8 +853,81 @@ IF(CUST.DATA.odFlg!="E") then
 #}
 ENDIF
 
-
-IF(CUST.DATA.odFlg == "E")THEN
+IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod=="DEV") ) THEN
+#{
+	if(CUST.DATA.FIDADQ=="B127") then
+	#{
+		CUST.DATA.debAccnt=CUST.DATA.OOFDevPurDebit
+		CUST.TRAN.UserTrnCode = CUST.DATA.OOFCOMDEV_PUR
+	#}
+	else 
+	#{
+		if ((CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
+		#{
+			CUST.DATA.debAccnt=CUST.DATA.OOFDevRedDebit
+			CUST.TRAN.UserTrnCode = CUST.DATA.OOFINTDEV_PUR
+		#}
+		else 
+		#{
+			CUST.DATA.debAccnt=CUST.DATA.devOOFIntPurDebit
+			CUST.TRAN.UserTrnCode = CUST.DATA.OOFREDDEV_PUR
+		#}
+		endif
+	#}
+	endif
+	CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.PurAmt),"%0.2f")
+	CUST.DATA.incTranAmt=CDOUBLE(CUST.DATA.TranAmt)
+	print(CUST.DATA.incTranAmt)
+	print(CUST.DATA.errorMsg)
+	CUST.DATA.incAcctTrnType="C"
+	CUST.DATA.credAccnt=CUST.DATA.parentacc
+	CUST.DATA.custAccntFlg="Y"
+	CUST.TRAN.ChannelId = "POS"
+	CUST.TRAN.tranCategory = "N"
+	CUST.TRAN.freeText7 = "I"
+	CUST.DATA.accntNum=CUST.DATA.parentacc
+	CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+	IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+	#{
+		CUST.DATA.respTranId = CUST.DATA.TRANID
+		CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+		CUST.DATA.custTranId=CUST.DATA.TRANID
+		CUST.DATA.custTranDate=CUST.DATA.TRANDATE
+		print(CUST.DATA.respTranId)
+		print(CUST.DATA.respTranDate)
+		CUST.DATA.respCod = "APL02"
+		CUST.DATA.respMsg = "APLICADO CENTRALIZADORA"
+		CUST.DATA.incidentReason = CUST.DATA.errorMsg
+		CUST.DATA.blockUser = ""
+		CUST.DATA.blockDate = ""
+		CUST.DATA.appliedSettleAmt=CUST.DATA.TranAmt
+		CUST.DATA.pendingSettleAmt=""
+		CUST.DATA.exchangeAmtDiff=""
+		if((CUST.DATA.FIDADQ=="B127") OR ((CUST.DATA.FIDADQ!="VISA") AND (CUST.DATA.FIDADQ!="BNET") AND (CUST.DATA.FIDADQ!="MDS")) ) then
+		#{
+			CUST.DATA.totAppTran21Returns=CINT(CUST.DATA.totAppTran21Returns)+1
+			CUST.DATA.totAppAmtTran21Returns=CDOUBLE(CUST.DATA.totAppAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
+			CUST.DATA.totTran21Returns=CINT(CUST.DATA.totTran21Returns)+1
+			print(CUST.DATA.totTran21Returns)
+			CUST.DATA.totAmtTran21Returns=CDOUBLE(CUST.DATA.totAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
+			print(CUST.DATA.totAmtTran21Returns)	
+		#}
+		else 
+		#{
+			CUST.DATA.totAppTran21Returns=CINT(CUST.DATA.totAppTran21Returns)+1
+			CUST.DATA.totAppAmtTran21Returns=CDOUBLE(CUST.DATA.totAppAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
+			CUST.DATA.totIntTran21Returns=CINT(CUST.DATA.totIntTran21Returns)+1
+			print(CUST.DATA.totIntTran21Returns)
+			CUST.DATA.totIntAmtTran21Returns=CDOUBLE(CUST.DATA.totIntAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
+			print(CUST.DATA.totIntAmtTran21Returns)
+		#}
+		endif
+	#}
+	ENDIF
+#}
+ENDIF
+#NO lien for devolution
+IF( (CUST.DATA.odFlg == "E") AND (CUST.DATA.settlemod != "DEV") )THEN
 #{
         BANCS.OUTPUT.successOrFailure = "F"
         CUST.DATA.incTranrqd="Y"

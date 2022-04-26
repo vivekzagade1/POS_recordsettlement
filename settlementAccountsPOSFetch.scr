@@ -53,7 +53,7 @@ CUST.DATA.CHANNEL_ID="POS"
 #  16   B   DEVINTGAIN_PUR DEVCOEIP25	(Dr)			CUST.DATA.devPurForGainDebit	(Cr)			CUST.DATA.devPurForGainCredit
 #  17   B   OOFINTDEV_PUR DCOMEXFP25    (Dr)			CUST.DATA.devOOFIntPurDebit 	(Cr)			CUST.DATA.devOOFIntPurCredit
 #  18 	D   OOFINTDEV_PAY PDCOEXFP25	(Dr)			CUST.DATA.devOOFIntPayDebit
-#  19	C	CASHBACK_WD	CASHB01P25	(Cr)				CUST.DATA.cahbackWithDrawCredit
+#  19	C	CASHBACK_WD	CASHB01P25	(Cr)				CUST.DATA.cashbackWithDrawCredit
 #  20   D	CANCELCASHBACK_WD CCASH02P25 (Dr)			CUST.DATA.cancelCahbackWithDrawDebit
 
 
@@ -391,7 +391,7 @@ ENDIF
 														#{
 															if(CUST.DATA.orderUtrancode=="19") then
 															#{
-																CUST.DATA.cahbackWithDrawCredit=CUST.DATA.crOfficeAccnt
+																CUST.DATA.cashbackWithDrawCredit=CUST.DATA.crOfficeAccnt
 															#}
 															endif
 														#}
@@ -696,7 +696,7 @@ PRINT(CUST.DATA.devPurForGainCredit)
 PRINT(CUST.DATA.devOOFIntPurDebit)
 PRINT(CUST.DATA.devOOFIntPurCredit)
 PRINT(CUST.DATA.devOOFIntPayDebit)
-PRINT(CUST.DATA.cahbackWithDrawCredit)
+PRINT(CUST.DATA.cashbackWithDrawCredit)
 PRINT(CUST.DATA.cancelCahbackWithDrawDebit)
 
 PRINT(CUST.DATA.BAZCOM_PUR)				

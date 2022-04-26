@@ -1207,6 +1207,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								PRINT(CUST.DATA.errorCode)
 								PRINT(CUST.DATA.errorMsg)
 								BANCS.OUTPUT.successOrFailure="F"
+								CUST.DATA.settlemod="DEV"
 							#}
 							ENDIF
 						#}
@@ -1360,7 +1361,18 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 						#}
 						ELSE
 						#{
-					
+								#call balancecheck_Parent to debit to Centralizing Account 
+								if(CUST.DATA.settlemod=="DEV") then
+								#{
+									CALLSCRIPTIFEXIST("balanceCheck_Parent.scr")
+									if(BANCS.OUTPUT.successOrFailure=="S") then
+									#{
+										GOTO ENDOFSCRIPT
+									#}
+									endif
+								#}
+								endif
+								
 								CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.PurAmt),"%0.2f")
 								CUST.DATA.incTranAmt=CDOUBLE(CUST.DATA.TranAmt)
 								print(CUST.DATA.incTranAmt)
@@ -1381,7 +1393,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
 								IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 								#{
-								
+							
 									CUST.DATA.respTranId = CUST.DATA.TRANID
 									CUST.DATA.respTranDate = CUST.DATA.TRANDATE
 									CUST.DATA.respCod = "INC00"
@@ -1392,8 +1404,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									CUST.DATA.appliedSettleAmt=""
 									CUST.DATA.pendingSettleAmt=CUST.DATA.TranAmt
 									CUST.DATA.exchangeAmtDiff=""
-								
-									
+							
 									CUST.DATA.totInciTran21Returns=CINT(CUST.DATA.totInciTran21Returns)+1
 									print(CUST.DATA.totInciTran21Returns)
 									CUST.DATA.totInciAmtTran21Returns=CDOUBLE(CUST.DATA.totInciAmtTran21Returns)+CDOUBLE(CUST.DATA.TranAmt)
@@ -1415,8 +1426,8 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									endif	
 								#}
 								endif
-							#}
-							ENDIF
+						#}
+						ENDIF
 					#}
 					endif	
 				#}
