@@ -855,27 +855,47 @@ ENDIF
 
 IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod=="DEV") ) THEN
 #{
+	CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.PurAmt),"%0.2f")
 	if(CUST.DATA.FIDADQ=="B127") then
 	#{
-		CUST.DATA.debAccnt=CUST.DATA.OOFDevPurDebit
-		CUST.TRAN.UserTrnCode = CUST.DATA.OOFCOMDEV_PUR
+		CUST.DATA.debAccnt=CUST.DATA.devPurDebit
+		CUST.TRAN.UserTrnCode = CUST.DATA.BAZCOMDEV_PUR
+		##Devolucion Normal Devolucion
+		CUST.DATA.Nombre= "DEVOLUCION"
+		CUST.DATA.Nombre1= "CAJERO"
+		CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC:" + CUST.DATA.RFC  
+		PRINT(CUST.DATA.stmtDesc)
+		CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+		CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 	#}
 	else 
 	#{
 		if ((CUST.DATA.FIDADQ=="VISA") OR (CUST.DATA.FIDADQ=="BNET") OR (CUST.DATA.FIDADQ=="MDS")) then 
 		#{
-			CUST.DATA.debAccnt=CUST.DATA.OOFDevRedDebit
-			CUST.TRAN.UserTrnCode = CUST.DATA.OOFINTDEV_PUR
+			CUST.DATA.debAccnt=CUST.DATA.devIntPurDebit
+			CUST.TRAN.UserTrnCode = CUST.DATA.DEVINT_PUR
+			CUST.DATA.Nombre= "DEVOLUCION"
+			CUST.DATA.Nombre1= "CAJERO"
+			CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + "$" + CUST.DATA.totSourceAmt + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC:" + CUST.DATA.RFC  
+			PRINT(CUST.DATA.stmtDesc)
+			CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+			CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 		#}
 		else 
 		#{
-			CUST.DATA.debAccnt=CUST.DATA.devOOFIntPurDebit
-			CUST.TRAN.UserTrnCode = CUST.DATA.OOFREDDEV_PUR
+			CUST.DATA.debAccnt=CUST.DATA.devPurComDebit
+			CUST.TRAN.UserTrnCode = CUST.DATA.PUR_DEV_BAZ
+			##Devolucion Normal Devolucion
+			CUST.DATA.Nombre= "DEVOLUCION"
+			CUST.DATA.Nombre1= "CAJERO"
+			CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC:" + CUST.DATA.RFC  
+			PRINT(CUST.DATA.stmtDesc)
+			CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
+			CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
 		#}
 		endif
 	#}
 	endif
-	CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.PurAmt),"%0.2f")
 	CUST.DATA.incTranAmt=CDOUBLE(CUST.DATA.TranAmt)
 	print(CUST.DATA.incTranAmt)
 	print(CUST.DATA.errorMsg)

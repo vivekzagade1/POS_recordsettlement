@@ -1,0 +1,871 @@
+##########################################################################################
+# Source Name           : acctLimitMaintainReq.scr
+# Date                  : 20-May-2020
+# Description           : This Script is called on firing the acctLimitMaintain API.
+# Author                : Sharmila.B.M
+# Menu Option           :
+# Calling Script        :
+# Called Script         : acctLimitMaintainReq.scr
+# Modification History  :
+# <Serial No.>  <Date>        <Author Name>             <Description>
+# ------------  -----------   -----------------         --------------
+#      1        20-May-2020   Sharmila.B.M              Base Version
+###########################################################################################
+IMPORT CommonFunc
+IMPORT LibCommon001
+
+<--START
+TRACE ON
+
+###########################################################################################
+# Check whether CUST Repository exists else create it
+###########################################################################################
+
+sv_r = REPEXISTS("CUST")
+
+IF(sv_r == 0) THEN
+#{
+                CREATEREP ("CUST")
+#}
+ENDIF
+
+###########################################################################################
+# Check whether ACCLIMIT Class exists else create it
+###########################################################################################
+
+sv_r = CLASSEXISTS("CUST","ACCLIMIT")
+
+IF(sv_r == 0) THEN
+#{
+                CREATECLASS ("CUST","ACCLIMIT",5)
+#}
+ENDIF
+
+###########################################################################################
+# Initialize the variables
+###########################################################################################
+CUST.ACCLIMIT.AccountNumber = ""
+CUST.ACCLIMIT.SanctionLimit = ""
+CUST.ACCLIMIT.LimitFreq = ""
+CUST.ACCLIMIT.ModuleID = ""
+CUST.ACCLIMIT.DebitCardNumber = ""
+CUST.ACCLIMIT.errorMsg = " "
+CUST.ACCLIMIT.resMsg = " "
+CUST.ACCLIMIT.resMsg1 = " "
+BANCS.OUTPUT.successOrFailure = "S"
+CUST.ACCLIMIT.accnum= ""
+CUST.ACCLIMIT.refnum = ""
+CUST.ACCLIMIT.status = ""
+CUST.ACCLIMIT.count = 0
+CUST.ACCLIMIT.maxAccounts = 0
+CUST.ACCLIMIT.expirydate1 = ""
+CUST.ACCLIMIT.availimit = "0.00"
+CUST.ACCLIMIT.utilimit = "0.00"
+CUST.ACCLIMIT.expiryFlg = ""
+
+
+sv_u = urhk_b2k_printrepos("BANCS")
+print(sv_u)
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("acctLimitMaintainReq.count")))THEN
+CUST.ACCLIMIT.count = ("BANCS").("INPUT").("acctLimitMaintainReq.count")
+PRINT(CUST.ACCLIMIT.count)
+sv_n = 0
+
+
+WHILE(CINT(CUST.ACCLIMIT.count)> sv_n)
+#{
+        ("CUST").("ACCLIMIT").("ModuleID_"+FORMAT$(sv_n,"%d")) = ""
+        ("CUST").("ACCLIMIT").("AccountNumber_"+FORMAT$(sv_n,"%d")) = ""
+        ("CUST").("ACCLIMIT").("SanctionLimit_"+FORMAT$(sv_n,"%d")) = ""
+        ("CUST").("ACCLIMIT").("CUST.ACCLIMIT.LimitFreq_"+FORMAT$(sv_n,"%d")) = ""
+
+        IF(FIELDEXISTS(("BANCS").("INPUT").("acctLimitMaintainReq.<rec_"+FORMAT$(sv_n,"%d")+">.ModuleID")))THEN
+        #{
+                ("CUST").("ACCLIMIT").("ModuleID_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("acctLimitMaintainReq.<rec_"+FORMAT$(sv_n,"%d")+">.ModuleID")
+        #}
+        ENDIF
+
+        IF(FIELDEXISTS(("BANCS").("INPUT").("acctLimitMaintainReq.<rec_"+FORMAT$(sv_n,"%d")+">.AccountNumber")))THEN
+        #{
+                IF(("CUST").("ACCLIMIT").("ModuleID_"+FORMAT$(sv_n,"%d")) == "A")THEN
+                #{
+                        ("CUST").("ACCLIMIT").("AccountNumber_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("acctLimitMaintainReq.<rec_"+FORMAT$(sv_n,"%d")+">.AccountNumber")
+                #}
+                ENDIF
+        #}
+        ENDIF
+
+        IF(FIELDEXISTS(("BANCS").("INPUT").("acctLimitMaintainReq.<rec_"+FORMAT$(sv_n,"%d")+">.SanctionLimit")))THEN
+        #{
+                ("CUST").("ACCLIMIT").("SanctionLimit_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("acctLimitMaintainReq.<rec_"+FORMAT$(sv_n,"%d")+">.SanctionLimit")
+        #}
+        ENDIF
+
+        IF(FIELDEXISTS(("BANCS").("INPUT").("acctLimitMaintainReq.<rec_"+FORMAT$(sv_n,"%d")+">.LimitFreq")))THEN
+        #{
+                ("CUST").("ACCLIMIT").("LimitFreq_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("acctLimitMaintainReq.<rec_"+FORMAT$(sv_n,"%d")+">.LimitFreq")
+        #}
+        ENDIF
+sv_n =sv_n +1
+#}
+DO
+ENDIF
+
+sv_n=0
+WHILE(CINT(CUST.ACCLIMIT.count) > sv_n)
+#{
+        CUST.ACCLIMIT.ModuleID = ("CUST").("ACCLIMIT").("ModuleID_"+FORMAT$(sv_n,"%d"))
+        IF(CUST.ACCLIMIT.ModuleID != "")THEN
+        #{
+                print(CUST.ACCLIMIT.ModuleID)
+                IF(CUST.ACCLIMIT.ModuleID != "A")THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000136",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ELSE
+        #{
+                sv_r = func_cmmsgerrdescWithInputs("ERR000135",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                PRINT(sv_r)
+                sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                PRINT(sv_r)
+                BANCS.OUTPUT.successOrFailure = "F"
+                GOTO ENDOFSCRIPT
+        #}
+        ENDIF
+
+        CUST.ACCLIMIT.AccountNumber = ("CUST").("ACCLIMIT").("AccountNumber_"+FORMAT$(sv_n,"%d"))
+        IF(CUST.ACCLIMIT.AccountNumber != "")THEN
+        #{
+                print(CUST.ACCLIMIT.AccountNumber)
+                sv_s = ""
+                sv_s  = "schemetype,acid,ccy| SELECT SCHM_TYPE, "
+                sv_s = sv_s + " ACID, "
+                sv_s = sv_s + " ACCT_CRNCY_CODE "
+                sv_s = sv_s + " FROM TBAADM.GAM "
+                sv_s = sv_s + " WHERE foracid = ?SVAR "
+                sv_s = sv_s + " AND ENTITY_CRE_FLG = 'Y' "
+                sv_s = sv_s + " AND DEL_FLG = 'N' "
+                sv_s = sv_s + " AND ACCT_CLS_FLG = 'N' "
+                sv_s = sv_s + " AND BANK_ID = ?SVAR "
+                print(sv_s)
+                BANCS.INPARAM.BINDVARS= CUST.ACCLIMIT.AccountNumber + "|" + BANCS.STDIN.contextBankId
+                PRINT(sv_s)
+                PRINT(BANCS.INPARAM.BINDVARS)
+                sv_u = urhk_dbSelectWithBind(sv_s)
+                print(sv_u)
+                IF(sv_u == 0) THEN
+                #{
+                        CUST.ACCLIMIT.schemetype = BANCS.OUTPARAM.schemetype
+                        CUST.ACCLIMIT.acid = BANCS.OUTPARAM.acid
+                        CUST.ACCLIMIT.ccy = BANCS.OUTPARAM.ccy
+                        PRINT(CUST.ACCLIMIT.schemetype)
+                        IF((CUST.ACCLIMIT.schemetype != "ODA") AND (CUST.ACCLIMIT.schemetype != "CAA"))THEN
+                        #{
+                                sv_r = func_cmmsgerrdescWithInputs("ERR000134",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                                PRINT(sv_r)
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO ENDOFSCRIPT
+                        #}
+                        ENDIF
+                #}
+                ELSE
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ASSTFN0003",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ELSE
+        #{
+                sv_r = func_cmmsgerrdescWithInputs("ERR000138",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                PRINT(sv_r)
+                sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                PRINT(sv_r)
+                BANCS.OUTPUT.successOrFailure = "F"
+                GOTO ENDOFSCRIPT
+        #}
+        ENDIF
+
+        sv_s = "count1 | SELECT COUNT(*) "
+        sv_s = sv_s + " FROM CUSTOM.CUST_ACCT_LIMIT_LINK_TABLE "
+        sv_s = sv_s + " WHERE ACCOUNT_NUM = ?SVAR "
+        sv_s = sv_s + " AND BANK_ID = ?SVAR "
+        sv_s = sv_s + " AND DEL_FLG = ?SVAR "
+        print(sv_s)
+        BANCS.INPARAM.BINDVARS= CUST.ACCLIMIT.AccountNumber + "|" + BANCS.STDIN.contextBankId + "|" + "N"
+        PRINT(sv_s)
+        PRINT(BANCS.INPARAM.BINDVARS)
+
+        sv_u = urhk_dbSelectWithBind(sv_s)
+        print(sv_u)
+        IF(sv_u == 0) THEN
+        #{
+                CUST.ACCLIMIT.count1 = BANCS.OUTPARAM.count1
+                print(CUST.ACCLIMIT.count1)
+        #}
+        ENDIF
+
+        CUST.ACCLIMIT.SanctionLimit = ("CUST").("ACCLIMIT").("SanctionLimit_"+FORMAT$(sv_n,"%d"))
+        if(CUST.ACCLIMIT.SanctionLimit == "0")then
+        #{
+                CUST.ACCLIMIT.SanctionLimit = "0.00"
+        #}
+        endif
+        CUST.ACCLIMIT.LimitFreq = ("CUST").("ACCLIMIT").("LimitFreq_"+FORMAT$(sv_n,"%d"))
+        IF(CUST.ACCLIMIT.count1 == 0)THEN
+        #{
+                IF(CUST.ACCLIMIT.SanctionLimit == "")THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000375",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.LimitFreq == "")THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000376",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ELSE
+        #{
+                sv_s = "count2 | SELECT COUNT(*) "
+                sv_s = sv_s + " FROM CUSTOM.CUST_ACCT_LIMIT_LINK_TABLE "
+                sv_s = sv_s + " WHERE ACCOUNT_NUM = ?SVAR "
+                sv_s = sv_s + " AND SANCT_LIMIT is not null "
+                sv_s = sv_s + " AND SANCT_LIMIT != '0' "
+                sv_s = sv_s + " AND LIMIT_FREQ is not null "
+                sv_s = sv_s + " AND BANK_ID = ?SVAR "
+                sv_s = sv_s + " AND DEL_FLG = ?SVAR "
+                print(sv_s)
+                BANCS.INPARAM.BINDVARS= CUST.ACCLIMIT.AccountNumber + "|" + BANCS.STDIN.contextBankId + "|" + "N"
+                PRINT(sv_s)
+                PRINT(BANCS.INPARAM.BINDVARS)
+
+                sv_u = urhk_dbSelectWithBind(sv_s)
+                print(sv_u)
+                IF(sv_u == 0) THEN
+                #{
+                        CUST.ACCLIMIT.count2 = BANCS.OUTPARAM.count2
+                        print(CUST.ACCLIMIT.count2)
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.count2 == 0)THEN
+                #{
+                        IF(CUST.ACCLIMIT.SanctionLimit == "")THEN
+                        #{
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000375",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                                PRINT(sv_r)
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO ENDOFSCRIPT
+                        #}
+                        ENDIF
+                        IF(CUST.ACCLIMIT.LimitFreq == "")THEN
+                        #{
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000376",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                                PRINT(sv_r)
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO ENDOFSCRIPT
+                        #}
+                        ENDIF
+                #}
+                ELSE
+                #{
+                        IF((CUST.ACCLIMIT.SanctionLimit == "") AND (CUST.ACCLIMIT.LimitFreq == ""))THEN
+                        #{
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000374",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                                PRINT(sv_r)
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                                PRINT(sv_r)
+                                BANCS.OUTPUT.successOrFailure = "F"
+                                GOTO ENDOFSCRIPT
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+        #}
+        ENDIF
+
+
+        IF((CUST.ACCLIMIT.SanctionLimit != "") and (CUST.ACCLIMIT.SanctionLimit != "0.00"))THEN
+        #{
+                print(CUST.ACCLIMIT.SanctionLimit)
+                sv_a = STRLEN(CUST.ACCLIMIT.SanctionLimit)
+                PRINT(sv_a)
+                lv_p = GETPOSITION(CUST.ACCLIMIT.SanctionLimit,'.')
+
+                IF(lv_p != 0)THEN
+                #{
+                        lv_q = MID$(CUST.ACCLIMIT.SanctionLimit,0,lv_p -1) + MID$(CUST.ACCLIMIT.SanctionLimit,lv_p,sv_a-lv_p)
+                #}
+                ELSE
+                #{
+                        lv_q = CUST.ACCLIMIT.SanctionLimit
+                #}
+                ENDIF
+                sv_u = urhk_B2k_isStringNumeric(lv_q)
+                print(sv_u)
+                IF(sv_u != 0)THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000146",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+
+        IF(CUST.ACCLIMIT.LimitFreq != "")THEN
+        #{
+                print(CUST.ACCLIMIT.LimitFreq)
+                IF((CUST.ACCLIMIT.LimitFreq != "D") AND (CUST.ACCLIMIT.LimitFreq != "W") AND (CUST.ACCLIMIT.LimitFreq != "M") AND(CUST.ACCLIMIT.LimitFreq != "Y") AND(CUST.ACCLIMIT.LimitFreq != "A") AND (CUST.ACCLIMIT.LimitFreq != "B"))THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000137",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.LimitFreq == "D")THEN
+                #{
+                        CUST.ACCLIMIT.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                        PRINT(CUST.ACCLIMIT.BODDate)
+                        sv_s = ""
+                        sv_s = "expirydate | select TO_DATE('"+CUST.ACCLIMIT.BODDate+"','DD-MM-YYYY')+1 "
+                        sv_s = sv_s + " from dual "
+                        print(sv_s)
+
+                        sv_u = urhk_dbSelectWithBind(sv_s)
+                        print(sv_u)
+                        IF(sv_u == 0) THEN
+                        #{
+                                CUST.ACCLIMIT.expirydate = BANCS.OUTPARAM.expirydate
+                                PRINT(CUST.ACCLIMIT.expirydate)
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.LimitFreq == "W")THEN
+                #{
+                        CUST.ACCLIMIT.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                        PRINT(CUST.ACCLIMIT.BODDate)
+                        sv_s = ""
+                        sv_s = "expirydate | select TO_DATE('"+CUST.ACCLIMIT.BODDate+"','DD-MM-YYYY')+7 "
+                        sv_s = sv_s + " from dual "
+                        print(sv_s)
+
+                        sv_u = urhk_dbSelectWithBind(sv_s)
+                        print(sv_u)
+                        IF(sv_u == 0) THEN
+                        #{
+                                CUST.ACCLIMIT.expirydate = BANCS.OUTPARAM.expirydate
+                                PRINT(CUST.ACCLIMIT.expirydate)
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.LimitFreq == "B")THEN
+                #{
+                        CUST.ACCLIMIT.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                        PRINT(CUST.ACCLIMIT.BODDate)
+                        sv_s = ""
+                        sv_s = "expirydate | select TO_DATE('"+CUST.ACCLIMIT.BODDate+"','DD-MM-YYYY')+14 "
+                        sv_s = sv_s + " from dual "
+                        print(sv_s)
+
+                        sv_u = urhk_dbSelectWithBind(sv_s)
+                        print(sv_u)
+                        IF(sv_u == 0) THEN
+                        #{
+                                CUST.ACCLIMIT.expirydate = BANCS.OUTPARAM.expirydate
+                                PRINT(CUST.ACCLIMIT.expirydate)
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.LimitFreq == "M")THEN
+                #{
+                        CUST.ACCLIMIT.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                        PRINT(CUST.ACCLIMIT.BODDate)
+                        sv_s = ""
+                        sv_s = "expirydate | select add_months(TO_DATE('"+CUST.ACCLIMIT.BODDate+"','DD-MM-YYYY'),1) "
+                        sv_s = sv_s + " from dual "
+                        print(sv_s)
+
+                        sv_u = urhk_dbSelectWithBind(sv_s)
+                        print(sv_u)
+                        IF(sv_u == 0) THEN
+                        #{
+                                CUST.ACCLIMIT.expirydate = BANCS.OUTPARAM.expirydate
+                                PRINT(CUST.ACCLIMIT.expirydate)
+                        #}
+                        ENDIF
+
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.LimitFreq == "Y")THEN
+                #{
+                        CUST.ACCLIMIT.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                        PRINT(CUST.ACCLIMIT.BODDate)
+                        sv_s = ""
+                        sv_s = "expirydate | select add_months(TO_DATE('"+CUST.ACCLIMIT.BODDate+"','DD-MM-YYYY'),12) "
+                        sv_s = sv_s + " from dual "
+                        print(sv_s)
+
+                        sv_u = urhk_dbSelectWithBind(sv_s)
+                        print(sv_u)
+                        IF(sv_u == 0) THEN
+                        #{
+                                CUST.ACCLIMIT.expirydate = BANCS.OUTPARAM.expirydate
+                                PRINT(CUST.ACCLIMIT.expirydate)
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.LimitFreq == "A")THEN
+                #{
+                        CUST.ACCLIMIT.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                        PRINT(CUST.ACCLIMIT.BODDate)
+                        CUST.ACCLIMIT.expirydate = MID$(BANCS.STDIN.BODDate,0,6)+"2099"
+                        PRINT(CUST.ACCLIMIT.expirydate)
+                #}
+                ENDIF
+        #}
+        ENDIF
+
+
+        IF(CUST.ACCLIMIT.AccountNumber != "")THEN
+        #{
+                sv_u = urhk_SetUrhkInp("acctCommonInfo.acctGeneralInfo.acctBasic.foracid|" + CUST.ACCLIMIT.AccountNumber)
+                print(sv_u)
+                IF(sv_u == 1)THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000147",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+        IF(TRIM(CUST.ACCLIMIT.schemetype) == "CAA") THEN
+        #{
+                sv_u = urhk_ExecSrvNoCommit("SRV_FetchCAAcctMaintDtlForModify|same_user_verify = Y|retain_all_output = Y|call_mode = N")
+                print(sv_u)
+                IF(sv_u == 1)THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000147",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+        IF(TRIM(CUST.ACCLIMIT.schemetype) == "ODA") THEN
+        #{
+                sv_u = urhk_ExecSrvNoCommit("SRV_FetchODAcctMaintDtlForModify|same_user_verify = Y|retain_all_output = Y|call_mode = N")
+                print(sv_u)
+                IF(sv_u == 1)THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000147",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+        PRINT(sv_u)
+        sv_u = urhk_CopyOutToIn("")
+        PRINT(sv_u)
+        IF(TRIM(CUST.ACCLIMIT.schemetype) == "CAA") THEN
+        #{
+                #sv_u = urhk_SetUrhkInp("operAcctSchmDtls.drBalLim|" + CUST.ACCLIMIT.SanctionLimitnew)
+                sv_u = urhk_SetUrhkInp("schmDtls.drBalLim|"+CUST.ACCLIMIT.SanctionLimit+"|CUST.ACCLIMIT.ccy")
+                sv_u = urhk_SetUrhkInp("schmDtls.acctSchemeEntered|1")
+                IF(sv_u == 1)THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000147",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+        IF(TRIM(CUST.ACCLIMIT.schemetype) == "ODA") THEN
+        #{
+                #sv_u = urhk_SetUrhkInp("CCODAcctSchmDtls.operAcctSchmDtls.drBalLim|" + CUST.ACCLIMIT.SanctionLimitnew)
+                sv_u = urhk_SetUrhkInp("schmDtls.drBalLim|"+CUST.ACCLIMIT.SanctionLimitnew+"|CUST.ACCLIMIT.ccy")
+                sv_u = urhk_SetUrhkInp("schmDtls.acctSchemeEntered|1")
+                IF(sv_u == 1)THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000147",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+        IF(TRIM(CUST.ACCLIMIT.schemetype) == "CAA") THEN
+        #{
+                sv_u = urhk_ExecSrvNoCommit("SRV_ModifyCAAcctAndVerify|same_user_verify = Y|retain_all_output = Y|call_mode = N")
+                print(sv_u)
+                IF(sv_u == 1)THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000147",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+        IF(TRIM(CUST.ACCLIMIT.schemetype) == "ODA") THEN
+        #{
+                sv_u = urhk_ExecSrvNoCommit("SRV_ModifyODAcctAndVerify|same_user_verify = Y|retain_all_output = Y|call_mode = N")
+                print(sv_u)
+                IF(sv_u == 1)THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR000147",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+
+        CUST.ACCLIMIT.maxAccounts= func_getCPARAM("MAXACCOUNTS","LIABILITIES","BNKL",BANCS.STDIN.contextBankId)
+        PRINT(CUST.ACCLIMIT.maxAccounts)
+        IF (CUST.ACCLIMIT.maxAccounts == "")THEN
+        #{
+                sv_r = func_cmmsgerrdescWithInputs("ERR0000213",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                PRINT(sv_r)
+                sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                PRINT(sv_r)
+                BANCS.OUTPUT.successOrFailure = "F"
+                sv_u = urhk_SetOrbErr(CUST.ACCLIMIT.errorMsg)
+                print(sv_u)
+                GOTO ENDOFSCRIPT
+        #}
+        ELSE
+        #{
+                IF(CUST.ACCLIMIT.count > CUST.ACCLIMIT.maxAccounts )THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000212",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        sv_u = urhk_SetOrbErr(CUST.ACCLIMIT.errorMsg)
+                        print(sv_u)
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+
+        IF (CUST.ACCLIMIT.count1 == 0)THEN
+        #{
+                sv_s = ""
+                sv_s = " INSERT INTO CUSTOM.CUST_ACCT_LIMIT_LINK_TABLE ("
+                sv_s = sv_s + " MODULE_ID,"
+                sv_s = sv_s + " ACID,"
+                sv_s = sv_s + " ACCOUNT_NUM,"
+                sv_s = sv_s + " SOL_ID,"
+                sv_s = sv_s + " SANCT_LIMIT,"
+                sv_s = sv_s + " UTIL_LIMIT,"
+                sv_s = sv_s + " AVAIL_LIMIT,"
+                sv_s = sv_s + " LIMIT_FREQ,"
+                sv_s = sv_s + " START_DATE,"
+                sv_s = sv_s + " EXP_DATE,"
+                sv_s = sv_s + " CARD_NUM,"
+                sv_s = sv_s + " LAST_OPER_DATE,"
+                sv_s = sv_s + " ACCT_CRNCY_CODE,"
+                sv_s = sv_s + " ENTITY_CRE_FLG,"
+                sv_s = sv_s + " DEL_FLG,"
+                sv_s = sv_s + " LCHG_USER_ID,"
+                sv_s = sv_s + " LCHG_TIME,"
+                sv_s = sv_s + " RCRE_USER_ID,"
+                sv_s = sv_s + " RCRE_TIME,"
+                sv_s = sv_s + " BANK_ID)"
+                sv_s = sv_s + " VALUES ( ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " to_date(?SVAR,'dd-mm-yyyy'), "
+                IF(CUST.ACCLIMIT.LimitFreq == "A")THEN
+                #{
+                sv_s = sv_s + " to_date(?SVAR,'dd-mm-YYYY'),"
+                #}
+                ELSE
+                #{
+                sv_s = sv_s + " ?SVAR, "
+                #}
+                ENDIF
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " to_date(?SVAR,'dd-mm-yyyy'), "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " SYSDATE, "
+                sv_s = sv_s + " ?SVAR, "
+                sv_s = sv_s + " SYSDATE, "
+                sv_s = sv_s + " ?SVAR)"
+                print(sv_s)
+                BANCS.INPARAM.BINDVARS = ""
+                BANCS.INPARAM.BINDVARS = CUST.ACCLIMIT.ModuleID + "|" + CUST.ACCLIMIT.acid
+                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.AccountNumber + "|" + BANCS.STDIN.mySolId
+                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.SanctionLimit + "|" + "0.00"
+                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.SanctionLimit + "|" + CUST.ACCLIMIT.LimitFreq
+                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.BODDate + "|" + CUST.ACCLIMIT.expirydate
+                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.DebitCardNumber + "|" + CUST.ACCLIMIT.BODDate
+                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.ccy + "|" + "Y" + "|" + "N"
+                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + BANCS.STDIN.userId
+                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + BANCS.STDIN.userId + "|" + BANCS.STDIN.contextBankId
+                PRINT(BANCS.INPARAM.BINDVARS)
+                PRINT(sv_s)
+                sv_r = urhk_dbSqlWithBind(sv_s)
+                PRINT(sv_r)
+                IF (sv_r == 0) THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ULAPC0004",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000211",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "S"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ELSE
+        #{
+                IF(CUST.ACCLIMIT.SanctionLimit != "")THEN
+                #{
+                        sv_s = ""
+                        sv_s  = " expirydate1,utilimit,SanctionLimit1| SELECT to_char(EXP_DATE,'DD-MM-YYYY'),NVL(UTIL_LIMIT,'0.00'),SANCT_LIMIT FROM CUSTOM.CUST_ACCT_LIMIT_LINK_TABLE "
+                        sv_s = sv_s + " WHERE ACCOUNT_NUM = ?SVAR"
+                        sv_s = sv_s + " AND BANK_ID = ?SVAR "
+                        sv_s = sv_s + " AND DEL_FLG = ?SVAR "
+                        print(sv_s)
+                        BANCS.INPARAM.BINDVARS = CUST.ACCLIMIT.AccountNumber + "|" + BANCS.STDIN.contextBankId + "|" + "N"
+                        PRINT(sv_s)
+                        PRINT(BANCS.INPARAM.BINDVARS)
+                        sv_u = urhk_dbSelectWithBind(sv_s)
+                        print(sv_u)
+                        IF(sv_u == 0) THEN
+                        #{
+                                CUST.ACCLIMIT.expirydate1 = BANCS.OUTPARAM.expirydate1
+                                print(CUST.ACCLIMIT.expirydate1)
+                                CUST.ACCLIMIT.utilimit = CDOUBLE(BANCS.OUTPARAM.utilimit)
+                                print(CUST.ACCLIMIT.utilimit)
+                                CUST.ACCLIMIT.SanctionLimit1 = CDOUBLE(BANCS.OUTPARAM.SanctionLimit1)
+                                print(CUST.ACCLIMIT.SanctionLimit1)
+                                CUST.ACCLIMIT.availimit = CDOUBLE(CUST.ACCLIMIT.SanctionLimit) - CDOUBLE(CUST.ACCLIMIT.utilimit)
+                                print(CUST.ACCLIMIT.availimit)
+                                if(CUST.ACCLIMIT.SanctionLimit == "0.00")then
+                                #{
+                                        CUST.ACCLIMIT.availimit = "0.00"
+                                #}
+                                endif
+                        #}
+                        ENDIF
+                        if(CUST.ACCLIMIT.expirydate1 != "")then
+                        #{
+                                BANCS.INPARAM.date2 = MID$(BANCS.STDIN.BODDate,0,10)
+                                BANCS.INPARAM.date1 = MID$(CUST.ACCLIMIT.expirydate1,0,10)
+                                sv_l=urhk_B2k_dateDiff("")
+                                print(sv_l)
+                                if( sv_l == 0)THEN
+                                #{
+                                        IF(BANCS.OUTPARAM.dateDiff < 0)THEN
+                                        #{
+                                                CUST.ACCLIMIT.expiryFlg = "Y"
+                                        #}
+                                        else
+                                        #{
+                                                if(CUST.ACCLIMIT.SanctionLimit != "0.00")then
+                                                #{
+                                                        if(CDOUBLE(CUST.ACCLIMIT.SanctionLimit) <= CDOUBLE(CUST.ACCLIMIT.utilimit))then
+                                                        #{
+                                                                sv_r = func_cmmsgerrdescWithInputs("ERR0000425",BANCS.STDIN.userId, "", BYREF CUST.ACCLIMIT.errorMsg)
+                                                                PRINT(sv_r)
+                                                                sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                                                                PRINT(sv_r)
+                                                                BANCS.OUTPUT.successOrFailure = "F"
+                                                                GOTO ENDOFSCRIPT
+                                                        #}
+                                                        endif
+                                                #}
+                                                endif
+                                        #}
+                                        ENDIF
+                                #}​​​​​​​
+                                ENDIF
+                        #}​​​​​​​
+                        ENDIF
+                #}​​​​​​​
+                ENDIF
+                sv_s = ""
+                sv_s = " UPDATE CUSTOM.CUST_ACCT_LIMIT_LINK_TABLE SET"
+                sv_s = sv_s + " LCHG_USER_ID = ?SVAR,"
+                IF(CUST.ACCLIMIT.SanctionLimit != "")THEN
+                #{
+                        sv_s = sv_s + " SANCT_LIMIT = ?SVAR,"
+                        sv_s = sv_s + " UTIL_LIMIT = ?SVAR,"
+                        sv_s = sv_s + " AVAIL_LIMIT = ?SVAR,"
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.LimitFreq != "")THEN
+                #{
+                        sv_s = sv_s + " START_DATE = to_date(?SVAR,'dd-mm-yyyy'),"
+                        sv_s = sv_s + " LAST_OPER_DATE = to_date(?SVAR,'dd-mm-yyyy'),"
+                        sv_s = sv_s + " LIMIT_FREQ = ?SVAR,"
+                        IF(CUST.ACCLIMIT.LimitFreq == "A")THEN
+                        #{
+                                sv_s = sv_s + " EXP_DATE = to_date(?SVAR,'dd-mm-YYYY'),"
+                        #}
+                        ELSE
+                        #{
+                                sv_s = sv_s + " EXP_DATE = ?SVAR,"
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+                sv_s = sv_s + " LCHG_TIME = SYSDATE "
+                sv_s = sv_s + " WHERE ACCOUNT_NUM = ?SVAR"
+                sv_s = sv_s + " AND BANK_ID = ?SVAR "
+                sv_s = sv_s + " AND DEL_FLG = ?SVAR "
+                print(sv_s)
+
+                BANCS.INPARAM.BINDVARS = ""
+                BANCS.INPARAM.BINDVARS = BANCS.STDIN.userId
+                IF(CUST.ACCLIMIT.SanctionLimit != "")THEN
+                #{
+                        IF(CUST.ACCLIMIT.expiryFlg == "Y")THEN
+                        #{
+                                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.SanctionLimit + "|" + "0.00" + "|" + CUST.ACCLIMIT.SanctionLimit
+                        #}
+                        ELSE
+                        #{
+                                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.SanctionLimit + "|" + CUST.ACCLIMIT.utilimit + "|" + CUST.ACCLIMIT.availimit
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+                IF(CUST.ACCLIMIT.LimitFreq != "")THEN
+                #{
+                        BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.BODDate + "|" + CUST.ACCLIMIT.BODDate
+                        BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.LimitFreq + "|" + CUST.ACCLIMIT.expirydate
+                #}
+                ENDIF
+                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.ACCLIMIT.AccountNumber + "|" + BANCS.STDIN.contextBankId + "|" + "N"
+                PRINT(BANCS.INPARAM.BINDVARS)
+                PRINT(sv_s)
+                sv_r = urhk_dbSqlWithBind(sv_s)
+                PRINT(sv_r)
+                IF (sv_r == 0) THEN
+                #{
+                        sv_r = func_cmmsgerrdescWithInputs("ULAPC0004",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg)
+                        PRINT(sv_r)
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000211",BANCS.STDIN.userId, "" , BYREF CUST.ACCLIMIT.resMsg1)
+                        PRINT(sv_r)
+                        BANCS.OUTPUT.successOrFailure = "S"
+                        GOTO ENDOFSCRIPT
+                #}
+                ENDIF
+        #}
+        ENDIF
+
+        ENDOFSCRIPT:
+        PRINT(BANCS.OUTPUT.successOrFailure)
+        IF(BANCS.OUTPUT.successOrFailure == "F") THEN
+        #{
+                BANCS.OUTPUT.successOrFailure = "F"
+                PRINT(CUST.ACCLIMIT.errorMsg)
+                sv_u = urhk_SetOrbErr("acctLimitMaintainRs.<rec_"+FORMAT$(sv_n,"%d")+">.AcctId|" + CUST.ACCLIMIT.AccountNumber)
+                print(sv_u)
+                sv_u = urhk_SetOrbErr("acctLimitMaintainRs.<rec_"+FORMAT$(sv_n,"%d")+">.Status|" + CUST.ACCLIMIT.resMsg1)
+                print(sv_u)
+                sv_u = urhk_SetOrbErr("acctLimitMaintainRs.<rec_"+FORMAT$(sv_n,"%d")+">.StatusDesc|" + CUST.ACCLIMIT.errorMsg)
+                print(sv_u)
+        #}
+        ELSE
+        #{
+                BANCS.OUTPUT.successOrFailure = "S"
+                PRINT(CUST.ACCLIMIT.resMsg)
+                sv_u = urhk_SetOrbOut("acctLimitMaintainRs.<rec_"+FORMAT$(sv_n,"%d")+">.AcctId|" + CUST.ACCLIMIT.AccountNumber)
+                print(sv_u)
+                sv_u = urhk_SetOrbOut("acctLimitMaintainRs.<rec_"+FORMAT$(sv_n,"%d")+">.Status|" + CUST.ACCLIMIT.resMsg1)
+                print(sv_u)
+                sv_u = urhk_SetOrbOut("acctLimitMaintainRs.<rec_"+FORMAT$(sv_n,"%d")+">.StatusDesc|" + CUST.ACCLIMIT.resMsg)
+                print(sv_u)
+        #}
+        ENDIF
+
+        sv_n = sv_n + 1
+        PRINT(sv_n)
+        PRINT(CUST.ACCLIMIT.count)
+#}
+DO
+
+
+
+
+DELETECLASS("CUST", "ACCLIMIT")
+#DELETEREP ("CUST")
+
+EXITSCRIPT
+TRACE OFF
+END-->

@@ -1,0 +1,1976 @@
+#----------------------------------------------------------------------------------------
+# Source Name        : limitMaint_FileProcessing.scr
+# Author             : Sharmila B M
+# Date               : 19-July-2021
+# Description        : Script to update the limit/frequency to the account
+# Called scripts     :
+# Calling Scripts    :
+# Modification Log   :
+# <Sr No>       <Date>          <Author>                <Description>
+#  1.                   19-July-2021    Sharmila B M                    original version
+#----------------------------------------------------------------------------------------
+IMPORT CommonFunc
+IMPORT LibCommon001
+IMPORT LibCommonB002
+<--START
+TRACE ON
+LIBNAME CUSTOMSO
+#--------------------------------
+# Create Repositories and Classes
+#--------------------------------
+
+IF (REPEXISTS("CUST") == 0) THEN
+#{
+        CREATEREP("CUST")
+#}
+ENDIF
+
+IF (CLASSEXISTS("CUST", "DATA") == 0) THEN
+#{
+        CREATECLASS("CUST", "DATA", 5)
+#}
+ENDIF
+
+#--------------------------------
+#Initialising the variables
+#--------------------------------
+
+CUST.DATA.inputRecord = ""
+CUST.DATA.paramLvl="BNKL"
+CUST.DATA.modName="LIABILITIES"
+CUST.DATA.respCode=""
+CUST.DATA.inputParam1 = ""
+CUST.DATA.inputParam2  = ""
+CUST.DATA.errMsg = ""
+CUST.DATA.Batchdate     = ""
+CUST.DATA.respFileName=""
+CUST.DATA.inputFileNameLen=""
+CUST.DATA.LimitMaintFileReqPath=""
+CUST.DATA.LimitMaintRespPath=""
+CUST.DATA.SanctionLimit1 = ""
+CUST.DATA.SanctionLimit2 = ""
+CUST.DATA.SanctionLimit3 = ""
+CUST.DATA.FILEID=""
+CUST.DATA.bodDate = MID$(BANCS.STDIN.BODDate,0,10)
+CUST.DATA.repIndex=""
+CUST.DATA.AllFields=""
+CUST.DATA.valCnt="0"
+CUST.DATA.responseData=""
+CUST.DATA.failStatus="N"
+CUST.DATA.comFile=""
+CUST.DATA.resfilecrt="N"
+CUST.DATA.tmpcntFile="tmpCnt.dat"
+CUST.DATA.inpFileLen=""
+CUST.DATA.LimitMaintFileReqPathLen=""
+CUST.DATA.LimitMaintInpFileName=""
+CUST.DATA.respPrefix=""
+CUST.DATA.inputRecordCnt=""
+CUST.DATA.LimitMaintCntName=""
+CUST.DATA.inpFilProcStat=""
+CUST.DATA.reasMode=""
+CUST.DATA.timeStamp = ""
+CUST.DATA.outRecCntFile = ""
+CUST.DATA.DebitCardNumber = ""
+CUST.DATA.recordLength=""
+CUST.DATA.fileRec = ""
+CUST.DATA.LimitMaintCnt = ""
+CUST.DATA.reportIndex = ""
+CUST.DATA.statMessage = ""
+CUST.DATA.respMsg = ""
+CUST.DATA.LimitMaintStatusReportFile = ""
+CUST.DATA.date = ""
+CUST.DATA.cpFlPath = ""
+CUST.DATA.Card = ""
+CUST.DATA.count1 = 0
+CUST.DATA.inpFileDate         = ""
+CUST.DATA.inpFileName         = ""
+CUST.DATA.resFileDate         = ""
+CUST.DATA.resFileName         = ""
+CUST.DATA.CardOrAccountNum = ""
+CUST.DATA.SanctionLimit = ""
+CUST.DATA.LimitFreq = ""
+CUST.DATA.LimitFreq1 = ""
+CUST.DATA.CardOrAccountNumLength = ""
+CUST.DATA.CardOrAccountNumFlag = ""
+CUST.DATA.AccountNum = ""
+CUST.DATA.Card = ""
+CUST.DATA.modcardNo = ""
+CUST.DATA.schemetype = ""
+CUST.DATA.acid = ""
+CUST.DATA.ccy = ""
+CUST.DATA.LimitFreq1 = ""
+CUST.DATA.BODDate = ""
+CUST.DATA.expirydate = ""
+CUST.DATA.bodDate1 = ""
+CUST.DATA.Batchcount = "0"
+CUST.DATA.CardOrAccountNum = ""
+CUST.DATA.dateLen = ""
+CUST.DATA.sequence = ""
+CUST.DATA.generationDate = ""
+CUST.DATA.sequenceLength = ""
+CUST.DATA.identifier = ""
+CUST.DATA.folioNumber = ""
+CUST.DATA.filler1 = ""
+CUST.DATA.issuer = ""
+CUST.DATA.filler2       = ""
+CUST.DATA.fileName = ""
+CUST.DATA.Flg1 = ""
+CUST.DATA.sequence = ""
+CUST.DATA.noOfRec = ""
+CUST.DATA.filler3 = ""
+CUST.DATA.folioLength = ""
+CUST.DATA.issuerLength = ""
+CUST.DATA.expirydate1 = ""
+CUST.DATA.availimit = "0.00"
+CUST.DATA.utilimit = "0.00"
+CUST.DATA.expiryFlg = ""
+CUST.DATA.cpFlPath1 = ""
+CUST.DATA.footer = ""
+CUST.DATA.LimitMaintCntNameLength = ""
+CUST.DATA.sequence1 = ""
+CUST.DATA.noOfRec = ""
+CUST.DATA.fileRec1 = ""
+
+sv_u = urhk_b2k_printrepos("BANCS")
+print(sv_u)
+
+####################################################
+##  Fetching BOD Date
+####################################################
+
+sv_s = ""
+sv_s  = "BODDate| select to_date(?SVAR,'dd-mm-yyyy')"
+sv_s = sv_s + " from dual "
+print(sv_s)
+
+BANCS.INPARAM.BINDVARS = CUST.DATA.bodDate
+PRINT(sv_s)
+PRINT(BANCS.INPARAM.BINDVARS)
+
+sv_u = urhk_dbSelectWithBind(sv_s)
+print(sv_u)
+IF(sv_u == 0) THEN
+#{
+        CUST.DATA.bodDate1 = BANCS.OUTPARAM.BODDate
+        PRINT(CUST.DATA.bodDate1)
+#}
+ENDIF
+
+###############################################
+# Fetching system date for usage              #
+###############################################
+
+sv_s = ""
+sv_s = sv_s + "sysDate|"
+sv_s = sv_s + "SELECT to_char(sysdate,'dd-mm-yyyy_HH24MISS') FROM dual "
+PRINT(sv_s)
+
+sv_d = urhk_dbSelectWithBind(sv_s)
+PRINT(sv_d)
+IF(sv_d == 0) THEN
+#{
+                CUST.DATA.date = BANCS.OUTPARAM.sysDate
+                PRINT(CUST.DATA.date)
+                CUST.DATA.Batchdate = CUST.DATA.date
+#}
+ENDIF
+
+
+IF(BANCS.STDIN.languageCode=="INFENG") then
+        CUST.DATA.LimitMaintStatusReportFile = "LIMIT_MAINT_FILEPROCESSING_STATUS_" +  CUST.DATA.Batchdate + ".txt"
+        PRINT(CUST.DATA.LimitMaintStatusReportFile)
+else
+        if(BANCS.STDIN.languageCode=="es_ES") then
+                CUST.DATA.LimitMaintStatusReportFile = "LIMITAR_ESTADO_DE_ARCHIVOS_" +  CUST.DATA.Batchdate + ".txt"
+                PRINT(CUST.DATA.LimitMaintStatusReportFile)
+        else
+                CUST.DATA.LimitMaintStatusReportFile = "LIMIT_MAINT_FILEPROCESSING_STATUS_" +  CUST.DATA.Batchdate + ".txt"
+                PRINT(CUST.DATA.LimitMaintStatusReportFile)
+        endif
+endif
+
+
+################################################################################################
+# Fetching input file path from CPARAM
+#################################################################################################
+CUST.DATA.inputParam1 = "LIMITMAINTREQUEST"
+BANCS.INPARAM.BINDVARS = CUST.DATA.inputParam1+ "|" + CUST.DATA.paramLvl+ "|" + CUST.DATA.modName+ "|" + BANCS.STDIN.contextBankId
+PRINT(BANCS.INPARAM.BINDVARS)
+sv_s = ""
+sv_s = sv_s + "LimitMaintFileReqPath|"
+sv_s = sv_s + "select A.PARAMETER_VALUE from "
+sv_s = sv_s + "custom.C_CPVALUE A,custom.C_CPMASTER B where A.PARAMETER_ID=?SVAR "
+sv_s = sv_s + "and A.PARAMETER_ID=B.PARAMETER_ID and A.bank_id=B.bank_id "
+sv_s = sv_s + "and B.PARAMETER_LEVEL=?SVAR and B.MODULE_NAME=?SVAR "
+sv_s = sv_s + "and A.bank_id=?SVAR and A.ENTITY_CRE_FLG='Y' AND A.DEL_FLG!='Y'"
+print(sv_s)
+sv_d = urhk_dbSelectWithBind(sv_s)
+print(sv_d)
+IF(sv_d == 0) THEN
+#{
+        CUST.DATA.LimitMaintFileReqPath = BANCS.OUTPARAM.LimitMaintFileReqPath
+        print(CUST.DATA.LimitMaintFileReqPath)
+        CUST.DATA.inpFileLen=STRLEN(CUST.DATA.LimitMaintFileReqPath)+1
+        print(CUST.DATA.inpFileLen)
+#}
+ELSE
+#{
+        BANCS.OUTPUT.errMsg = "CPARAM is not set for "+CUST.DATA.inputParam1
+        PRINT(BANCS.OUTPUT.errMsg)
+        CUST.DATA.failStatus="Y"
+        CUST.DATA.respCode="ERR00028"
+        sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.inputParam1, BYREF CUST.DATA.statMessage)
+        PRINT(sv_r)
+        PRINT(CUST.DATA.statMessage)
+        GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+CUST.DATA.cpFlPath=CUST.DATA.LimitMaintFileReqPath + "/"
+print(CUST.DATA.cpFlPath)
+
+CUST.DATA.outRecCntFile = "tmpCntFile_"+CUST.DATA.Batchdate+".txt"
+print(CUST.DATA.outRecCntFile)
+
+sv_r = urhk_getFileLocation("COM|limitMaint_inpFileFetch.com")
+IF(sv_r == 0) THEN
+#{
+        CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + "limitMaint_inpFileFetch.com"
+        print(CUST.DATA.comFile)
+#}
+endif
+
+sv_d = CUST.DATA.cpFlPath + " " + CUST.DATA.outRecCntFile
+print(sv_d)
+sv_b = CUST.DATA.comFile+ " " + sv_d
+
+print(sv_b)
+sv_u = SYSTEM(sv_b)
+PRINT(sv_u)
+
+IF (sv_u !=0) THEN
+#{
+        CUST.DATA.processFlg = "FAILURE"
+        CUST.DATA.errMsg="Input File Not Found in Upload Path"
+        PRINT(CUST.DATA.errMsg)
+        CUST.DATA.failStatus="Y"
+        CUST.DATA.respCode="ERR00029"
+        sv_r = func_cmmsgerrdescWithInputs("ERR00029",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+        PRINT(sv_r)
+        PRINT(CUST.DATA.statMessage)
+        GOTO ENDOFSCRIPT
+
+#}
+ELSE
+#{
+        ####################################
+        #Access the Input the DAT FILE
+        ###################################
+        sv_t = ""
+        sv_t = urtn_fileAccess(CUST.DATA.outRecCntFile)
+        print(sv_t)
+        CUST.DATA.fileRec = urtn_fileOpen(CUST.DATA.outRecCntFile + "|r")
+        sv_t = urtn_fileRead(CUST.DATA.fileRec + "|CUST.DATA.inputRecordCnt")
+        print(sv_t)
+
+        IF (sv_t !=0) THEN
+        #{
+                CUST.DATA.processFlg = "FAILURE"
+                CUST.DATA.errMsg="Unable to Open Input File"
+                PRINT(CUST.DATA.errMsg)
+                CUST.DATA.failStatus="Y"
+                CUST.DATA.respCode="ERR00030"
+                sv_r = func_cmmsgerrdescWithInputs("ERR00030",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+                PRINT(sv_r)
+                PRINT(CUST.DATA.statMessage)
+                GOTO ENDOFSCRIPT
+
+        #}
+        ENDIF
+
+        print(CUST.DATA.inputRecordCnt)
+        CUST.DATA.LimitMaintCntName = CUST.DATA.inputRecordCnt
+        sv_t = urtn_fileClose(CUST.DATA.fileRec)
+        PRINT(sv_t)
+
+        sv_q = "rm -f "+CUST.DATA.outRecCntFile
+        sv_v = SYSTEM(sv_q)
+        PRINT(sv_v)
+        print(CUST.DATA.LimitMaintCntName)
+        CUST.DATA.LimitMaintCnt= MID$(CUST.DATA.LimitMaintCntName,0,1)
+
+#}
+ENDIF
+
+if(CUST.DATA.LimitMaintCnt=="Z") then
+#{
+        CUST.DATA.processFlg = "FAILURE"
+        CUST.DATA.errMsg="No input files available in Request Path"
+        PRINT(CUST.DATA.errMsg)
+        CUST.DATA.failStatus="Y"
+        CUST.DATA.respCode="ERR0000343"
+        sv_r = func_cmmsgerrdescWithInputs("ERR0000343",BANCS.STDIN.userId, CUST.DATA.reasMode, BYREF CUST.DATA.statMessage)
+        PRINT(sv_r)
+        PRINT(CUST.DATA.statMessage)
+        GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+
+if((CUST.DATA.LimitMaintCnt=="O") or (CUST.DATA.LimitMaintCnt=="M"))then
+#{
+        CUST.DATA.LimitMaintFileReqPath=MID$(CUST.DATA.LimitMaintCntName,1,STRLEN(CUST.DATA.LimitMaintCntName)-1)
+        print(CUST.DATA.LimitMaintFileReqPath)
+
+        ####################################
+        # Access the Input file
+        ###################################
+        sv_t = ""
+        sv_t = urtn_fileAccess(CUST.DATA.LimitMaintFileReqPath)
+        print(sv_t)
+        IF (sv_t !=0) THEN
+        #{
+                CUST.DATA.processFlg = "FAILURE"
+                CUST.DATA.errMsg="Unable to Access Input File"
+                PRINT(CUST.DATA.errMsg)
+                CUST.DATA.failStatus="Y"
+                CUST.DATA.respCode="ERR00033"
+                sv_r = func_cmmsgerrdescWithInputs("ERR00033",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+                PRINT(sv_r)
+                PRINT(CUST.DATA.statMessage)
+                GOTO ENDOFSCRIPT
+        #}
+        ENDIF
+
+        CUST.DATA.LimitMaintFileReqPathLen=STRLEN(CUST.DATA.LimitMaintFileReqPath)
+        PRINT(CUST.DATA.LimitMaintFileReqPathLen)
+        PRINT(CUST.DATA.LimitMaintFileReqPath)
+
+#}
+ENDIF
+CUST.DATA.LimitMaintInpFileName=MID$(CUST.DATA.LimitMaintFileReqPath,CINT(CUST.DATA.inpFileLen),CINT(CUST.DATA.LimitMaintFileReqPathLen))
+PRINT(CUST.DATA.LimitMaintInpFileName)
+CUST.DATA.inputFileNameLen=STRLEN(CUST.DATA.LimitMaintInpFileName)
+PRINT(CUST.DATA.inputFileNameLen)
+
+
+CUST.DATA.respFileName=MID$(CUST.DATA.LimitMaintInpFileName,0,25)+"OUT"+MID$(CUST.DATA.LimitMaintInpFileName,28,CINT(CUST.DATA.inputFileNameLen))
+PRINT(CUST.DATA.respFileName)
+
+CUST.DATA.FILEID=MID$(CUST.DATA.LimitMaintInpFileName,6,CINT(CUST.DATA.inputFileNameLen))
+PRINT(CUST.DATA.FILEID)
+
+if(CUST.DATA.FILEID!="")then
+#{
+        BANCS.INPARAM.BINDVARS = CUST.DATA.LimitMaintInpFileName+ "|" + BANCS.STDIN.contextBankId
+        PRINT(BANCS.INPARAM.BINDVARS)
+        sv_s="valCnt|SELECT COUNT(*) FROM CUSTOM.CUST_CARD_ACCT_LIMIT_TBL WHERE INP_FILE_NAME =?SVAR "
+        sv_s=sv_s+" and BANK_ID=?SVAR and ENTITY_CRE_FLG='Y' and DEL_FLG!='Y'"
+        print(sv_s)
+        sv_d = urhk_dbSelectWithBind(sv_s)
+        print(sv_d)
+        IF(sv_d == 0) THEN
+        #{
+                CUST.DATA.valCnt = BANCS.OUTPARAM.valCnt
+                print(CUST.DATA.valCnt)
+        #}
+        ENDIF
+
+        IF(CUST.DATA.valCnt!="0") then
+        #{
+                BANCS.OUTPUT.errMsg = "The input file with the given name is already present."
+                CUST.DATA.failStatus="Y"
+                CUST.DATA.inpFilProcStat="F"
+                PRINT(BANCS.OUTPUT.errMsg)
+                CUST.DATA.respCode="ERR0000347"
+                sv_r = func_cmmsgerrdescWithInputs("ERR0000347",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+                PRINT(sv_r)
+                PRINT(CUST.DATA.statMessage)
+                GOTO ENDOFSCRIPT
+        #}
+        ENDIF
+#}
+endif
+
+#############################################
+#Fetching the Response File path from CPARAM
+############################################
+CUST.DATA.inputParam2 = "LIMITMAINTRESPONSE"
+BANCS.INPARAM.BINDVARS = CUST.DATA.inputParam2+ "|" + CUST.DATA.paramLvl+ "|" + CUST.DATA.modName+ "|" + BANCS.STDIN.contextBankId
+PRINT(BANCS.INPARAM.BINDVARS)
+sv_s = ""
+sv_s = sv_s + "LimitMaintRespPath|"
+sv_s = sv_s + "select A.PARAMETER_VALUE from "
+sv_s = sv_s + "custom.C_CPVALUE A,custom.C_CPMASTER B where A.PARAMETER_ID=?SVAR "
+sv_s = sv_s + "and A.PARAMETER_ID=B.PARAMETER_ID and A.bank_id=B.bank_id "
+sv_s = sv_s + "and B.PARAMETER_LEVEL=?SVAR and B.MODULE_NAME=?SVAR "
+sv_s = sv_s + "and A.bank_id=?SVAR and A.ENTITY_CRE_FLG='Y' AND A.DEL_FLG!='Y'"
+print(sv_s)
+sv_d = urhk_dbSelectWithBind(sv_s)
+print(sv_d)
+IF(sv_d == 0) THEN
+#{
+        CUST.DATA.LimitMaintRespPath = BANCS.OUTPARAM.LimitMaintRespPath
+        print(CUST.DATA.LimitMaintRespPath)
+#}
+ELSE
+#{
+        BANCS.OUTPUT.errMsg = "CPARAM is not set for "+CUST.DATA.inputParam2
+        PRINT(BANCS.OUTPUT.errMsg)
+        CUST.DATA.failStatus="Y"
+        CUST.DATA.inpFilProcStat="F"
+        CUST.DATA.respCode="ERR00028"
+        sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.inputParam2, BYREF CUST.DATA.statMessage)
+        PRINT(sv_r)
+        PRINT(CUST.DATA.statMessage)
+        GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+IF (CUST.DATA.LimitMaintRespPath != "") THEN
+#{
+        CUST.DATA.LimitMaintRespPath = CUST.DATA.LimitMaintRespPath + "/" + CUST.DATA.respFileName
+#}
+ELSE
+#{
+        CUST.DATA.failStatus="Y"
+        CUST.DATA.inpFilProcStat="F"
+        CUST.DATA.respCode="ERR00028"
+        sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId,CUST.DATA.inputParam2, BYREF CUST.DATA.statMessage)
+        PRINT(sv_r)
+        PRINT(CUST.DATA.statMessage)
+        GOTO ENDOFSCRIPT
+#}
+ENDIF
+PRINT(CUST.DATA.LimitMaintRespPath)
+sv_t = urtn_fileOpen(CUST.DATA.LimitMaintRespPath + "|a")
+PRINT(sv_t)
+CUST.DATA.reportIndex =  sv_t
+PRINT(CUST.DATA.reportIndex)
+
+
+IF (sv_t != 0) THEN
+#{
+        CUST.DATA.processFlg = "FAILURE"
+        CUST.DATA.errMsg="Unable to create the Response file"
+        PRINT(CUST.DATA.errMsg)
+        CUST.DATA.failStatus="Y"
+        CUST.DATA.inpFilProcStat="F"
+        CUST.DATA.respCode="ERR00045"
+        sv_r = func_cmmsgerrdescWithInputs("ERR00045",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+        PRINT(sv_r)
+        PRINT(CUST.DATA.statMessage)
+        GOTO ENDOFSCRIPT
+#}
+ELSE
+#{
+        CUST.DATA.resfilecrt="Y"
+#}
+ENDIF
+
+#############################################
+#Open the Input file
+############################################
+CUST.DATA.fileRec= urtn_fileOpen(CUST.DATA.LimitMaintFileReqPath + "|r")
+PRINT(CUST.DATA.fileRec)
+
+sv_t = urtn_fileRead(CUST.DATA.fileRec + "|CUST.DATA.inputRecord")
+print(sv_t)
+
+IF (sv_t!=0) THEN
+#{
+        CUST.DATA.processFlg = "FAILURE"
+        CUST.DATA.errMsg="INPUT FILE IS EMPTY"
+        PRINT(CUST.DATA.errMsg)
+        CUST.DATA.failStatus="Y"
+        CUST.DATA.inpFilProcStat="F"
+        CUST.DATA.respCode="ERR00053"
+        sv_r = func_cmmsgerrdescWithInputs("ERR00053",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+        PRINT(sv_r)
+        PRINT(CUST.DATA.statMessage)
+        GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+print(CUST.DATA.fileRec)
+print(CUST.DATA.inputRecord)
+
+sv_m = 0
+WHILE(sv_t==0)
+#{
+sv_i = CUST.DATA.inputRecord
+        IF (sv_t == 0) THEN
+        #{
+                CUST.DATA.respMsg = ""
+                CUST.DATA.recordLength=""
+                CUST.DATA.count1 = 0
+                CUST.DATA.CardOrAccountNum = ""
+                CUST.DATA.SanctionLimit = ""
+                CUST.DATA.LimitFreq = ""
+                CUST.DATA.LimitFreq1 = ""
+                CUST.DATA.CardOrAccountNumLength = ""
+                CUST.DATA.CardOrAccountNumFlag = ""
+                CUST.DATA.AccountNum = ""
+                CUST.DATA.Card = ""
+                CUST.DATA.modcardNo = ""
+                CUST.DATA.schemetype = ""
+                CUST.DATA.acid = ""
+                CUST.DATA.ccy = ""
+                CUST.DATA.LimitFreq1 = ""
+                CUST.DATA.BODDate = ""
+                CUST.DATA.expirydate = ""
+                CUST.DATA.inpFileDate         = ""
+                CUST.DATA.inpFileName         = ""
+                CUST.DATA.resFileDate         = ""
+                CUST.DATA.resFileName         = ""
+                CUST.DATA.dateLen = ""
+                CUST.DATA.sequence = ""
+                CUST.DATA.generationDate = ""
+                CUST.DATA.sequenceLength = ""
+                CUST.DATA.recordLengthFlg=""
+                CUST.DATA.identifier = ""
+                CUST.DATA.Flg1 =  ""
+                CUST.DATA.expirydate1 = ""
+                CUST.DATA.availimit = "0.00"
+                CUST.DATA.utilimit = "0.00"
+                CUST.DATA.expiryFlg = ""
+
+                if(sv_m == 0)then
+                #{
+                        CUST.DATA.recordLength=STRLEN(CUST.DATA.inputRecord)
+                        Print(CUST.DATA.recordLength)
+                        if(CUST.DATA.recordLength >= 56) then
+                        #{
+                                CUST.DATA.recordLength=CINT(CUST.DATA.recordLength)-CINT("1")
+                                CUST.DATA.recordLengthFlg="Y"
+                                Print(CUST.DATA.recordLength)
+                        #}
+                        ELSE
+                        #{
+                                CUST.DATA.processFlg = "FAILURE"
+                                CUST.DATA.errMsg="The header record in input file is not proper."
+                                PRINT(CUST.DATA.errMsg)
+                                CUST.DATA.failStatus="Y"
+                                CUST.DATA.inpFilProcStat="F"
+                                CUST.DATA.respCode="ERR0000357"
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+                                PRINT(sv_r)
+                                PRINT(CUST.DATA.statMessage)
+                                GOTO ENDOFSCRIPT
+                        #}
+                        endif
+                #}
+                endif
+
+                ######################################################
+                #Getting the details from input record- header section
+                ######################################################
+                IF(CUST.DATA.recordLengthFlg=="Y") then
+                #{
+                        CUST.DATA.identifier = "H"
+                        CUST.DATA.folioNumber = TRIM(MID$(CUST.DATA.inputRecord,0,9))
+                        CUST.DATA.filler1 = MID$(CUST.DATA.inputRecord,9,1)
+                        CUST.DATA.issuer = TRIM(MID$(CUST.DATA.inputRecord,10,5))
+                        CUST.DATA.filler2       = MID$(CUST.DATA.inputRecord,15,1)
+                        CUST.DATA.fileName = TRIM(MID$(CUST.DATA.inputRecord,16,40))
+                        PRINT(CUST.DATA.folioNumber)
+                        PRINT(CUST.DATA.filler1)
+                        PRINT(CUST.DATA.issuer)
+                        PRINT(CUST.DATA.filler2)
+                        PRINT(CUST.DATA.fileName)
+                        ####################################
+                        #VALIDATING FOLIO NUMBER
+                        ###################################
+                        if(CUST.DATA.folioNumber == "") then
+                        #{
+                                BANCS.OUTPUT.errMsg = "Folio Number is not provided."
+                                PRINT(BANCS.OUTPUT.errMsg)
+                                CUST.DATA.failStatus="Y"
+                                CUST.DATA.inpFilProcStat="F"
+                                CUST.DATA.respCode="ERR0000338"
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000338",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                PRINT(sv_r)
+                                PRINT(CUST.DATA.statMessage)
+                                GOTO ENDOFSCRIPT
+                        #}
+                        else
+                        #{
+                                CUST.DATA.folioLength = STRLEN(CUST.DATA.folioNumber)
+                                if(CUST.DATA.folioLength != "9")then
+                                #{
+                                        BANCS.OUTPUT.errMsg = "Folio Number is not proper."
+                                        PRINT(BANCS.OUTPUT.errMsg)
+                                        CUST.DATA.failStatus="Y"
+                                        CUST.DATA.inpFilProcStat="F"
+                                        CUST.DATA.respCode="ERR0000423"
+                                        sv_r = func_cmmsgerrdescWithInputs("ERR0000423",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                        PRINT(sv_r)
+                                        PRINT(CUST.DATA.statMessage)
+                                        GOTO ENDOFSCRIPT
+                                #}
+                                ENDIF
+                        #}
+                        ENDIF
+                        ####################################
+                        #VALIDATING ISSUER NAME
+                        ###################################
+                        if(CUST.DATA.issuer == "")then
+                        #{
+                                BANCS.OUTPUT.errMsg = "Issuer Name is not provided."
+                                PRINT(BANCS.OUTPUT.errMsg)
+                                CUST.DATA.failStatus="Y"
+                                CUST.DATA.inpFilProcStat="F"
+                                CUST.DATA.respCode="ERR0000336"
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000336",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                PRINT(sv_r)
+                                PRINT(CUST.DATA.statMessage)
+                                GOTO ENDOFSCRIPT
+                        #}
+                        else
+                        #{
+                                CUST.DATA.issuerLength = STRLEN(CUST.DATA.issuer)
+                                if(CUST.DATA.issuerLength != "5")then
+                                #{
+                                        BANCS.OUTPUT.errMsg = "Issuer Name is not proper."
+                                        PRINT(BANCS.OUTPUT.errMsg)
+                                        CUST.DATA.failStatus="Y"
+                                        CUST.DATA.inpFilProcStat="F"
+                                        CUST.DATA.respCode="ERR0000424"
+                                        sv_r = func_cmmsgerrdescWithInputs("ERR0000424",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                        PRINT(sv_r)
+                                        PRINT(CUST.DATA.statMessage)
+                                        GOTO ENDOFSCRIPT
+                                #}
+                                ENDIF
+                        #}
+                        ENDIF
+                        ####################################
+                        #VALIDATING ISSUER NAME
+                        ###################################
+                        if(CUST.DATA.fileName == "")then
+                        #{
+                                BANCS.OUTPUT.errMsg = "File Name is not provided."
+                                PRINT(BANCS.OUTPUT.errMsg)
+                                CUST.DATA.failStatus="Y"
+                                CUST.DATA.inpFilProcStat="F"
+                                CUST.DATA.respCode="ERR0000420"
+                                sv_r = func_cmmsgerrdescWithInputs("ERR0000420",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                PRINT(sv_r)
+                                PRINT(CUST.DATA.statMessage)
+                                GOTO ENDOFSCRIPT
+                        #}
+                        else
+                        #{
+                                if(CUST.DATA.LimitMaintInpFileName != CUST.DATA.fileName)then
+                                #{
+                                        BANCS.OUTPUT.errMsg = "File Name is not provided."
+                                        PRINT(BANCS.OUTPUT.errMsg)
+                                        CUST.DATA.failStatus="Y"
+                                        CUST.DATA.inpFilProcStat="F"
+                                        CUST.DATA.respCode="ERR0000422"
+                                        sv_r = func_cmmsgerrdescWithInputs("ERR0000422",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                        PRINT(sv_r)
+                                        PRINT(CUST.DATA.statMessage)
+                                        GOTO ENDOFSCRIPT
+                                #}
+                                ENDIF
+                        #}
+                        ENDIF
+                        ####to validate footer####
+                        CUST.DATA.cpFlPath1=CUST.DATA.LimitMaintFileReqPath
+                        print(CUST.DATA.cpFlPath1)
+
+                        CUST.DATA.footer = "tmpCntFile_"+CUST.DATA.Batchdate+".txt"
+                        print(CUST.DATA.footer)
+
+                        sv_r = urhk_getFileLocation("COM|limitMaint_headerfooter.com")
+                        IF(sv_r == 0) THEN
+                        #{
+                                CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + "limitMaint_headerfooter.com"
+                                print(CUST.DATA.comFile)
+                        #}
+                        endif
+
+                        sv_d = CUST.DATA.cpFlPath1 + " " + CUST.DATA.footer
+                        print(sv_d)
+                        sv_b = CUST.DATA.comFile+ " " + sv_d
+
+                        print(sv_b)
+                        sv_u = SYSTEM(sv_b)
+                        PRINT(sv_u)
+
+                        IF (sv_u ==0) THEN
+                        #{
+                                ####################################
+                                #Access the Input the DAT FILE
+                                ###################################
+                                sv_t = ""
+                                sv_t = urtn_fileAccess(CUST.DATA.footer)
+                                print(sv_t)
+                                CUST.DATA.fileRec1 = urtn_fileOpen(CUST.DATA.footer + "|r")
+                                sv_t = urtn_fileRead(CUST.DATA.fileRec1 + "|CUST.DATA.inputRecordCnt")
+                                print(sv_t)
+
+                                print(CUST.DATA.inputRecordCnt)
+                                CUST.DATA.LimitMaintCntName = CUST.DATA.inputRecordCnt
+                                sv_t = urtn_fileClose(CUST.DATA.fileRec1)
+                                PRINT(sv_t)
+
+                                sv_q = "rm -f "+CUST.DATA.footer
+                                sv_v = SYSTEM(sv_q)
+                                PRINT(sv_v)
+                                print(CUST.DATA.LimitMaintCntName)
+                                CUST.DATA.LimitMaintCntNameLength = STRLEN(CUST.DATA.LimitMaintCntName)
+                                IF(CUST.DATA.LimitMaintCntNameLength == "14")THEN
+                                #{
+                                        CUST.DATA.sequence1 = TRIM(MID$(CUST.DATA.LimitMaintCntName,0,7))
+                                        CUST.DATA.noOfRec = MID$(CUST.DATA.LimitMaintCntName,7,7)
+                                        PRINT(CUST.DATA.sequence1)
+                                        PRINT(CUST.DATA.noOfRec)
+                                        if(CUST.DATA.sequence1 =="") then
+                                        #{
+                                                BANCS.OUTPUT.errMsg = "The sequence in footer is either improper or not provided."
+                                                PRINT(BANCS.OUTPUT.errMsg)
+                                                CUST.DATA.failStatus="Y"
+                                                CUST.DATA.inpFilProcStat="F"
+                                                CUST.DATA.respCode="ERR0000432"
+                                                sv_r = func_cmmsgerrdescWithInputs("ERR0000432",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                                PRINT(sv_r)
+                                                PRINT(CUST.DATA.statMessage)
+                                                GOTO ENDOFSCRIPT
+                                        #}
+                                        else
+                                        #{
+                                                CUST.DATA.sequenceLength = STRLEN(CUST.DATA.sequence1)
+                                                if(CUST.DATA.sequenceLength != "7")then
+                                                #{
+                                                        BANCS.OUTPUT.errMsg = "The sequence in footer is either improper or not provided."
+                                                        PRINT(BANCS.OUTPUT.errMsg)
+                                                        CUST.DATA.failStatus="Y"
+                                                        CUST.DATA.inpFilProcStat="F"
+                                                        CUST.DATA.respCode="ERR0000432"
+                                                        sv_r = func_cmmsgerrdescWithInputs("ERR0000432",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                                        PRINT(sv_r)
+                                                        PRINT(CUST.DATA.statMessage)
+                                                        GOTO ENDOFSCRIPT
+                                                #}
+                                                endif
+                                        #}
+                                        ENDIF
+                                        if(CUST.DATA.noOfRec =="") then
+                                        #{
+                                                BANCS.OUTPUT.errMsg = "The No of Records value in footer is either improper or not provided."
+                                                PRINT(BANCS.OUTPUT.errMsg)
+                                                CUST.DATA.failStatus="Y"
+                                                CUST.DATA.inpFilProcStat="F"
+                                                CUST.DATA.respCode="ERR0000433"
+                                                sv_r = func_cmmsgerrdescWithInputs("ERR0000433",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                                PRINT(sv_r)
+                                                PRINT(CUST.DATA.statMessage)
+                                                GOTO ENDOFSCRIPT
+                                        #}
+                                        else
+                                        #{
+                                                CUST.DATA.noOfRecLength = STRLEN(CUST.DATA.noOfRec)
+                                                if(CUST.DATA.noOfRecLength != "7")then
+                                                #{
+                                                        BANCS.OUTPUT.errMsg = "The No of Records value in footer is either improper or not provided."
+                                                        PRINT(BANCS.OUTPUT.errMsg)
+                                                        CUST.DATA.failStatus="Y"
+                                                        CUST.DATA.inpFilProcStat="F"
+                                                        CUST.DATA.respCode="ERR0000433"
+                                                        sv_r = func_cmmsgerrdescWithInputs("ERR0000433",BANCS.STDIN.userId,"", BYREF CUST.DATA.statMessage)
+                                                        PRINT(sv_r)
+                                                        PRINT(CUST.DATA.statMessage)
+                                                        GOTO ENDOFSCRIPT
+                                                #}
+                                                endif
+                                        #}
+                                        ENDIF
+                                #}
+                                else
+                                #{
+                                        CUST.DATA.processFlg = "FAILURE"
+                                        CUST.DATA.errMsg="The footer record is either improper or not provided."
+                                        PRINT(CUST.DATA.errMsg)
+                                        CUST.DATA.failStatus="Y"
+                                        CUST.DATA.inpFilProcStat="F"
+                                        CUST.DATA.respCode="ERR0000431"
+                                        sv_r = func_cmmsgerrdescWithInputs("ERR0000431",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+                                        PRINT(sv_r)
+                                        PRINT(CUST.DATA.statMessage)
+                                        GOTO ENDOFSCRIPT
+                                #}
+                                ENDIF
+                        #}
+                        ENDIF
+                #}
+                else
+                #{
+                        CUST.DATA.Flg1 = TRIM(MID$(CUST.DATA.inputRecord,14,93))
+                        if(CUST.DATA.Flg1 != "")then
+                        #{
+                                CUST.DATA.identifier = "D"
+                                CUST.DATA.recordLength=STRLEN(CUST.DATA.inputRecord)
+                                Print(CUST.DATA.recordLength)
+                                if(CUST.DATA.recordLength >= 80) then
+                                #{
+                                        CUST.DATA.recordLength=CINT(CUST.DATA.recordLength)-CINT("1")
+                                        Print(CUST.DATA.recordLength)
+                                        ######################################################
+                                        #Getting the details from input record
+                                        ######################################################
+                                        CUST.DATA.sequence = TRIM(MID$(CUST.DATA.inputRecord,0,7))
+                                        CUST.DATA.generationDate = TRIM(MID$(CUST.DATA.inputRecord,7,8))
+                                        CUST.DATA.CardOrAccountNum = TRIM(MID$(CUST.DATA.inputRecord,15,20))
+                                        CUST.DATA.SanctionLimit = TRIM(MID$(CUST.DATA.inputRecord,35,17))
+                                        CUST.DATA.LimitFreq = TRIM(MID$(CUST.DATA.inputRecord,52,1))
+                                        CUST.DATA.filer = TRIM(MID$(CUST.DATA.inputRecord,53,27))
+                                        IF(CUST.DATA.filer != "")THEN
+                                        #{
+                                                CUST.DATA.respCode="37"
+                                                CUST.DATA.status = "F"
+                                                CUST.DATA.desc = "Failure"
+                                                IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                        CUST.DATA.respMsg = "The record is not proper."
+                                                ELSE
+                                                        CUST.DATA.respMsg = "El registro no es correcto"
+                                                ENDIF
+                                                GOTO ENDOFRECORD
+                                        #}
+                                        ENDIF
+
+                                        PRINT(CUST.DATA.sequence)
+                                        PRINT(CUST.DATA.generationDate)
+                                        PRINT(CUST.DATA.CardOrAccountNum)
+                                        PRINT(CUST.DATA.SanctionLimit)
+                                        PRINT(CUST.DATA.LimitFreq)
+
+                                        ####################################
+                                        #VALIDATING SEQUENCE
+                                        ####################################
+                                        if(CUST.DATA.sequence=="") then
+                                        #{
+                                                CUST.DATA.respCode="59"
+                                                CUST.DATA.status = "F"
+                                                CUST.DATA.desc = "Failure"
+                                                IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                        CUST.DATA.respMsg = "Sequence is invalid"
+                                                ELSE
+                                                        CUST.DATA.respMsg = "La secuencia no es válida"
+                                                ENDIF
+                                                GOTO ENDOFRECORD
+                                        #}
+                                        else
+                                        #{
+                                                CUST.DATA.sequenceLength = STRLEN(CUST.DATA.sequence)
+                                                if(CUST.DATA.sequenceLength != "7")then
+                                                #{
+                                                        CUST.DATA.respCode="59"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Sequence is invalid."
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "La secuencia no es válida"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                endif
+                                        #}
+                                        ENDIF
+
+                                        ####################################
+                                        #VALIDATING SEQUENCE
+                                        ####################################
+                                        if(CUST.DATA.generationDate=="") then
+                                        #{
+                                                CUST.DATA.respCode="60"
+                                                CUST.DATA.status = "F"
+                                                CUST.DATA.desc = "Failure"
+                                                IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                        CUST.DATA.respMsg = "Generation Date is not provided"
+                                                ELSE
+                                                        CUST.DATA.respMsg = "No se proporciona la fecha de generación"
+                                                ENDIF
+                                                GOTO ENDOFRECORD
+                                        #}
+                                        ELSE
+                                        #{
+                                                CUST.DATA.dateLen=STRLEN(trim(CUST.DATA.generationDate))
+                                                PRINT(CUST.DATA.dateLen)
+                                                if(CINT(CUST.DATA.dateLen)!=8) then
+                                                #{
+                                                        CUST.DATA.respCode="61"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Generation Date should be in  YYYYMMDD"
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "La fecha de generación debe estar en AAAAMMDD"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                endif
+                                        #}
+                                        ENDIF
+
+                                        ####################################
+                                        #VALIDATING ACCOUNT/CARD NUMBER
+                                        ####################################
+                                        if(CUST.DATA.CardOrAccountNum!="") then
+                                        #{
+                                                CUST.DATA.CardOrAccountNumLength=STRLEN(LTRIM(CUST.DATA.CardOrAccountNum,'0'))
+                                                Print(CUST.DATA.CardOrAccountNumLength)
+                                                IF((CUST.DATA.CardOrAccountNumLength != "14") AND (CUST.DATA.CardOrAccountNumLength != "10") AND (CUST.DATA.CardOrAccountNumLength != "16"))THEN
+                                                #{
+                                                        CUST.DATA.respCode="58"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Account/Card Number is invalid"
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "La cuenta / tarjeta no es válida"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+                                                IF((CUST.DATA.CardOrAccountNumLength == "14") OR (CUST.DATA.CardOrAccountNumLength == "10"))THEN
+                                                #{
+                                                        CUST.DATA.CardOrAccountNumFlag = "A"
+                                                        CUST.DATA.AccountNum = MID$(CUST.DATA.CardOrAccountNum,6,14)
+                                                #}
+                                                ENDIF
+                                                IF(CUST.DATA.CardOrAccountNumLength == "16")THEN
+                                                #{
+                                                        CUST.DATA.CardOrAccountNumFlag = "C"
+                                                        CUST.DATA.Card = MID$(CUST.DATA.CardOrAccountNum,4,16)
+                                                #}
+                                                ENDIF
+
+
+                                                IF(CUST.DATA.CardOrAccountNumFlag == "C")THEN
+                                                #{
+                                                        sv_s = ""
+                                                        sv_s = "modcardNo| select to_char(?SVAR,'XXXXXXXXXXXXXXXX') from dual "
+                                                        PRINT(sv_s)
+                                                        BANCS.INPARAM.BINDVARS = CUST.DATA.Card
+                                                        PRINT(BANCS.INPARAM.BINDVARS)
+                                                        sv_d = urhk_dbSelectWithBind(sv_s)
+                                                        IF(sv_d ==0) THEN
+                                                        #{
+                                                                CUST.DATA.modcardNo = BANCS.OUTPARAM.modcardNo
+                                                                PRINT(CUST.DATA.modcardNo)
+                                                        #}
+                                                        ENDIF
+
+                                                        sv_s="AccountNum|SELECT EMP_ACCNT_NUM FROM CUSTOM.CUST_CARD_ACCT_TBL WHERE "
+                                                        sv_s=sv_s+" CRD_MOD_FRMT=?SVAR and BANK_ID=?SVAR and ENTITY_CRE_FLG='Y' and DEL_FLG!='Y' "
+                                                        sv_s=sv_s+" AND STRUCT_LINK_FLG = ?SVAR AND RESPONSE_CODE = '00' "
+                                                        sv_s=sv_s+" AND STATUS = 'S' AND LNKED_CARD_STAT != 'C' "
+                                                        sv_s=sv_s+" AND CARD_RESPONSE_CODE IN ('39','43')"
+                                                        print(sv_s)
+                                                        BANCS.INPARAM.BINDVARS = ""
+                                                        BANCS.INPARAM.BINDVARS = CUST.DATA.modcardNo+"|" + BANCS.STDIN.contextBankId+ "|"+"Y"
+                                                        PRINT(BANCS.INPARAM.BINDVARS)
+                                                        sv_d = urhk_dbSelectWithBind(sv_s)
+                                                        print(sv_d)
+                                                        IF(sv_d == 0) THEN
+                                                        #{
+                                                                CUST.DATA.AccountNum = BANCS.OUTPARAM.AccountNum
+                                                                print(CUST.DATA.AccountNum)
+                                                        #}
+                                                        ELSE
+                                                        #{
+                                                                CUST.DATA.respCode="45"
+                                                                CUST.DATA.status = "F"
+                                                                CUST.DATA.desc = "Failure"
+                                                                IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                        CUST.DATA.respMsg = "Card Number is invalid"
+                                                                ELSE
+                                                                        CUST.DATA.respMsg = "El número de tarjeta no es válido"
+                                                                ENDIF
+                                                                GOTO ENDOFRECORD
+                                                        #}
+                                                        ENDIF
+                                                        CUST.DATA.schemetype = "CAA"
+                                                #}
+                                                ENDIF
+
+                                                sv_s = "count1 | SELECT COUNT(*) "
+                                                sv_s = sv_s + " FROM CUSTOM.CUST_ACCT_LIMIT_LINK_TABLE "
+                                                sv_s = sv_s + " WHERE ACCOUNT_NUM = ?SVAR "
+                                                sv_s = sv_s + " AND SANCT_LIMIT is not null "
+                                                sv_s = sv_s + " AND SANCT_LIMIT != '0' "
+                                                sv_s = sv_s + " AND LIMIT_FREQ is not null "
+                                                sv_s = sv_s + " AND BANK_ID = ?SVAR "
+                                                sv_s = sv_s + " AND DEL_FLG = ?SVAR "
+                                                print(sv_s)
+                                                BANCS.INPARAM.BINDVARS= CUST.DATA.AccountNum + "|" + BANCS.STDIN.contextBankId + "|" + "N"
+                                                PRINT(sv_s)
+                                                PRINT(BANCS.INPARAM.BINDVARS)
+
+                                                sv_u = urhk_dbSelectWithBind(sv_s)
+                                                print(sv_u)
+                                                IF(sv_u == 0) THEN
+                                                #{
+                                                        CUST.DATA.count1 = BANCS.OUTPARAM.count1
+                                                        print(CUST.DATA.count1)
+
+                                                        sv_s = ""
+                                                        sv_s  = "schemetype,acid,ccy| SELECT SCHM_TYPE, "
+                                                        sv_s = sv_s + " ACID, "
+                                                        sv_s = sv_s + " ACCT_CRNCY_CODE "
+                                                        sv_s = sv_s + " FROM TBAADM.GAM "
+                                                        sv_s = sv_s + " WHERE foracid = ?SVAR "
+                                                        sv_s = sv_s + " AND ENTITY_CRE_FLG = 'Y' "
+                                                        sv_s = sv_s + " AND DEL_FLG = 'N' "
+                                                        sv_s = sv_s + " AND ACCT_CLS_FLG = 'N' "
+                                                        sv_s = sv_s + " AND BANK_ID = ?SVAR "
+                                                        print(sv_s)
+                                                        BANCS.INPARAM.BINDVARS= CUST.DATA.AccountNum + "|" + BANCS.STDIN.contextBankId
+                                                        PRINT(sv_s)
+                                                        PRINT(BANCS.INPARAM.BINDVARS)
+                                                        sv_u = urhk_dbSelectWithBind(sv_s)
+                                                        print(sv_u)
+                                                        IF(sv_u == 0) THEN
+                                                        #{
+                                                                CUST.DATA.schemetype = BANCS.OUTPARAM.schemetype
+                                                                CUST.DATA.acid = BANCS.OUTPARAM.acid
+                                                                CUST.DATA.ccy = BANCS.OUTPARAM.ccy
+                                                        #}
+                                                        ELSE
+                                                        #{
+                                                                CUST.DATA.respCode="47"
+                                                                CUST.DATA.status = "F"
+                                                                CUST.DATA.desc = "Failure"
+                                                                IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                        CUST.DATA.respMsg = "Invalid Account Number"
+                                                                ELSE
+                                                                        CUST.DATA.respMsg = "Número de cuenta inválido"
+                                                                ENDIF
+                                                                GOTO ENDOFRECORD
+                                                        #}
+                                                        ENDIF
+                                                        IF(CUST.DATA.count1 == 0)THEN
+                                                        #{
+                                                                PRINT(CUST.DATA.schemetype)
+                                                                IF((CUST.DATA.schemetype != "ODA") AND (CUST.DATA.schemetype != "CAA"))THEN
+                                                                #{
+                                                                        CUST.DATA.respCode="46"
+                                                                        CUST.DATA.status = "F"
+                                                                        CUST.DATA.desc = "Failure"
+                                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                                CUST.DATA.respMsg = "Account Scheme type must be ODA OR CAA."
+                                                                        ELSE
+                                                                                CUST.DATA.respMsg = "El tipo de esquema de cuenta debe ser ODA O CAA."
+                                                                        ENDIF
+                                                                        GOTO ENDOFRECORD
+                                                                #}
+                                                                ENDIF
+
+                                                                IF((CUST.DATA.SanctionLimit == "") OR (LTRIM(CUST.DATA.SanctionLimit,'0') == ""))THEN
+                                                                #{
+                                                                        CUST.DATA.respCode="48"
+                                                                        CUST.DATA.status = "F"
+                                                                        CUST.DATA.desc = "Failure"
+                                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                                CUST.DATA.respMsg = "Sanction Limit has to be provided."
+                                                                        ELSE
+                                                                                CUST.DATA.respMsg = "Se debe proporcionar un límite de sanción."
+                                                                        ENDIF
+                                                                        GOTO ENDOFRECORD
+                                                                #}
+                                                                ENDIF
+                                                                IF(CUST.DATA.LimitFreq == "")THEN
+                                                                #{
+                                                                        CUST.DATA.respCode="49"
+                                                                        CUST.DATA.status = "F"
+                                                                        CUST.DATA.desc = "Failure"
+                                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                                CUST.DATA.respMsg = "Limit frequency has to be provided."
+                                                                        ELSE
+                                                                                CUST.DATA.respMsg = "Debe proporcionarse una frecuencia límite."
+                                                                        ENDIF
+                                                                        GOTO ENDOFRECORD
+                                                                #}
+                                                                ENDIF
+                                                        #}
+                                                        ELSE
+                                                        #{
+                                                                IF(((CUST.DATA.SanctionLimit == "") OR (LTRIM(CUST.DATA.SanctionLimit,'0') == "")) AND (CUST.DATA.LimitFreq == ""))THEN
+                                                                #{
+                                                                        CUST.DATA.respCode="50"
+                                                                        CUST.DATA.status = "F"
+                                                                        CUST.DATA.desc = "Failure"
+                                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                                CUST.DATA.respMsg = "Enter Limit or frequency."
+                                                                        ELSE
+                                                                                CUST.DATA.respMsg = "Ingrese límite o frecuencia."
+                                                                        ENDIF
+                                                                        GOTO ENDOFRECORD
+                                                                #}
+                                                                ENDIF
+                                                        #}
+                                                        ENDIF
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ELSE
+                                        #{
+                                                IF(CUST.DATA.CardOrAccountNum == "") then
+                                                #{
+                                                        CUST.DATA.respCode="51"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Account/Card Number is not provided"
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "No se proporciona cuenta / tarjeta"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+
+
+                                        ####################################
+                                        #VALIDATING SANCTION LIMIT
+                                        ###################################
+                                        IF(CUST.DATA.SanctionLimit != "")THEN
+                                        #{
+                                                CUST.DATA.SanctionLimitLength = STRLEN(CUST.DATA.SanctionLimit)
+                                                if(CUST.DATA.SanctionLimitLength != "17")then
+                                                #{
+                                                        CUST.DATA.respCode="57"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Sanction Limit is invalid."
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "El límite de sanción no es válido."
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                endif
+
+                                                sv_u = urhk_B2k_isStringNumeric(CUST.DATA.SanctionLimit)
+                                                print(sv_u)
+                                                IF(sv_u != 0)THEN
+                                                #{
+                                                        CUST.DATA.respCode="52"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Sanction Limit must be numeric."
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "El límite de sanción debe ser numérico."
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+
+                                                CUST.DATA.SanctionLimit1 = MID$(CUST.DATA.SanctionLimit,0,15)
+                                                CUST.DATA.SanctionLimit2 = MID$(CUST.DATA.SanctionLimit,15,2)
+                                                sv_s = ""
+                                                sv_s = "SanctionLimit3 | select CONCAT(CONCAT(?SVAR,'.'),?SVAR) FROM DUAL "
+                                                print(sv_s)
+                                                BANCS.INPARAM.BINDVARS = CUST.DATA.SanctionLimit1 + "|" + CUST.DATA.SanctionLimit2
+                                                sv_u = urhk_dbSelectWithBind(sv_s)
+                                                print(sv_u)
+                                                IF(sv_u == 0) THEN
+                                                #{
+                                                        CUST.DATA.SanctionLimit3 = BANCS.OUTPARAM.SanctionLimit3
+                                                        PRINT(CUST.DATA.SanctionLimit3)
+                                                #}
+                                                ENDIF
+
+                                        #}
+                                        ENDIF
+                                        ####################################
+                                        #VALIDATING FREQUENCY
+                                        ###################################
+                                        IF(CUST.DATA.LimitFreq != "")THEN
+                                        #{
+                                                print(CUST.DATA.LimitFreq)
+                                                IF((CUST.DATA.LimitFreq != "D") AND (CUST.DATA.LimitFreq != "S") AND (CUST.DATA.LimitFreq != "Q") AND(CUST.DATA.LimitFreq != "M") AND(CUST.DATA.LimitFreq != "P"))THEN
+                                                #{
+                                                        CUST.DATA.respCode="53"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Frequency should be D/S/Q/M/P."
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "La frecuencia debe ser D/S/Q/M/P"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+                                                IF(CUST.DATA.LimitFreq == "D")THEN
+                                                #{
+                                                        CUST.DATA.LimitFreq1 = "D"
+                                                        CUST.DATA.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                                                        PRINT(CUST.DATA.BODDate)
+                                                        sv_s = ""
+                                                        sv_s = "expirydate | select TO_DATE('"+CUST.DATA.BODDate+"','DD-MM-YYYY')+1 "
+                                                        sv_s = sv_s + " from dual "
+                                                        print(sv_s)
+
+                                                        sv_u = urhk_dbSelectWithBind(sv_s)
+                                                        print(sv_u)
+                                                        IF(sv_u == 0) THEN
+                                                        #{
+                                                                CUST.DATA.expirydate = BANCS.OUTPARAM.expirydate
+                                                                PRINT(CUST.DATA.expirydate)
+                                                        #}
+                                                        ENDIF
+                                                #}
+                                                ENDIF
+                                                IF(CUST.DATA.LimitFreq == "S")THEN
+                                                #{
+                                                        CUST.DATA.LimitFreq1 = "W"
+                                                        CUST.DATA.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                                                        PRINT(CUST.DATA.BODDate)
+                                                        sv_s = ""
+                                                        sv_s = "expirydate | select TO_DATE('"+CUST.DATA.BODDate+"','DD-MM-YYYY')+7 "
+                                                        sv_s = sv_s + " from dual "
+                                                        print(sv_s)
+
+                                                        sv_u = urhk_dbSelectWithBind(sv_s)
+                                                        print(sv_u)
+                                                        IF(sv_u == 0) THEN
+                                                        #{
+                                                                CUST.DATA.expirydate = BANCS.OUTPARAM.expirydate
+                                                                PRINT(CUST.DATA.expirydate)
+                                                        #}
+                                                        ENDIF
+                                                #}
+                                                ENDIF
+                                                IF(CUST.DATA.LimitFreq == "Q")THEN
+                                                #{
+                                                        CUST.DATA.LimitFreq1 = "B"
+                                                        CUST.DATA.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                                                        PRINT(CUST.DATA.BODDate)
+                                                        sv_s = ""
+                                                        sv_s = "expirydate | select TO_DATE('"+CUST.DATA.BODDate+"','DD-MM-YYYY')+14 "
+                                                        sv_s = sv_s + " from dual "
+                                                        print(sv_s)
+
+                                                        sv_u = urhk_dbSelectWithBind(sv_s)
+                                                        print(sv_u)
+                                                        IF(sv_u == 0) THEN
+                                                        #{
+                                                                CUST.DATA.expirydate = BANCS.OUTPARAM.expirydate
+                                                                PRINT(CUST.DATA.expirydate)
+                                                        #}
+                                                        ENDIF
+                                                #}
+                                                ENDIF
+                                                IF(CUST.DATA.LimitFreq == "M")THEN
+                                                #{
+                                                        CUST.DATA.LimitFreq1 = "M"
+                                                        CUST.DATA.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                                                        PRINT(CUST.DATA.BODDate)
+                                                        sv_s = ""
+                                                        sv_s = "expirydate | select add_months(TO_DATE('"+CUST.DATA.BODDate+"','DD-MM-YYYY'),1) "
+                                                        sv_s = sv_s + " from dual "
+                                                        print(sv_s)
+
+                                                        sv_u = urhk_dbSelectWithBind(sv_s)
+                                                        print(sv_u)
+                                                        IF(sv_u == 0) THEN
+                                                        #{
+                                                                CUST.DATA.expirydate = BANCS.OUTPARAM.expirydate
+                                                                PRINT(CUST.DATA.expirydate)
+                                                        #}
+                                                        ENDIF
+
+                                                #}
+                                                ENDIF
+                                                IF(CUST.DATA.LimitFreq == "P")THEN
+                                                #{
+                                                        CUST.DATA.LimitFreq1 = "A"
+                                                        CUST.DATA.BODDate = MID$(BANCS.STDIN.BODDate,0,10)
+                                                        PRINT(CUST.DATA.BODDate)
+                                                        CUST.DATA.expirydate = MID$(BANCS.STDIN.BODDate,0,6)+"2099"
+                                                        PRINT(CUST.DATA.expirydate)
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+
+                                        IF(CUST.DATA.AccountNum != "")THEN
+                                        #{
+                                                sv_u = urhk_SetUrhkInp("acctCommonInfo.acctGeneralInfo.acctBasic.foracid|" + CUST.DATA.AccountNum)
+                                                print(sv_u)
+                                                IF(sv_u == 1)THEN
+                                                #{
+                                                        CUST.DATA.respCode="54"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Updation of Limit in GAM table failed."
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "Error al actualizar el límite en GAM."
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+
+                                        IF(TRIM(CUST.DATA.schemetype) == "CAA") THEN
+                                        #{
+                                                sv_u = urhk_ExecSrvNoCommit("SRV_FetchCAAcctMaintDtlForModify|same_user_verify = Y|retain_all_output = Y|call_mode = N")
+                                                print(sv_u)
+                                                IF(sv_u == 1)THEN
+                                                #{
+                                                        CUST.DATA.respCode="32"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Fetch for account modification failed"
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "No se ha podido obtener la modificacion de la cuenta"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                        #sv_r = func_cmmsgerrdescWithInputs("ERR000147",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+                                                        #PRINT(sv_r)
+                                                        #sv_r = func_cmmsgerrdescWithInputs("ERR0000210",BANCS.STDIN.userId, "" , BYREF CUST.DATA.resMsg1)
+                                                        #PRINT(sv_r)
+                                                        #BANCS.OUTPUT.successOrFailure = "F"
+                                                        #GOTO ENDOFSCRIPT
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+                                        IF(TRIM(CUST.DATA.schemetype) == "ODA") THEN
+                                        #{
+                                                sv_u = urhk_ExecSrvNoCommit("SRV_FetchODAcctMaintDtlForModify|same_user_verify = Y|retain_all_output = Y|call_mode = N")
+                                                print(sv_u)
+                                                IF(sv_u == 1)THEN
+                                                #{
+                                                        CUST.DATA.respCode="32"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Fetch for account modification failed"
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "No se ha podido obtener la modificacion de la cuenta"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+                                        PRINT(sv_u)
+                                        sv_u = urhk_CopyOutToIn("")
+                                        PRINT(sv_u)
+                                        IF(TRIM(CUST.DATA.schemetype) == "CAA") THEN
+                                        #{
+                                                sv_u = urhk_SetUrhkInp("schmDtls.drBalLim|"+CUST.DATA.SanctionLimit3+"|CUST.DATA.ccy")
+                                                sv_u = urhk_SetUrhkInp("schmDtls.acctSchemeEntered|1")
+                                                IF(sv_u == 1)THEN
+                                                #{
+                                                        CUST.DATA.respCode="32"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Debit Balance assignment failed"
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "Error en la asignacion del saldo deudor"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+                                        IF(TRIM(CUST.DATA.schemetype) == "ODA") THEN
+                                        #{
+                                                sv_u = urhk_SetUrhkInp("schmDtls.drBalLim|"+CUST.DATA.SanctionLimit3+"|CUST.DATA.ccy")
+                                                sv_u = urhk_SetUrhkInp("schmDtls.acctSchemeEntered|1")
+                                                IF(sv_u == 1)THEN
+                                                #{
+                                                        CUST.DATA.respCode="32"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Debit Balance assignment failed"
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "Error en la asignacion del saldo deudor"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+                                        IF(TRIM(CUST.DATA.schemetype) == "CAA") THEN
+                                        #{
+                                                sv_u = urhk_ExecSrvNoCommit("SRV_ModifyCAAcctAndVerify|same_user_verify = Y|retain_all_output = Y|call_mode = N")
+                                                print(sv_u)
+                                                IF(sv_u == 1)THEN
+                                                #{
+                                                        CUST.DATA.respCode="32"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Account modificacion failed"
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "No se ha podido modificar la cuenta"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+                                        IF(TRIM(CUST.DATA.schemetype) == "ODA") THEN
+                                        #{
+                                                sv_u = urhk_ExecSrvNoCommit("SRV_ModifyODAcctAndVerify|same_user_verify = Y|retain_all_output = Y|call_mode = N")
+                                                print(sv_u)
+                                                IF(sv_u == 1)THEN
+                                                #{
+                                                        CUST.DATA.respCode="32"
+                                                        CUST.DATA.status = "F"
+                                                        CUST.DATA.desc = "Failure"
+                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                CUST.DATA.respMsg = "Account modification failed"
+                                                        ELSE
+                                                                CUST.DATA.respMsg = "No se ha podido modificar la cuenta"
+                                                        ENDIF
+                                                        GOTO ENDOFRECORD
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+
+                                        sv_s = ""
+                                        sv_s  = " expirydate1,utilimit| SELECT to_char(EXP_DATE,'DD-MM-YYYY'),NVL(UTIL_LIMIT,'0.00') FROM CUSTOM.CUST_ACCT_LIMIT_LINK_TABLE "
+                                        sv_s = sv_s + " WHERE ACCOUNT_NUM = ?SVAR"
+                                        sv_s = sv_s + " AND BANK_ID = ?SVAR "
+                                        sv_s = sv_s + " AND DEL_FLG = ?SVAR "
+                                        print(sv_s)
+                                        BANCS.INPARAM.BINDVARS = CUST.DATA.AccountNum + "|" + BANCS.STDIN.contextBankId + "|" + "N"
+                                        PRINT(sv_s)
+                                        PRINT(BANCS.INPARAM.BINDVARS)
+                                        sv_u = urhk_dbSelectWithBind(sv_s)
+                                        print(sv_u)
+                                        IF(sv_u == 0) THEN
+                                        #{
+                                                CUST.DATA.expirydate1 = BANCS.OUTPARAM.expirydate1
+                                                print(CUST.DATA.expirydate1)
+                                                CUST.DATA.utilimit = CDOUBLE(BANCS.OUTPARAM.utilimit)
+                                                print(CUST.DATA.utilimit)
+                                                CUST.DATA.availimit = CDOUBLE(CUST.DATA.SanctionLimit3) - CDOUBLE(CUST.DATA.utilimit)
+                                                print(CUST.DATA.availimit)
+                                        #}
+                                        ENDIF
+                                        if(CUST.DATA.expirydate1 != "")then
+                                        #{
+                                                BANCS.INPARAM.date2 = MID$(BANCS.STDIN.BODDate,0,10)
+                                                BANCS.INPARAM.date1 = MID$(CUST.DATA.expirydate1,0,10)
+                                                sv_l=urhk_B2k_dateDiff("")
+                                                print(sv_l)
+                                                if( sv_l == 0)THEN
+                                                #{
+                                                        IF(BANCS.OUTPARAM.dateDiff < 0)THEN
+                                                        #{
+                                                                CUST.DATA.expiryFlg = "Y"
+                                                        #}
+                                                        else
+                                                        #{
+                                                                if(CDOUBLE(CUST.DATA.SanctionLimit3) <= CDOUBLE(CUST.DATA.utilimit))then
+                                                                #{
+                                                                        CUST.DATA.respCode="62"
+                                                                        CUST.DATA.status = "F"
+                                                                        CUST.DATA.desc = "Failure"
+                                                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                                                CUST.DATA.respMsg = "Limit given is already utlized."
+                                                                        ELSE
+                                                                                CUST.DATA.respMsg = "El límite dado ya se ha utilizado"
+                                                                        ENDIF
+                                                                        GOTO ENDOFRECORD
+                                                                #}
+                                                                endif
+                                                        #}
+                                                        ENDIF
+                                                #}​​​​​​​
+                                                ENDIF
+                                        #}​​​​​​​
+                                        ENDIF
+
+                                        sv_s = ""
+                                        sv_s = " UPDATE CUSTOM.CUST_ACCT_LIMIT_LINK_TABLE SET"
+                                        sv_s = sv_s + " LCHG_USER_ID = ?SVAR,"
+                                        IF(CUST.DATA.SanctionLimit != "")THEN
+                                        #{
+                                                sv_s = sv_s + " SANCT_LIMIT = ?SVAR,"
+                                                sv_s = sv_s + " UTIL_LIMIT = ?SVAR,"
+                                                sv_s = sv_s + " AVAIL_LIMIT = ?SVAR,"
+                                        #}
+                                        ENDIF
+                                        IF(CUST.DATA.LimitFreq1 != "")THEN
+                                        #{
+                                                sv_s = sv_s + " START_DATE = to_date(?SVAR,'dd-mm-yyyy'),"
+                                                sv_s = sv_s + " LAST_OPER_DATE = to_date(?SVAR,'dd-mm-yyyy'),"
+                                                sv_s = sv_s + " LIMIT_FREQ = ?SVAR,"
+                                                IF(CUST.DATA.LimitFreq1 == "A")THEN
+                                                #{
+                                                        sv_s = sv_s + " EXP_DATE = to_date(?SVAR,'dd-mm-YYYY'),"
+                                                #}
+                                                ELSE
+                                                #{
+                                                        sv_s = sv_s + " EXP_DATE = ?SVAR,"
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+                                        sv_s = sv_s + " LCHG_TIME = SYSDATE "
+                                        sv_s = sv_s + " WHERE ACCOUNT_NUM = ?SVAR"
+                                        sv_s = sv_s + " AND BANK_ID = ?SVAR "
+                                        sv_s = sv_s + " AND DEL_FLG = ?SVAR "
+                                        print(sv_s)
+
+                                        BANCS.INPARAM.BINDVARS = ""
+                                        BANCS.INPARAM.BINDVARS = BANCS.STDIN.userId
+                                        IF(CUST.DATA.SanctionLimit != "")THEN
+                                        #{
+                                                IF(CUST.DATA.expiryFlg == "Y")THEN
+                                                #{
+                                                        BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.DATA.SanctionLimit3 + "|" + "0.00" + "|" + CUST.DATA.SanctionLimit3
+                                                #}
+                                                ELSE
+                                                #{
+                                                        BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.DATA.SanctionLimit3 + "|" + CUST.DATA.utilimit + "|" + CUST.DATA.availimit
+                                                #}
+                                                ENDIF
+                                        #}
+                                        ENDIF
+                                        IF(CUST.DATA.LimitFreq1 != "")THEN
+                                        #{
+                                                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.DATA.BODDate + "|" + CUST.DATA.BODDate
+                                                BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.DATA.LimitFreq1 + "|" + CUST.DATA.expirydate
+                                        #}
+                                        ENDIF
+                                        BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.DATA.AccountNum + "|" + BANCS.STDIN.contextBankId + "|" + "N"
+                                        PRINT(BANCS.INPARAM.BINDVARS)
+                                        PRINT(sv_s)
+                                        sv_r = urhk_dbSqlWithBind(sv_s)
+                                        PRINT(sv_r)
+                                        IF (sv_r == 0) THEN
+                                        #{
+                                                CUST.DATA.respCode="00"
+                                                CUST.DATA.status = "S"
+                                                CUST.DATA.desc = "Success"
+                                                IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                        CUST.DATA.respMsg = "Record processed successfully"
+                                                ELSE
+                                                        CUST.DATA.respMsg = "Registro procesado con éxito"
+                                                ENDIF
+                                                GOTO ENDOFRECORD
+                                        #}
+                                        ELSE
+                                        #{
+                                                CUST.DATA.respCode="56"
+                                                CUST.DATA.status = "F"
+                                                CUST.DATA.desc = "Failure"
+                                                IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                        CUST.DATA.respMsg = "Record processing failed"
+                                                ELSE
+                                                        CUST.DATA.respMsg = "El procesamiento del registro falló"
+                                                ENDIF
+                                                GOTO ENDOFRECORD
+                                        #}
+                                        ENDIF
+                                #}
+                                ELSE
+                                #{
+                                        CUST.DATA.inpFilProcStat="F"
+                                        CUST.DATA.respCode="37"
+                                        CUST.DATA.status = "F"
+                                        CUST.DATA.desc = "Failure"
+                                        IF(BANCS.STDIN.languageCode=="INFENG") then
+                                                CUST.DATA.respMsg = "The record is not proper."
+                                        ELSE
+                                                CUST.DATA.respMsg = "El registro no es correcto"
+                                        ENDIF
+                                        GOTO ENDOFRECORD
+                                #}
+                                ENDIF
+                        #}
+                        else
+                        #{
+                                CUST.DATA.identifier = "F"
+                                CUST.DATA.sequence = TRIM(MID$(CUST.DATA.inputRecord,0,7))
+                                CUST.DATA.noOfRec = TRIM(MID$(CUST.DATA.inputRecord,7,7))
+                                CUST.DATA.filler3 = TRIM(MID$(CUST.DATA.inputRecord,14,66))
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+                ENDOFRECORD:
+                ####################################
+                # Writing the response contents to file
+                ###################################
+                IF(CUST.DATA.identifier=="H") then
+                #{
+                        CUST.DATA.AllFields = CUST.DATA.folioNumber+CUST.DATA.filler1+CUST.DATA.issuer
+                        CUST.DATA.AllFields = CUST.DATA.AllFields+CUST.DATA.filler2+RPAD(CUST.DATA.fileName,40,' ')
+
+                        PRINT(CUST.DATA.AllFields)
+                        CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+                        sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+                        print(sv_a)
+                #}
+                ENDIF
+                IF(CUST.DATA.identifier=="D") then
+                #{
+                        CUST.DATA.AllFields = CUST.DATA.sequence+CUST.DATA.generationDate+LPAD(CUST.DATA.CardOrAccountNum,20,'0')+LPAD(CUST.DATA.SanctionLimit,17,'0')+LPAD(CUST.DATA.LimitFreq,1,' ')+CUST.DATA.respCode+RPAD(CUST.DATA.respMsg,60,' ')
+
+                        PRINT(CUST.DATA.AllFields)
+                        CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+                        sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+                        print(sv_a)
+
+                        sv_s =  "INSERT INTO CUSTOM.CUST_CARD_ACCT_LIMIT_TBL"
+                        sv_s = sv_s + "(SEQUENCE,DATE_GENERATION,ACCT_CARD_NUM,LIMIT,FREQUENCY,RESPONSE_CODE,RESPONSE_MSG,"
+                        sv_s = sv_s + "INP_FILE_DATE,INP_FILE_NAME,RESP_FILE_DATE,RESP_FILE_NAME,RECORD_STRING,"
+                        sv_s = sv_s + "STATUS,DESCRIPTION,REC_PROCESS_DATE,ENTITY_CRE_FLG,DEL_FLG,"
+                        sv_s = sv_s + "LCHG_USER_ID,LCHG_TIME,RCRE_USER_ID,RCRE_TIME,BANK_ID)VALUES"
+                        sv_s = sv_s + " (?SVAR,?SVAR,?SVAR,?SVAR,?SVAR,?SVAR,?SVAR,SYSDATE,?SVAR,SYSDATE,?SVAR,?SVAR,"
+                        sv_s = sv_s + " ?SVAR,?SVAR,?SVAR,?SVAR,?SVAR,?SVAR,SYSDATE,?SVAR,SYSDATE,?SVAR)"
+                        PRINT(sv_s)
+
+                        BANCS.INPARAM.BINDVARS =CUST.DATA.sequence + "|" + CUST.DATA.generationDate + "|" + CUST.DATA.CardOrAccountNum + "|" + CUST.DATA.SanctionLimit3+ "|" + CUST.DATA.LimitFreq + "|" + CUST.DATA.respCode +"|"
+                        BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS+CUST.DATA.respMsg+ "|"+CUST.DATA.LimitMaintInpFileName+ "|"+CUST.DATA.respFileName+ "|"+CUST.DATA.AllFields+"|"
+                        BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS+CUST.DATA.status+ "|"+CUST.DATA.desc+ "|"+CUST.DATA.bodDate1+ "|"+"Y"+"|"
+                        BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS+"N"+ "|"+BANCS.STDIN.userId+ "|"+BANCS.STDIN.userId+ "|"+BANCS.STDIN.contextBankId
+                        PRINT(BANCS.INPARAM.BINDVARS)
+                        sv_d = urhk_dbSQLWithBind(sv_s)
+                        PRINT(sv_d)
+
+                        IF(sv_d == 0) THEN
+                        #{
+                                PRINT("Data inserted successfully")
+                                CUST.DATA.Collection=""
+                                CUST.DATA.Batchcount = CINT(CUST.DATA.Batchcount) + CINT("1")
+                                CUST.DATA.processFlg = "SUCCESS"
+                                CUST.DATA.ENTITY_ID=""
+                                CUST.DATA.inpFilProcStat="S"
+                        #}
+                        ELSE
+                        #{
+                                PRINT("Data insertion failed")
+                                CUST.DATA.processFlg = "FAILURE"
+                                CUST.DATA.errMsg = "Insertion in CUST_CARD_ACCT_LIMIT_TBL Failed"
+                        #}
+                        ENDIF
+                #}
+                ENDIF
+                IF(CUST.DATA.identifier=="F") then
+                #{
+                        CUST.DATA.AllFields = LPAD(CUST.DATA.sequence,7,'0')+LPAD(CUST.DATA.noOfRec,7,'0')+LPAD(CUST.DATA.filler3,66,' ')
+                        PRINT(CUST.DATA.AllFields)
+                        CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+                        sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+                        print(sv_a)
+                #}
+                ENDIF
+        #}
+        ENDIF
+        sv_t = urtn_fileRead(CUST.DATA.fileRec + "|CUST.DATA.inputRecord")
+        PRINT(sv_t)
+        sv_m =sv_m+1
+#}
+DO
+        sv_t = urtn_fileClose(CUST.DATA.fileRec)
+        PRINT(sv_t)
+        sv_t = urtn_fileClose(CUST.DATA.reportIndex)
+        PRINT(sv_t)
+
+ENDOFSCRIPT:
+
+if(CUST.DATA.failStatus=="Y") then
+#{
+        IF(CUST.DATA.inpFilProcStat=="F") then
+        #{
+                sv_y = ""
+                sv_y = sv_y + "mv " + CUST.DATA.LimitMaintFileReqPath+" "+CUST.DATA.LimitMaintFileReqPath+".ERR"
+                sv_v = system(sv_y)
+                print(sv_v)
+        #}
+        endif
+        CUST.DATA.repIndex = urtn_fileOpen(CUST.DATA.LimitMaintStatusReportFile + "|w")
+        CUST.DATA.statContent="                                                                                 "
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        CUST.DATA.statContent="---------------------------------------------------------------------------------"
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="                      DEBIT CARD FILE UPDATE PROCESSING STATUS                             "
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="               ESTADO DE PROCESAMIENTO DE ARCHIVO DE ACTUALIZACIÓN DE TARJETA DE DÉBITO                      "
+                else
+                        CUST.DATA.statContent="                      DEBIT CARD FILE UPDATE PROCESSING STATUS                             "
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        CUST.DATA.statContent="---------------------------------------------------------------------------------"
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        CUST.DATA.statContent="                                                                                 "
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        CUST.DATA.statContent="                                                                                 "
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="Date: "+CUST.DATA.bodDate
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="Fecha: "+CUST.DATA.bodDate
+                else
+                        CUST.DATA.statContent="Date: "+CUST.DATA.bodDate
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        if(CUST.DATA.LimitMaintInpFileName!="") then
+        #{
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="Input File Name: "+CUST.DATA.LimitMaintInpFileName
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="Nombre de archivo de entrada: "+CUST.DATA.LimitMaintInpFileName
+                else
+                        CUST.DATA.statContent="Input File Name: "+CUST.DATA.LimitMaintInpFileName
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        #}
+        else
+        #{
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="Input File Name: Not Given"
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="Nombre de archivo de entrada: no proporcionado"
+                else
+                        CUST.DATA.statContent="Input File Name: Not Given"
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        #}
+        endif
+
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="File Processing Status: Failed"
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="Estado de procesamiento de archivos: fallido"
+                else
+                        CUST.DATA.statContent="File Processing Status: Failed"
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="Reason: "+ CUST.DATA.statMessage
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="Razón: "+ CUST.DATA.statMessage
+                else
+                        CUST.DATA.statContent="Reason: "+ CUST.DATA.statMessage
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        sv_z = urtn_fileClose(CUST.DATA.repIndex)
+        print(sv_z)
+                        ##to put an entry in PQT table##
+
+        sv_n = CUST.DATA.LimitMaintStatusReportFile
+        #sv_a = system("cp "+sv_n+" "+BANCS.INPUT.path+" ")
+        #print(sv_a)
+
+        sv_s = ""
+        sv_s = sv_s + "paramPath| select CUSTOPTN_VALUE from tbaadm.comt where CUSTOPTN_ID ='FIN_REPORTS_DIR' and bank_id='BAZMX' and rownum <=1 "
+        PRINT(sv_s)
+
+        sv_r =urhk_dbSelectWithBind(sv_s)
+        print(sv_r)
+
+        IF(sv_r == 0) THEN
+        #{
+                        sv_q = BANCS.OUTPARAM.paramPath
+                        print(sv_q)
+        ELSE
+                        EXITSCRIPT
+        #}
+        ENDIF
+
+        sv_o = sv_q+"/"+BANCS.STDIN.userId
+        print(sv_o)
+        sv_p = sv_o+"/"+sv_n
+        print(sv_p)
+        sv_k = SYSTEM("cp "+sv_n+" "+sv_o)
+        sv_s = ""
+        sv_s = sv_s + sv_p + "|"
+        sv_s = sv_s + sv_n + "|"
+        sv_s = sv_s + "MANAGER|1"
+        sv_t = urhk_B2k_Insert_PQT(sv_s)
+        print(sv_t)
+#}
+else
+#{
+        IF(CUST.DATA.inpFilProcStat=="S") then
+        #{
+                sv_y = ""
+                sv_y = sv_y + "mv " + CUST.DATA.LimitMaintFileReqPath+" "+CUST.DATA.LimitMaintFileReqPath+".OK"
+                sv_v = system(sv_y)
+                print(sv_v)
+        #}
+        endif
+        CUST.DATA.repIndex = urtn_fileOpen(CUST.DATA.LimitMaintStatusReportFile + "|w")
+        CUST.DATA.statContent="                                                                                 "
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        CUST.DATA.statContent="---------------------------------------------------------------------------------"
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="                      DEBIT CARD FILE UPDATE PROCESSING STATUS                             "
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="               ESTADO DE PROCESAMIENTO DE ARCHIVO DE ACTUALIZACIÓN DE TARJETA DE DÉBITO                      "
+                else
+                        CUST.DATA.statContent="                      DEBIT CARD FILE UPDATE PROCESSING STATUS                             "
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        CUST.DATA.statContent="---------------------------------------------------------------------------------"
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        CUST.DATA.statContent="                                                                                 "
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        CUST.DATA.statContent="                                                                                 "
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="Date: "+CUST.DATA.bodDate
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="Fecha: "+CUST.DATA.bodDate
+                else
+                        CUST.DATA.statContent="Date: "+CUST.DATA.bodDate
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+        if(CUST.DATA.LimitMaintInpFileName!="") then
+        #{
+                IF(BANCS.STDIN.languageCode=="INFENG") then
+                        CUST.DATA.statContent="Input File Name: "+CUST.DATA.LimitMaintInpFileName
+                else
+                        if(BANCS.STDIN.languageCode=="es_ES") then
+                                CUST.DATA.statContent="Nombre de archivo de entrada: "+CUST.DATA.LimitMaintInpFileName
+                        else
+                                CUST.DATA.statContent="Input File Name: "+CUST.DATA.LimitMaintInpFileName
+                        endif
+                endif
+                sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+                print(sv_b)
+        #}
+        else
+        #{
+                IF(BANCS.STDIN.languageCode=="INFENG") then
+                        CUST.DATA.statContent="Input File Name: Not Given"
+                else
+                        if(BANCS.STDIN.languageCode=="es_ES") then
+                                CUST.DATA.statContent="Nombre de archivo de entrada: no proporcionado"
+                        else
+                                CUST.DATA.statContent="Input File Name: Not Given"
+                        endif
+                endif
+                sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+                print(sv_b)
+        #}
+        endif
+
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="File Processing Status: Success"
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="Estado de procesamiento de archivos: correcto"
+                else
+                        CUST.DATA.statContent="File Processing Status: Success"
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+
+        IF(BANCS.STDIN.languageCode=="INFENG") then
+                CUST.DATA.statContent="Please Check the Response file generated."
+        else
+                if(BANCS.STDIN.languageCode=="es_ES") then
+                        CUST.DATA.statContent="Compruebe el archivo de respuesta generado."
+                else
+                        CUST.DATA.statContent="Please Check the Response file generated."
+                endif
+        endif
+        sv_b = urtn_fileWrite(CUST.DATA.repIndex + "|" + CUST.DATA.statContent)
+        print(sv_b)
+
+        sv_z = urtn_fileClose(CUST.DATA.repIndex)
+        print(sv_z)
+
+        ##to put an entry in PQT table##
+
+        sv_n = CUST.DATA.LimitMaintStatusReportFile
+        #sv_a = system("cp "+sv_n+" "+BANCS.INPUT.path+" ")
+        #print(sv_a)
+
+        sv_s = ""
+        sv_s = sv_s + "paramPath| select CUSTOPTN_VALUE from tbaadm.comt where CUSTOPTN_ID ='FIN_REPORTS_DIR' and bank_id='BAZMX' and rownum <=1 "
+        PRINT(sv_s)
+
+        sv_r =urhk_dbSelectWithBind(sv_s)
+        print(sv_r)
+
+        IF(sv_r == 0) THEN
+        #{
+                        sv_q = BANCS.OUTPARAM.paramPath
+                        print(sv_q)
+        ELSE
+                        EXITSCRIPT
+        #}
+        ENDIF
+
+        sv_o = sv_q+"/"+BANCS.STDIN.userId
+        print(sv_o)
+        sv_p = sv_o+"/"+sv_n
+        print(sv_p)
+        sv_k = SYSTEM("cp "+sv_n+" "+sv_o)
+        sv_s = ""
+        sv_s = sv_s + sv_p + "|"
+        sv_s = sv_s + sv_n + "|"
+        sv_s = sv_s + "MANAGER|1"
+        sv_t = urhk_B2k_Insert_PQT(sv_s)
+        print(sv_t)
+#}
+endif
+
+IF (CLASSEXISTS("CUST", "DATA") == 1) THEN
+#{
+        DELETECLASS("CUST", "DATA")
+#}
+ENDIF
+
+EXITSCRIPT
+
+END-->
