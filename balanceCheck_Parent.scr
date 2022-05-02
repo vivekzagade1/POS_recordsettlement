@@ -214,7 +214,7 @@ IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod!="DEV") ) then
                                 CUST.DATA.Nombre= "COMPRA EN"
 								CUST.DATA.Nombre1= "COMPRA"
 								CUST.DATA.Nombre2= "RETIRO"
-								CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+								CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
 								PRINT(CUST.DATA.stmtDesc)
                                 CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 								CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -256,7 +256,7 @@ IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod!="DEV") ) then
 										CUST.DATA.Nombre= "COMPRA EN"
 										CUST.DATA.Nombre1= "COMPRA"
 										CUST.DATA.Nombre2= "RETIRO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -295,7 +295,7 @@ IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod!="DEV") ) then
 										CUST.DATA.Nombre= "COMPRA EN"
 										CUST.DATA.Nombre1= "COMPRA"
 										CUST.DATA.Nombre2= "RETIRO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -343,7 +343,7 @@ IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod!="DEV") ) then
 										CUST.DATA.Nombre= "COMPRA EN"
 										CUST.DATA.Nombre1= "COMPRA"
 										CUST.DATA.Nombre2= "RETIRO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -384,7 +384,7 @@ IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod!="DEV") ) then
 												CUST.DATA.Nombre= "COMPRA EN"
 												CUST.DATA.Nombre1= "COMPRA"
 												CUST.DATA.Nombre2= "RETIRO"
-												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
 												PRINT(CUST.DATA.stmtDesc)
 												CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -434,7 +434,7 @@ IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod!="DEV") ) then
 												CUST.DATA.Nombre= "COMPRA EN"
 												CUST.DATA.Nombre1= "COMPRA"
 												CUST.DATA.Nombre2= "RETIRO"
-												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " $" + LTRIM(CUST.DATA.PurAmt,'0') + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
+												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.Nombre1 + " $" + CUST.DATA.amount + " " + CUST.DATA.Nombre2 + " $" + LTRIM(CUST.DATA.purSourceAmt,'0') + " POR LA CUENTA " + CUST.DATA.accNumber + " RFC: " + CUST.DATA.RFC
 												PRINT(CUST.DATA.stmtDesc)
 												CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
