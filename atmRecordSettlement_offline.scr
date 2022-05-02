@@ -946,9 +946,9 @@ ENDIF
 
 										##Withdrawal Interanational- Commision Amount - CUST.DATA.surchargeFee
 										##withdrawl domestic - CUST.DATA.surchargeFee is null then without commision 
-										#RETIRO EN EFFECTIVO+BankName+CAJERO+terminal+place+currency+originalamount+"COMISION DE USO DE CAJERO $"+feeAmount
+										#RETIRO EN EFECTIVO+BankName+CAJERO+terminal+place+currency+originalamount+"COMISION DE USO DE CAJERO $"+feeAmount
 										
-										CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+										CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 										CUST.DATA.Nombre2= "COMISION DE USO DE CAJERO $"
 										CUST.DATA.Nombre3= "CAJERO"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
@@ -1002,7 +1002,7 @@ ENDIF
 											
 										### Added as a part of tranParticular value passed
 
-										CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+										CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 										CUST.DATA.Nombre2= "COMISION DE USO DE CAJERO $"
 										CUST.DATA.Nombre3= "CAJERO"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
@@ -1062,7 +1062,7 @@ ENDIF
 												CUST.TRAN.tranCategory = "N"
 												CUST.TRAN.freeText7 = "I"
 												
-												CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+												CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 												CUST.DATA.Nombre2= "COMISION DE USO DE CAJERO $"
 												CUST.DATA.Nombre3= "CAJERO"
 												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
@@ -1130,7 +1130,7 @@ ENDIF
 										
 										### Added as a part of tranParticular value passed
 									
-										CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+										CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 										CUST.DATA.Nombre2= "COMISION DE USO DE CAJERO $"
 										CUST.DATA.Nombre3= "CAJERO"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
@@ -2207,13 +2207,13 @@ ENDIF
 								#{
 									### With comission other bank
 									CUST.DATA.amount1 = ""
-									CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+									CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 									CUST.DATA.Nombre2= "MONTO RETIRO $"
 									CUST.DATA.Nombre3= "CAJERO"
 									CUST.DATA.Nombre4= "COMISION USO DE CAJERO:"
 									CUST.DATA.amount1 = CDOUBLE(CUST.DATA.amount) - CDOUBLE(CUST.DATA.surchargeFee)
 									CUST.DATA.amount1=format$(CDOUBLE(CUST.DATA.amount1),"%0.2f")
-									CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + " " + CUST.DATA.surchargeFee
+									CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + "$" + CUST.DATA.surchargeFee
 									PRINT(CUST.DATA.stmtDesc)
 									CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 									CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -2221,8 +2221,8 @@ ENDIF
 								else
 								#{
 									### Without comission other bank
-									### With comission other bank  #RETIRO DE EFFECTIVO $ + amount +BankName+CAJERO+terminal+place
-									CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+									### With comission other bank  #RETIRO DE EFECTIVO $ + amount +BankName+CAJERO+terminal+place
+									CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 									CUST.DATA.Nombre3= "CAJERO"
 									CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM 
 									PRINT(CUST.DATA.stmtDesc)
@@ -2268,13 +2268,13 @@ ENDIF
 											#{
 												### With comission other bank
 												CUST.DATA.amount1 = ""
-												CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+												CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 												CUST.DATA.Nombre2= "MONTO RETIRO $"
 												CUST.DATA.Nombre3= "CAJERO"
 												CUST.DATA.Nombre4= "COMISION USO DE CAJERO:"
 												CUST.DATA.amount1 = CDOUBLE(CUST.DATA.amount) - CDOUBLE(CUST.DATA.surchargeFee)
 												CUST.DATA.amount1=format$(CDOUBLE(CUST.DATA.amount1),"%0.2f")
-												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + " " + CUST.DATA.surchargeFee
+												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + "$" + CUST.DATA.surchargeFee
 												PRINT(CUST.DATA.stmtDesc)
 												CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -2282,8 +2282,8 @@ ENDIF
 											else
 											#{
 												### Without comission other bank
-												### With comission other bank  #RETIRO DE EFFECTIVO $ + amount +BankName+CAJERO+terminal+place
-												CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+												### With comission other bank  #RETIRO DE EFECTIVO $ + amount +BankName+CAJERO+terminal+place
+												CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 												CUST.DATA.Nombre3= "CAJERO"
 												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM 
 												PRINT(CUST.DATA.stmtDesc)
@@ -2352,13 +2352,13 @@ ENDIF
 											#{
 												### With comission other bank
 												CUST.DATA.amount1 = ""
-												CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+												CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 												CUST.DATA.Nombre2= "MONTO RETIRO $"
 												CUST.DATA.Nombre3= "CAJERO"
 												CUST.DATA.Nombre4= "COMISION USO DE CAJERO:"
 												CUST.DATA.amount1 = CDOUBLE(CUST.DATA.amount) - CDOUBLE(CUST.DATA.surchargeFee)
 												CUST.DATA.amount1=format$(CDOUBLE(CUST.DATA.amount1),"%0.2f")
-												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + " " + CUST.DATA.surchargeFee
+												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + "$" + CUST.DATA.surchargeFee
 												PRINT(CUST.DATA.stmtDesc)
 												CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -2366,8 +2366,8 @@ ENDIF
 											else
 											#{
 												### Without comission other bank
-												### With comission other bank  #RETIRO DE EFFECTIVO $ + amount +BankName+CAJERO+terminal+place
-												CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+												### With comission other bank  #RETIRO DE EFECTIVO $ + amount +BankName+CAJERO+terminal+place
+												CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 												CUST.DATA.Nombre3= "CAJERO"
 												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM 
 												PRINT(CUST.DATA.stmtDesc)
@@ -2444,13 +2444,13 @@ ENDIF
 												#{
 													### With comission other bank
 													CUST.DATA.amount1 = ""
-													CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+													CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 													CUST.DATA.Nombre2= "MONTO RETIRO $"
 													CUST.DATA.Nombre3= "CAJERO"
 													CUST.DATA.Nombre4= "COMISION USO DE CAJERO:"
 													CUST.DATA.amount1 = CDOUBLE(CUST.DATA.amount) - CDOUBLE(CUST.DATA.surchargeFee)
 													CUST.DATA.amount1=format$(CDOUBLE(CUST.DATA.amount1),"%0.2f")
-													CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + " " + CUST.DATA.surchargeFee
+													CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + "$" + CUST.DATA.surchargeFee
 													PRINT(CUST.DATA.stmtDesc)
 													CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 													CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -2458,8 +2458,8 @@ ENDIF
 												else
 												#{
 													### Without comission other bank
-													### With comission other bank  #RETIRO DE EFFECTIVO $ + amount +BankName+CAJERO+terminal+place
-													CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+													### With comission other bank  #RETIRO DE EFECTIVO $ + amount +BankName+CAJERO+terminal+place
+													CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 													CUST.DATA.Nombre3= "CAJERO"
 													CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM 
 													PRINT(CUST.DATA.stmtDesc)
@@ -2541,13 +2541,13 @@ ENDIF
 										#{
 											### With comission other bank
 											CUST.DATA.amount1 = ""
-											CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+											CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 											CUST.DATA.Nombre2= "MONTO RETIRO $"
 											CUST.DATA.Nombre3= "CAJERO"
 											CUST.DATA.Nombre4= "COMISION USO DE CAJERO:"
 											CUST.DATA.amount1 = CDOUBLE(CUST.DATA.amount) - CDOUBLE(CUST.DATA.surchargeFee)
 											CUST.DATA.amount1=format$(CDOUBLE(CUST.DATA.amount1),"%0.2f")
-											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + " " + CUST.DATA.surchargeFee
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + "$" + CUST.DATA.surchargeFee
 											PRINT(CUST.DATA.stmtDesc)
 											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -2555,8 +2555,8 @@ ENDIF
 										else
 										#{
 											### Without comission other bank
-											### With comission other bank  #RETIRO DE EFFECTIVO $ + amount +BankName+CAJERO+terminal+place
-											CUST.DATA.Nombre= "RETIRO DE EFFECTIVO"
+											### With comission other bank  #RETIRO DE EFECTIVO $ + amount +BankName+CAJERO+terminal+place
+											CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 											CUST.DATA.Nombre3= "CAJERO"
 											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM 
 											PRINT(CUST.DATA.stmtDesc)

@@ -531,7 +531,7 @@ IF( (CUST.DATA.odFlg!="E") AND (CUST.DATA.settlemod!="DEV") ) then
                                                                 CUST.DATA.Nombre= "RETIRO EN EFFECTIVO $"
                                                                 CUST.DATA.Nombre2= "MONTO RETIRO $"
                                                                 CUST.DATA.Nombre3= "CAJERO"
-                                                                CUST.DATA.Nombre4= "COMISION USO DE CAJERO:"
+                                                                CUST.DATA.Nombre4= "COMISION USO DE CAJERO:$"
                                                                 CUST.DATA.amount1 = CDOUBLE(CUST.DATA.amount) - CDOUBLE(CUST.DATA.surchargeFee)
 
                                                                 CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.amount + " " +CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.amount1 + " " +  CUST.DATA.Nombre4 + "" + CUST.DATA.surchargeFee + " POR LA CUENTA " + CUST.DATA.accNumber

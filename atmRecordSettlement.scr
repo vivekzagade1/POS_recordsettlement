@@ -1,0 +1,1110 @@
+<--start
+trace on
+
+sv_r = REPEXISTS("CUST")
+IF(sv_r == 0) THEN
+#{
+	CREATEREP ("CUST")
+#}
+ENDIF
+
+#-----------------------------------------------------------------
+# Check whether DAT Class exists else create it
+#-----------------------------------------------------------------
+sv_r = CLASSEXISTS("CUST","DATA")
+IF(sv_r == 0) THEN
+#{
+	CREATECLASS ("CUST","DATA",5)
+#}
+ENDIF
+
+sv_r = CLASSEXISTS("CUST","TRAN")
+
+IF(sv_r == 0) THEN
+#{
+	CREATECLASS ("CUST","TRAN",5)
+#}
+ENDIF
+
+
+CUST.DATA.atmOnlineCnt="0"
+CUST.DATA.descType=""
+CUST.DATA.settleAmtDiff=""
+CUST.DATA.incAcctTrnType=""
+CUST.DATA.custAccntFlg="N"
+CUST.DATA.accntNum=""
+CUST.DATA.coverageAmt=""
+CUST.DATA.ACCTBALAMT1="0.00"
+CUST.DATA.EFFAMT="0.00"
+CUST.DATA.incTranAmt="0.00"
+CUST.DATA.errorMsg=""
+CUST.DATA.coverFlg="N"
+CUST.TRAN.TranCurr="MXP"
+CUST.DATA.AcctId=""
+CUST.TRAN.UserTrnCode = ""
+CUST.TRAN.ChannelId = ""
+CUST.TRAN.tranCategory = ""
+CUST.TRAN.freeText7 = ""
+CUST.DATA.respTranId=""
+CUST.DATA.respTranDate=""
+CUST.DATA.respCod=""
+CUST.DATA.respMsg=""
+CUST.DATA.incidentReason=""
+CUST.DATA.blockUser=""
+CUST.DATA.blockDate=""
+CUST.DATA.settleFlg=""
+CUST.DATA.LienSettleId=""
+CUST.DATA.LienSettleAmt=""
+CUST.DATA.LienExpSettle=""
+CUST.TRAN.LienExpDays = ""
+CUST.TRAN.LienExpDate=""
+CUST.TRAN.LienId=""
+CUST.DATA.lienAccntParent=""
+CUST.DATA.custTranId=""
+CUST.DATA.custTranDate=""
+CUST.DATA.appliedSettleAmt=""
+CUST.DATA.pendingSettleAmt=""
+CUST.DATA.exchangeAmtDiff=""
+CUST.DATA.freeTextDesc=""
+
+IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.authNum) AND FIELDEXISTS(CUST.DATA.amount) AND FIELDEXISTS(CUST.DATA.date))THEN
+#{
+	IF(FIELDEXISTS(CUST.DATA.accNumber) AND FIELDEXISTS(CUST.DATA.destAcct)) THEN
+	#{
+		IF((CUST.DATA.cardNum!="") and (CUST.DATA.authNum!="") and (CUST.DATA.amount!="") and (CUST.DATA.date!="")) THEN
+		#{
+			IF(CUST.DATA.desc1!="") then
+			#{
+				CUST.DATA.descType=RTRIM(MID$(CUST.DATA.desc1,0,8))
+				PRINT(CUST.DATA.descType)
+			#}
+			endif
+			
+			
+			sv_s = ""
+			sv_s = "atmOnlineCnt|SELECT count(*) "
+			IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+			#{
+				if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+				#{
+					sv_s = sv_s + " FROM CUSTOM.C_BAL_INQ  "  
+					sv_s = sv_s + " WHERE ACCTID=?SVAR AND REQ_AUTH_ID = ?SVAR AND TO_CHAR(TRAN_DATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR"
+				#}
+				else 
+				#{
+					sv_s = sv_s + " FROM CUSTOM.C_BAL_INQ  "  
+					sv_s = sv_s + " WHERE ACCTID=?SVAR AND RES_AUTH_ID = ?SVAR AND TO_CHAR(TRAN_DATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR"
+				#}
+				endif	
+			#}
+			ELSE
+			#{
+				if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+				#{
+					sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL "  
+					sv_s = sv_s + " WHERE ACCTID=?SVAR AND NUMERICREFNUM = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR"
+				#}
+				else 
+				#{
+					sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL "  
+					sv_s = sv_s + " WHERE ACCTID=?SVAR AND AuthId = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR"
+				#}
+				endif
+			#}
+			ENDIF
+			print(sv_s)
+			BANCS.INPARAM.BINDVARS =CUST.DATA.accNumber +"|"+CUST.DATA.authNum +"|"+CUST.DATA.date+"|"+ BANCS.STDIN.contextBankId
+			PRINT(sv_s)
+			PRINT(BANCS.INPARAM.BINDVARS)
+			sv_u = urhk_dbSelectWithBind(sv_s)
+			print(sv_u)
+			if(sv_u==0) then
+			#{
+				CUST.DATA.atmOnlineCnt=BANCS.OUTPARAM.atmOnlineCnt
+				print(CUST.DATA.atmOnlineCnt)
+			#}
+			endif
+			
+			if(CUST.DATA.atmOnlineCnt>0) then
+			#{
+				sv_s = ""
+				IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312"))then 
+				#{
+					if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+					#{
+						sv_s = "onlineAmt,freeTxt1,TRANDATE,TRANID,settleFlg|SELECT TRUNC(tran_amt,2),REQ_CRNCY,TO_CHAR(TRAN_DATE,'DD-MM-YYYY'),TRAN_ID,SETTLEMENT_FILE_FLG "
+						sv_s = sv_s + " FROM CUSTOM.C_BAL_INQ  "  
+						sv_s = sv_s + " WHERE ACCTID=?SVAR AND REQ_AUTH_ID = ?SVAR AND TO_CHAR(TRAN_DATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR AND ROWNUM=1"
+					#}
+					else 
+					#{
+						sv_s = "onlineAmt,freeTxt1,TRANDATE,TRANID,settleFlg|SELECT TRUNC(tran_amt,2),REQ_CRNCY,TO_CHAR(TRAN_DATE,'DD-MM-YYYY'),TRAN_ID,SETTLEMENT_FILE_FLG "
+						sv_s = sv_s + " FROM CUSTOM.C_BAL_INQ  "  
+						sv_s = sv_s + " WHERE ACCTID=?SVAR AND RES_AUTH_ID = ?SVAR AND TO_CHAR(TRAN_DATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR AND ROWNUM=1"
+					#}
+					endif
+				#}
+				ELSE
+				#{
+					if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+					#{
+						sv_s = "onlineAmt,freeTxt1,TRANDATE,TRANID,settleFlg|SELECT TRUNC(TRANAMT,2),FREETEXT1,TO_CHAR(TRANDATE,'DD-MM-YYYY'),TRANID,SETTLEMENT_FILE_FLG "
+						sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL "  
+						sv_s = sv_s + " WHERE ACCTID=?SVAR AND NUMERICREFNUM = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR AND ROWNUM=1"
+					#}
+					else
+					#{
+						sv_s = "onlineAmt,freeTxt1,TRANDATE,TRANID,settleFlg|SELECT TRUNC(TRANAMT,2),FREETEXT1,TO_CHAR(TRANDATE,'DD-MM-YYYY'),TRANID,SETTLEMENT_FILE_FLG "
+						sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL "  
+						sv_s = sv_s + " WHERE ACCTID=?SVAR AND AuthId = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR AND ROWNUM=1"
+					#}
+					endif
+				#}
+				ENDIF
+				print(sv_s)
+				BANCS.INPARAM.BINDVARS =CUST.DATA.accNumber +"|"+CUST.DATA.authNum +"|"+CUST.DATA.date+"|"+ BANCS.STDIN.contextBankId
+				PRINT(sv_s)
+				PRINT(BANCS.INPARAM.BINDVARS)
+				sv_u = urhk_dbSelectWithBind(sv_s)
+				print(sv_u)
+				if(sv_u==0) then
+				#{
+					CUST.DATA.onlineAmt=BANCS.OUTPARAM.onlineAmt
+					print(CUST.DATA.onlineAmt)
+					CUST.DATA.freeTxt1=BANCS.OUTPARAM.freeTxt1
+					print(CUST.DATA.freeTxt1)
+					CUST.DATA.TRANDATE=BANCS.OUTPARAM.TRANDATE
+					print(CUST.DATA.TRANDATE)
+					CUST.DATA.TRANID=BANCS.OUTPARAM.TRANID
+					print(CUST.DATA.TRANID)
+					CUST.DATA.settleFlg=BANCS.OUTPARAM.settleFlg
+					print(CUST.DATA.settleFlg)
+				#}
+				endif
+				
+				IF(CUST.DATA.onlineAmt!="") then
+				#{
+					IF(CUST.DATA.settleFlg=="Y") THEN 
+					#{
+						
+						if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+						#{
+							CUST.DATA.incAcctTrnType="C"
+							CUST.DATA.debAccnt=CUST.DATA.compProsaAcnt
+							CUST.DATA.credAccnt=CUST.DATA.incidAccnt1
+						#}
+						ELSE
+						#{
+							CUST.DATA.incAcctTrnType="D"
+							CUST.DATA.debAccnt=CUST.DATA.incidAccnt1
+							CUST.DATA.credAccnt=CUST.DATA.compProsaAcnt
+						#}
+						ENDIF
+						
+						print(CUST.DATA.amount)
+								
+						CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.amount),"%0.2f")
+						print(CUST.DATA.debAccnt)
+						print(CUST.DATA.credAccnt)
+						print(CUST.DATA.TranAmt)
+						CUST.TRAN.UserTrnCode = CUST.DATA.INCIDENCEDUPUTRANCODE
+						CUST.TRAN.ChannelId = "ATM"
+						CUST.TRAN.tranCategory = "N"
+						CUST.TRAN.freeText7 = "I"
+						CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+						IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+						#{
+						
+							CUST.DATA.respTranId = CUST.DATA.TRANID
+							CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+							CUST.DATA.respCod = "INC00"
+							CUST.DATA.respMsg = "INCIDENCIA"
+							CUST.DATA.incidentReason = "Duplicate Record"
+							CUST.DATA.blockUser = ""
+							CUST.DATA.blockDate = ""
+							CUST.DATA.appliedSettleAmt=""
+							CUST.DATA.pendingSettleAmt=CUST.DATA.amount
+							CUST.DATA.exchangeAmtDiff=""
+						
+							
+							IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then 
+							#{
+								
+								if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+								#{
+									CUST.DATA.totalRevConsultation3=CINT(CUST.DATA.totalRevConsultation3)+1
+									print(CUST.DATA.totalRevConsultation3)
+									CUST.DATA.totalRevAmtConsultation3=CDOUBLE(CUST.DATA.totalRevAmtConsultation3)+CDOUBLE(CUST.DATA.amount)
+									print(CUST.DATA.totalRevAmtConsultation3)
+								#}
+								else
+								#{
+									CUST.DATA.totalConsultation3=CINT(CUST.DATA.totalConsultation3)+1
+									print(CUST.DATA.totalConsultation3)
+									CUST.DATA.totalAmtConsultation3=CDOUBLE(CUST.DATA.totalAmtConsultation3)+CDOUBLE(CUST.DATA.amount)
+									print(CUST.DATA.totalAmtConsultation3)	
+								#}
+								endif	
+							#}
+							else
+							#{
+								if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+								#{
+									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+									#{
+										CUST.DATA.totalWithdrawalRevP3=CINT(CUST.DATA.totalWithdrawalRevP3)+1
+										print(CUST.DATA.totalWithdrawalRevP3)
+										
+										CUST.DATA.totalAmtWithdrawalRevP3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP3)+CDOUBLE(CUST.DATA.amount)
+										print(CUST.DATA.totalAmtWithdrawalRevP3)
+									#}
+									ELSE
+									#{
+										CUST.DATA.totalWithdrawalRev3=CINT(CUST.DATA.totalWithdrawalRev3)+1
+										print(CUST.DATA.totalWithdrawalRev3)
+										CUST.DATA.totalAmtWithdrawalRev3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev3)+CDOUBLE(CUST.DATA.amount)
+										print(CUST.DATA.totalAmtWithdrawalRev3)
+									#}
+									ENDIF
+								#}
+								else
+								#{
+									CUST.DATA.totTran3=CINT(CUST.DATA.totTran3)+1
+									print(CUST.DATA.totTran3)
+									CUST.DATA.totalAmtTran3=CDOUBLE(CUST.DATA.totalAmtTran3)+CDOUBLE(CUST.DATA.amount)
+									print(CUST.DATA.totalAmtTran3)	
+								#}
+								endif	
+							#}
+							endif
+						#}
+						ENDIF
+						GOTO ENDOFSCRIPT
+					#}
+					ENDIF
+					
+					if(CDOUBLE(CUST.DATA.onlineAmt)==CDOUBLE(CUST.DATA.amount)) then  
+					#{
+						CUST.DATA.respTranId = CUST.DATA.TRANID
+						CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+						CUST.DATA.respCod = "APL00"
+						CUST.DATA.respMsg = "APLICADO"
+						CUST.DATA.incidentReason = ""
+						CUST.DATA.blockUser = ""
+						CUST.DATA.blockDate = ""
+						CUST.DATA.custTranId=CUST.DATA.TRANID
+						CUST.DATA.custTranDate=CUST.DATA.TRANDATE
+						CUST.DATA.appliedSettleAmt=CUST.DATA.amount
+						CUST.DATA.pendingSettleAmt=""
+						CUST.DATA.exchangeAmtDiff=""
+						if(( CUST.DATA.freeTxt1=="B127") OR (CUST.DATA.freeTxt1=="MXP") OR ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS"))) then
+						#{
+							
+							IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then 
+							#{
+								
+								if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+								#{
+									CUST.DATA.totalRevConsultation=CINT(CUST.DATA.totalRevConsultation)+1
+									print(CUST.DATA.totalRevConsultation)
+									CUST.DATA.totalRevAmtConsultation=CDOUBLE(CUST.DATA.totalRevAmtConsultation)+CDOUBLE(CUST.DATA.onlineAmt)
+									print(CUST.DATA.totalRevAmtConsultation)
+									
+									CUST.DATA.totalRevConsultation2=CINT(CUST.DATA.totalRevConsultation2)+1
+									print(CUST.DATA.totalRevConsultation2)
+									CUST.DATA.totalRevAmtConsultation2=CDOUBLE(CUST.DATA.totalRevAmtConsultation2)+CDOUBLE(CUST.DATA.onlineAmt)
+									print(CUST.DATA.totalRevAmtConsultation2)
+								#}
+								else
+								#{
+									CUST.DATA.totalConsultation=CINT(CUST.DATA.totalConsultation)+1
+									print(CUST.DATA.totalConsultation)
+									CUST.DATA.totalAmtConsultation=CDOUBLE(CUST.DATA.totalAmtConsultation)+CDOUBLE(CUST.DATA.onlineAmt)
+									print(CUST.DATA.totalAmtConsultation)	
+									
+									CUST.DATA.totalConsultation2=CINT(CUST.DATA.totalConsultation2)+1
+									print(CUST.DATA.totalConsultation2)
+									CUST.DATA.totalAmtConsultation2=CDOUBLE(CUST.DATA.totalAmtConsultation2)+CDOUBLE(CUST.DATA.onlineAmt)
+									print(CUST.DATA.totalAmtConsultation2)
+								#}
+								endif	
+							#}
+							else
+							#{
+								if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+								#{
+									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+									#{
+										CUST.DATA.totalWithdrawalRevP=CINT(CUST.DATA.totalWithdrawalRevP)+1
+										print(CUST.DATA.totalWithdrawalRevP)
+										CUST.DATA.totalAmtWithdrawalRevP=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP)+CDOUBLE(CUST.DATA.onlineAmt)
+										print(CUST.DATA.totalAmtWithdrawalRevP)
+										
+										CUST.DATA.totalWithdrawalRevP2=CINT(CUST.DATA.totalWithdrawalRevP2)+1
+										print(CUST.DATA.totalWithdrawalRevP2)
+										CUST.DATA.totalAmtWithdrawalRevP2=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP2)+CDOUBLE(CUST.DATA.onlineAmt)
+										print(CUST.DATA.totalAmtWithdrawalRevP2)
+										
+									#}
+									ELSE
+									#{
+										CUST.DATA.totalWithdrawalRev=CINT(CUST.DATA.totalWithdrawalRev)+1
+										print(CUST.DATA.totalWithdrawalRev)
+										CUST.DATA.totalAmtWithdrawalRev=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev)+CDOUBLE(CUST.DATA.onlineAmt)
+										print(CUST.DATA.totalAmtWithdrawalRev)
+										
+										CUST.DATA.totalWithdrawalRev2=CINT(CUST.DATA.totalWithdrawalRev2)+1
+										print(CUST.DATA.totalWithdrawalRev2)
+										CUST.DATA.totalAmtWithdrawalRev2=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev2)+CDOUBLE(CUST.DATA.onlineAmt)
+										print(CUST.DATA.totalAmtWithdrawalRev2)
+									#}
+									ENDIF
+								#}
+								else
+								#{
+									CUST.DATA.totTran=CINT(CUST.DATA.totTran)+1
+									print(CUST.DATA.totTran)
+									CUST.DATA.totalAmtTran=CDOUBLE(CUST.DATA.totalAmtTran)+CDOUBLE(CUST.DATA.onlineAmt)
+									print(CUST.DATA.totalAmtTran)	
+									
+									CUST.DATA.totTran2=CINT(CUST.DATA.totTran2)+1
+									print(CUST.DATA.totTran2)
+									CUST.DATA.totalAmtTran2=CDOUBLE(CUST.DATA.totalAmtTran2)+CDOUBLE(CUST.DATA.onlineAmt)
+									print(CUST.DATA.totalAmtTran2)
+								#}
+								endif	
+							#}
+							endif
+						#}
+						else
+						#{
+							If((CUST.DATA.freeTxt1=="VISA") OR (CUST.DATA.freeTxt1=="BNET") OR (CUST.DATA.freeTxt1=="MDS")) then
+							#{
+								
+								IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+								#{
+									if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+									#{
+										CUST.DATA.totalRevConsultation1=CINT(CUST.DATA.totalRevConsultation1)+1
+										print(CUST.DATA.totalRevConsultation1)
+										CUST.DATA.totalRevAmtConsultation1=CDOUBLE(CUST.DATA.totalRevAmtConsultation1)+CDOUBLE(CUST.DATA.amount)
+										print(CUST.DATA.totalRevAmtConsultation1)
+										
+										CUST.DATA.totalRevConsultation2=CINT(CUST.DATA.totalRevConsultation2)+1
+										print(CUST.DATA.totalRevConsultation2)
+										CUST.DATA.totalRevAmtConsultation2=CDOUBLE(CUST.DATA.totalRevAmtConsultation2)+CDOUBLE(CUST.DATA.onlineAmt)
+										print(CUST.DATA.totalRevAmtConsultation2)
+
+									#}
+									else 
+									#{
+										CUST.DATA.totalConsultation1=CINT(CUST.DATA.totalConsultation1)+1
+										print(CUST.DATA.totalConsultation1)
+										CUST.DATA.totalAmtConsultation1=CDOUBLE(CUST.DATA.totalAmtConsultation1)+CDOUBLE(CUST.DATA.amount)
+										print(CUST.DATA.totalAmtConsultation1)
+										
+										CUST.DATA.totalConsultation2=CINT(CUST.DATA.totalConsultation2)+1
+										print(CUST.DATA.totalConsultation2)
+										CUST.DATA.totalAmtConsultation2=CDOUBLE(CUST.DATA.totalAmtConsultation2)+CDOUBLE(CUST.DATA.onlineAmt)
+										print(CUST.DATA.totalAmtConsultation2)
+
+									#}
+									endif	
+								#}
+								else
+								#{
+									
+									if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+									#{
+										IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+										#{
+											CUST.DATA.totalWithdrawalRevP1=CINT(CUST.DATA.totalWithdrawalRevP1)+1
+											print(CUST.DATA.totalWithdrawalRevP1)
+											CUST.DATA.totalAmtWithdrawalRevP1=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP1)+CDOUBLE(CUST.DATA.amount)
+											print(CUST.DATA.totalAmtWithdrawalRevP1)
+											
+											CUST.DATA.totalWithdrawalRevP2=CINT(CUST.DATA.totalWithdrawalRevP2)+1
+											print(CUST.DATA.totalWithdrawalRevP2)
+											CUST.DATA.totalAmtWithdrawalRevP2=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP2)+CDOUBLE(CUST.DATA.onlineAmt)
+											print(CUST.DATA.totalAmtWithdrawalRevP2)
+										#}
+										ELSE
+										#{
+											CUST.DATA.totalWithdrawalRev1=CINT(CUST.DATA.totalWithdrawalRev1)+1
+											print(CUST.DATA.totalWithdrawalRev1)
+											CUST.DATA.totalAmtWithdrawalRev1=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev1)+CDOUBLE(CUST.DATA.amount)
+											print(CUST.DATA.totalAmtWithdrawalRev1)
+											
+											CUST.DATA.totalWithdrawalRev2=CINT(CUST.DATA.totalWithdrawalRev2)+1
+											print(CUST.DATA.totalWithdrawalRev2)
+											CUST.DATA.totalAmtWithdrawalRev2=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev2)+CDOUBLE(CUST.DATA.onlineAmt)
+											print(CUST.DATA.totalAmtWithdrawalRev2)
+										#}
+										ENDIF
+									#}
+									else
+									#{
+										CUST.DATA.totTran1=CINT(CUST.DATA.totTran1)+1
+										print(CUST.DATA.totTran1)
+										CUST.DATA.totalAmtTran1=CDOUBLE(CUST.DATA.totalAmtTran1)+CDOUBLE(CUST.DATA.amount)
+										print(CUST.DATA.totalAmtTran1)
+										
+										CUST.DATA.totTran2=CINT(CUST.DATA.totTran2)+1
+										print(CUST.DATA.totTran2)
+										CUST.DATA.totalAmtTran2=CDOUBLE(CUST.DATA.totalAmtTran2)+CDOUBLE(CUST.DATA.onlineAmt)
+										print(CUST.DATA.totalAmtTran2)
+									#}
+									endif	
+								#}
+								endif
+							#}
+							endif
+						#}
+						endif
+					#}
+					else
+					#{
+							##Online amount and settlement file amount mismatch (will go to incident account)
+							#Domestic transaction
+							if(( CUST.DATA.freeTxt1=="B127") OR (CUST.DATA.freeTxt1=="MXP") OR ((CUST.DATA.freeTxt1!="VISA") AND (CUST.DATA.freeTxt1!="BNET") AND (CUST.DATA.freeTxt1!="MDS")) ) then
+							#{
+								#Reversal or Partial reversal
+								if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+								#{
+									#credit/debit the amount to incident account
+									CUST.DATA.settleAmtDiff=CDOUBLE(CUST.DATA.onlineAmt)- CDOUBLE(CUST.DATA.amount)
+									print(CUST.DATA.settleAmtDiff)
+									if(CDOUBLE(CUST.DATA.settleAmtDiff)>CDOUBLE("0.00")) Then 
+									#{
+										print(CUST.DATA.settleAmtDiff)
+										CUST.DATA.incAcctTrnType="D"
+										CUST.DATA.debAccnt=CUST.DATA.incidAccnt1
+										CUST.DATA.credAccnt=CUST.DATA.compProsaAcnt
+										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.settleAmtDiff),"%0.2f")
+										print(CUST.DATA.debAccnt)
+										print(CUST.DATA.credAccnt)
+										print(CUST.DATA.TranAmt)
+										CUST.TRAN.UserTrnCode = CUST.DATA.INCIDENCEUTRANCODE
+										CUST.TRAN.ChannelId = "ATM"
+										CUST.TRAN.tranCategory = "N"
+										CUST.TRAN.freeText7 = "I"
+										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+										#{
+										
+											CUST.DATA.respTranId = CUST.DATA.TRANID
+											CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+											CUST.DATA.respCod = "INC00"
+											CUST.DATA.respMsg = "INCIDENCIA"
+											CUST.DATA.incidentReason = ""
+											CUST.DATA.blockUser = ""
+											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+											CUST.DATA.exchangeAmtDiff=""
+											IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+											#{
+												CUST.DATA.totalRevConsultation3=CINT(CUST.DATA.totalRevConsultation3)+1
+												print(CUST.DATA.totalRevConsultation3)
+												CUST.DATA.totalRevAmtConsultation3=CDOUBLE(CUST.DATA.totalRevAmtConsultation3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalRevAmtConsultation3)
+												CUST.DATA.totalRevConsultation=CINT(CUST.DATA.totalRevConsultation)+1
+												print(CUST.DATA.totalRevConsultation)
+												CUST.DATA.totalRevAmtConsultation=CDOUBLE(CUST.DATA.totalRevAmtConsultation)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalRevAmtConsultation)
+												
+											#}
+											ELSE
+											#{
+												IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+												#{
+													CUST.DATA.totalWithdrawalRevP3=CINT(CUST.DATA.totalWithdrawalRevP3)+1
+													print(CUST.DATA.totalWithdrawalRevP3)
+													CUST.DATA.totalAmtWithdrawalRevP3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP3)+CDOUBLE(CUST.DATA.TranAmt)
+													print(CUST.DATA.totalAmtWithdrawalRevP3)
+													CUST.DATA.totalWithdrawalRevP=CINT(CUST.DATA.totalWithdrawalRevP)+1
+													print(CUST.DATA.totalWithdrawalRevP)
+													CUST.DATA.totalAmtWithdrawalRevP=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP)+CDOUBLE(CUST.DATA.onlineAmt)
+													print(CUST.DATA.totalAmtWithdrawalRevP)
+												#}
+												ELSE
+												#{
+													CUST.DATA.totalWithdrawalRev3=CINT(CUST.DATA.totalWithdrawalRev3)+1
+													print(CUST.DATA.totalWithdrawalRev3)
+													CUST.DATA.totalAmtWithdrawalRev3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev3)+CDOUBLE(CUST.DATA.TranAmt)
+													print(CUST.DATA.totalAmtWithdrawalRev3)
+													CUST.DATA.totalWithdrawalRev=CINT(CUST.DATA.totalWithdrawalRev)+1
+													print(CUST.DATA.totalWithdrawalRev)
+													CUST.DATA.totalAmtWithdrawalRev=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev)+CDOUBLE(CUST.DATA.onlineAmt)
+													print(CUST.DATA.totalAmtWithdrawalRev)
+												#}
+												ENDIF
+											#}
+											ENDIF	
+										#}
+										ENDIF
+									#}
+									else
+									#{
+										CUST.DATA.settleAmtDiff=CDOUBLE(CUST.DATA.settleAmtDiff)*-1
+										print(CUST.DATA.settleAmtDiff)
+										CUST.DATA.incAcctTrnType="C"
+										CUST.DATA.credAccnt=CUST.DATA.incidAccnt1
+										CUST.DATA.debAccnt=CUST.DATA.compProsaAcnt
+										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.settleAmtDiff),"%0.2f")
+										print(CUST.DATA.debAccnt)
+										print(CUST.DATA.credAccnt)
+										print(CUST.DATA.TranAmt)
+										CUST.TRAN.UserTrnCode = CUST.DATA.INCIDENCEUTRANCODE
+										CUST.TRAN.ChannelId = "ATM"
+										CUST.TRAN.tranCategory = "N"
+										CUST.TRAN.freeText7 = "I"
+										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+										#{
+										
+											CUST.DATA.respTranId = CUST.DATA.TRANID
+											CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+											CUST.DATA.respCod = "INC00"
+											CUST.DATA.respMsg = "INCIDENCIA"
+											CUST.DATA.incidentReason = ""
+											CUST.DATA.blockUser = ""
+											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+											CUST.DATA.pendingSettleAmt=""
+											CUST.DATA.exchangeAmtDiff=""
+											IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+											#{
+												CUST.DATA.totalRevConsultation3=CINT(CUST.DATA.totalRevConsultation3)+1
+												print(CUST.DATA.totalRevConsultation3)
+												CUST.DATA.totalRevAmtConsultation3=CDOUBLE(CUST.DATA.totalRevAmtConsultation3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalRevAmtConsultation3)
+												CUST.DATA.totalRevConsultation=CINT(CUST.DATA.totalRevConsultation)+1
+												print(CUST.DATA.totalRevConsultation)
+												CUST.DATA.totalRevAmtConsultation=CDOUBLE(CUST.DATA.totalRevAmtConsultation)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalRevAmtConsultation)
+												
+											#}
+											ELSE
+											#{
+												IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+												#{
+													CUST.DATA.totalWithdrawalRevP3=CINT(CUST.DATA.totalWithdrawalRevP3)+1
+													print(CUST.DATA.totalWithdrawalRevP3)
+													CUST.DATA.totalAmtWithdrawalRevP3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP3)+CDOUBLE(CUST.DATA.TranAmt)
+													print(CUST.DATA.totalAmtWithdrawalRevP3)
+													CUST.DATA.totalWithdrawalRevP=CINT(CUST.DATA.totalWithdrawalRevP)+1
+													print(CUST.DATA.totalWithdrawalRevP)
+													CUST.DATA.totalAmtWithdrawalRevP=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP)+CDOUBLE(CUST.DATA.onlineAmt)
+													print(CUST.DATA.totalAmtWithdrawalRevP)
+												#}
+												ELSE
+												#{
+													CUST.DATA.totalWithdrawalRev3=CINT(CUST.DATA.totalWithdrawalRev3)+1
+													print(CUST.DATA.totalWithdrawalRev3)
+													CUST.DATA.totalAmtWithdrawalRev3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev3)+CDOUBLE(CUST.DATA.TranAmt)
+													print(CUST.DATA.totalAmtWithdrawalRev3)
+													CUST.DATA.totalWithdrawalRev=CINT(CUST.DATA.totalWithdrawalRev)+1
+													print(CUST.DATA.totalWithdrawalRev)
+													CUST.DATA.totalAmtWithdrawalRev=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev)+CDOUBLE(CUST.DATA.onlineAmt)
+													print(CUST.DATA.totalAmtWithdrawalRev)
+												#}
+												ENDIF
+											#}
+											ENDIF
+										#}
+										ENDIF
+									#}
+									endif
+								#}
+								else
+								#{
+									#Normal Withdrawal
+									#credit/debit the amount to incident account
+									CUST.DATA.settleAmtDiff=CDOUBLE(CUST.DATA.onlineAmt)- CDOUBLE(CUST.DATA.amount)
+									print(CUST.DATA.settleAmtDiff)
+									if(CDOUBLE(CUST.DATA.settleAmtDiff)>CDOUBLE("0.00")) Then 
+									#{
+										print(CUST.DATA.settleAmtDiff)
+										CUST.DATA.incAcctTrnType="C"
+										CUST.DATA.credAccnt=CUST.DATA.incidAccnt1
+										CUST.DATA.debAccnt=CUST.DATA.compProsaAcnt
+										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.settleAmtDiff),"%0.2f")
+										print(CUST.DATA.debAccnt)
+										print(CUST.DATA.credAccnt)
+										print(CUST.DATA.TranAmt)
+										CUST.TRAN.UserTrnCode = CUST.DATA.INCIDENCEUTRANCODE
+										CUST.TRAN.ChannelId = "ATM"
+										CUST.TRAN.tranCategory = "N"
+										CUST.TRAN.freeText7 = "I"
+										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+										#{
+										
+											CUST.DATA.respTranId = CUST.DATA.TRANID
+											CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+											CUST.DATA.respCod = "INC00"
+											CUST.DATA.respMsg = "INCIDENCIA"
+											CUST.DATA.incidentReason = ""
+											CUST.DATA.blockUser = ""
+											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+											CUST.DATA.pendingSettleAmt=""
+											CUST.DATA.exchangeAmtDiff=""
+											IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+											#{
+												CUST.DATA.totalConsultation3=CINT(CUST.DATA.totalConsultation3)+1
+												print(CUST.DATA.totalConsultation3)
+												CUST.DATA.totalAmtConsultation3=CDOUBLE(CUST.DATA.totalAmtConsultation3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalAmtConsultation3)
+												CUST.DATA.totalConsultation=CINT(CUST.DATA.totalConsultation)+1
+												print(CUST.DATA.totalConsultation)
+												CUST.DATA.totalAmtConsultation=CDOUBLE(CUST.DATA.totalAmtConsultation)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalAmtConsultation)	
+											#}
+											ELSE
+											#{
+												CUST.DATA.totTran3=CINT(CUST.DATA.totTran3)+1
+												print(CUST.DATA.totTran3)
+												CUST.DATA.totalAmtTran3=CDOUBLE(CUST.DATA.totalAmtTran3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalAmtTran3)
+												CUST.DATA.totTran=CINT(CUST.DATA.totTran)+1
+												print(CUST.DATA.totTran)
+												CUST.DATA.totalAmtTran=CDOUBLE(CUST.DATA.totalAmtTran)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalAmtTran)	
+											#}
+											ENDIF
+										#}
+										ENDIF
+									#}
+									else
+									#{
+										CUST.DATA.settleAmtDiff=CDOUBLE(CUST.DATA.settleAmtDiff)*-1
+										print(CUST.DATA.settleAmtDiff)
+										CUST.DATA.incAcctTrnType="D"
+										CUST.DATA.debAccnt=CUST.DATA.incidAccnt1
+										CUST.DATA.credAccnt=CUST.DATA.compProsaAcnt
+										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.settleAmtDiff),"%0.2f")
+										print(CUST.DATA.credAccnt)
+										print(CUST.DATA.TranAmt)
+										CUST.TRAN.UserTrnCode = CUST.DATA.INCIDENCEUTRANCODE
+										CUST.TRAN.ChannelId = "ATM"
+										CUST.TRAN.tranCategory = "N"
+										CUST.TRAN.freeText7 = "I"
+										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+										#{
+										
+											CUST.DATA.respTranId = CUST.DATA.TRANID
+											CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+											CUST.DATA.respCod = "INC00"
+											CUST.DATA.respMsg = "INCIDENCIA"
+											CUST.DATA.incidentReason = ""
+											CUST.DATA.blockUser = ""
+											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+											CUST.DATA.pendingSettleAmt=""
+											CUST.DATA.exchangeAmtDiff=""
+											IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+											#{
+												CUST.DATA.totalConsultation3=CINT(CUST.DATA.totalConsultation3)+1
+												print(CUST.DATA.totalConsultation3)
+												CUST.DATA.totalAmtConsultation3=CDOUBLE(CUST.DATA.totalAmtConsultation3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalAmtConsultation3)
+												CUST.DATA.totalConsultation=CINT(CUST.DATA.totalConsultation)+1
+												print(CUST.DATA.totalConsultation)
+												CUST.DATA.totalAmtConsultation=CDOUBLE(CUST.DATA.totalAmtConsultation)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalAmtConsultation)	
+											#}
+											ELSE
+											#{
+												CUST.DATA.totTran3=CINT(CUST.DATA.totTran3)+1
+												print(CUST.DATA.totTran3)
+												CUST.DATA.totalAmtTran3=CDOUBLE(CUST.DATA.totalAmtTran3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalAmtTran3)
+												CUST.DATA.totTran=CINT(CUST.DATA.totTran)+1
+												print(CUST.DATA.totTran)
+												CUST.DATA.totalAmtTran=CDOUBLE(CUST.DATA.totalAmtTran)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalAmtTran)	
+											#}
+											ENDIF
+										#}
+										ENDIF
+									#}
+									endif
+								#}
+								endif
+							#}
+							else
+							#{
+								#International transaction
+								#Reversal or Partial reversal
+								if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+								#{
+									#credit/debit the amount to incident account
+									CUST.DATA.settleAmtDiff=CDOUBLE(CUST.DATA.onlineAmt)- CDOUBLE(CUST.DATA.amount)
+									print(CUST.DATA.settleAmtDiff)
+									if(CDOUBLE(CUST.DATA.settleAmtDiff)>CDOUBLE("0.00")) Then 
+									#{
+										print(CUST.DATA.settleAmtDiff)
+										CUST.DATA.incAcctTrnType="D"
+										CUST.DATA.debAccnt=CUST.DATA.ForeignExTranRevLossDebit
+										CUST.DATA.credAccnt=CUST.DATA.exchRevLossAccntCredit
+										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.settleAmtDiff),"%0.2f")
+										print(CUST.DATA.debAccnt)
+										print(CUST.DATA.credAccnt)
+										print(CUST.DATA.TranAmt)
+										CUST.TRAN.UserTrnCode = CUST.DATA.WDLFOREIGNREVEXLOSS
+										CUST.TRAN.ChannelId = "ATM"
+										CUST.TRAN.tranCategory = "N"
+										CUST.TRAN.freeText7 = "I"
+										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+										#{
+										
+											CUST.DATA.respTranId = CUST.DATA.TRANID
+											CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+											CUST.DATA.respCod = "APL01"
+											CUST.DATA.respMsg = "APLICADO CDIFERENCIA CAMBIARIA"
+											CUST.DATA.incidentReason = ""
+											CUST.DATA.blockUser = ""
+											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+											CUST.DATA.pendingSettleAmt=""
+											CUST.DATA.exchangeAmtDiff=CUST.DATA.settleAmtDiff
+											IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+											#{
+												CUST.DATA.totalRevConsultation3=CINT(CUST.DATA.totalRevConsultation3)+1
+												print(CUST.DATA.totalRevConsultation3)
+												CUST.DATA.totalRevAmtConsultation3=CDOUBLE(CUST.DATA.totalRevAmtConsultation3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalRevAmtConsultation3)
+												CUST.DATA.totalRevConsultation1=CINT(CUST.DATA.totalRevConsultation1)+1
+												print(CUST.DATA.totalRevConsultation1)
+												CUST.DATA.totalRevAmtConsultation1=CDOUBLE(CUST.DATA.totalRevAmtConsultation1)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalRevAmtConsultation1)
+												
+											#}
+											ELSE
+											#{
+												IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+												#{
+													CUST.DATA.totalWithdrawalRevP3=CINT(CUST.DATA.totalWithdrawalRevP3)+1
+													print(CUST.DATA.totalWithdrawalRevP3)
+													CUST.DATA.totalAmtWithdrawalRevP3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP3)+CDOUBLE(CUST.DATA.TranAmt)
+													print(CUST.DATA.totalAmtWithdrawalRevP3)
+													CUST.DATA.totalWithdrawalRevP1=CINT(CUST.DATA.totalWithdrawalRevP1)+1
+													print(CUST.DATA.totalWithdrawalRevP1)
+													CUST.DATA.totalAmtWithdrawalRevP1=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP1)+CDOUBLE(CUST.DATA.onlineAmt)
+													print(CUST.DATA.totalAmtWithdrawalRevP1)
+												#}
+												ELSE
+												#{
+													CUST.DATA.totalWithdrawalRev3=CINT(CUST.DATA.totalWithdrawalRev3)+1
+													print(CUST.DATA.totalWithdrawalRev3)
+													CUST.DATA.totalAmtWithdrawalRev3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev3)+CDOUBLE(CUST.DATA.TranAmt)
+													print(CUST.DATA.totalAmtWithdrawalRev3)
+													CUST.DATA.totalWithdrawalRev1=CINT(CUST.DATA.totalWithdrawalRev1)+1
+													print(CUST.DATA.totalWithdrawalRev1)
+													CUST.DATA.totalAmtWithdrawalRev1=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev1)+CDOUBLE(CUST.DATA.onlineAmt)
+													print(CUST.DATA.totalAmtWithdrawalRev1)
+												#}
+												ENDIF
+											#}
+											ENDIF	
+										#}
+										ENDIF
+									#}
+									else
+									#{
+										CUST.DATA.settleAmtDiff=CDOUBLE(CUST.DATA.settleAmtDiff)*-1
+										print(CUST.DATA.settleAmtDiff)
+										CUST.DATA.incAcctTrnType="C"
+										CUST.DATA.credAccnt=CUST.DATA.ForeignExTranRevGainCredit
+										CUST.DATA.debAccnt=CUST.DATA.exchRevGainAccntDebit
+										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.settleAmtDiff),"%0.2f")
+										print(CUST.DATA.debAccnt)
+										print(CUST.DATA.credAccnt)
+										print(CUST.DATA.TranAmt)
+										CUST.TRAN.UserTrnCode = CUST.DATA.WDLFOREIGNREVEXGAIN
+										CUST.TRAN.ChannelId = "ATM"
+										CUST.TRAN.tranCategory = "N"
+										CUST.TRAN.freeText7 = "I"
+										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+										#{
+										
+											CUST.DATA.respTranId = CUST.DATA.TRANID
+											CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+											CUST.DATA.respCod = "APL01"
+											CUST.DATA.respMsg = "APLICADO CDIFERENCIA CAMBIARIA"
+											CUST.DATA.incidentReason = ""
+											CUST.DATA.blockUser = ""
+											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+											CUST.DATA.pendingSettleAmt=""
+											CUST.DATA.exchangeAmtDiff=CUST.DATA.settleAmtDiff
+											
+											IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+											#{
+												CUST.DATA.totalRevConsultation3=CINT(CUST.DATA.totalRevConsultation3)+1
+												print(CUST.DATA.totalRevConsultation3)
+												CUST.DATA.totalRevAmtConsultation3=CDOUBLE(CUST.DATA.totalRevAmtConsultation3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalRevAmtConsultation3)
+												CUST.DATA.totalRevConsultation1=CINT(CUST.DATA.totalRevConsultation1)+1
+												print(CUST.DATA.totalRevConsultation1)
+												CUST.DATA.totalRevAmtConsultation1=CDOUBLE(CUST.DATA.totalRevAmtConsultation1)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalRevAmtConsultation1)
+											#}
+											ELSE
+											#{
+												IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+												#{
+													CUST.DATA.totalWithdrawalRevP3=CINT(CUST.DATA.totalWithdrawalRevP3)+1
+													print(CUST.DATA.totalWithdrawalRevP3)
+													CUST.DATA.totalAmtWithdrawalRevP3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP3)+CDOUBLE(CUST.DATA.TranAmt)
+													print(CUST.DATA.totalAmtWithdrawalRevP3)
+													CUST.DATA.totalWithdrawalRevP1=CINT(CUST.DATA.totalWithdrawalRevP1)+1
+													print(CUST.DATA.totalWithdrawalRevP1)
+													CUST.DATA.totalAmtWithdrawalRevP1=CDOUBLE(CUST.DATA.totalAmtWithdrawalRevP1)+CDOUBLE(CUST.DATA.onlineAmt)
+													print(CUST.DATA.totalAmtWithdrawalRevP1)
+												#}
+												ELSE
+												#{
+													CUST.DATA.totalWithdrawalRev3=CINT(CUST.DATA.totalWithdrawalRev3)+1
+													print(CUST.DATA.totalWithdrawalRev3)
+													CUST.DATA.totalAmtWithdrawalRev3=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev3)+CDOUBLE(CUST.DATA.TranAmt)
+													print(CUST.DATA.totalAmtWithdrawalRev3)
+													CUST.DATA.totalWithdrawalRev1=CINT(CUST.DATA.totalWithdrawalRev1)+1
+													print(CUST.DATA.totalWithdrawalRev1)
+													CUST.DATA.totalAmtWithdrawalRev1=CDOUBLE(CUST.DATA.totalAmtWithdrawalRev1)+CDOUBLE(CUST.DATA.onlineAmt)
+													print(CUST.DATA.totalAmtWithdrawalRev1)
+												#}
+												ENDIF
+											#}
+											ENDIF
+										#}
+										ENDIF
+									#}
+									endif			
+								#}
+								else
+								#{
+									#Normal Withdrawal
+									#credit/debit the amount to incident account
+									CUST.DATA.settleAmtDiff=CDOUBLE(CUST.DATA.onlineAmt)- CDOUBLE(CUST.DATA.amount)
+									print(CUST.DATA.settleAmtDiff)
+									if(CDOUBLE(CUST.DATA.settleAmtDiff)>CDOUBLE("0.00")) Then 
+									#{
+										print(CUST.DATA.settleAmtDiff)
+										CUST.DATA.incAcctTrnType="C"
+										CUST.DATA.credAccnt=CUST.DATA.exchGainAccntCredit
+										CUST.DATA.debAccnt=CUST.DATA.ForeignExTranAccntGainDebit
+										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.settleAmtDiff),"%0.2f")
+										print(CUST.DATA.debAccnt)
+										print(CUST.DATA.credAccnt)
+										print(CUST.DATA.TranAmt)
+										CUST.TRAN.UserTrnCode = CUST.DATA.WDLFOREIGNEXGAIN
+										CUST.TRAN.ChannelId = "ATM"
+										CUST.TRAN.tranCategory = "N"
+										CUST.TRAN.freeText7 = "I"
+										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+										#{
+										
+											CUST.DATA.respTranId = CUST.DATA.TRANID
+											CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+											CUST.DATA.respCod = "APL01"
+											CUST.DATA.respMsg = "APLICADO CDIFERENCIA CAMBIARIA"
+											CUST.DATA.incidentReason = ""
+											CUST.DATA.blockUser = ""
+											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+											CUST.DATA.pendingSettleAmt=""
+											CUST.DATA.exchangeAmtDiff=CUST.DATA.settleAmtDiff
+											
+											IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+											#{
+												CUST.DATA.totalConsultation3=CINT(CUST.DATA.totalConsultation3)+1
+												print(CUST.DATA.totalConsultation3)
+												CUST.DATA.totalAmtConsultation3=CDOUBLE(CUST.DATA.totalAmtConsultation3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalAmtConsultation3)
+												CUST.DATA.totalConsultation1=CINT(CUST.DATA.totalConsultation1)+1
+												print(CUST.DATA.totalConsultation1)
+												CUST.DATA.totalAmtConsultation1=CDOUBLE(CUST.DATA.totalAmtConsultation1)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalAmtConsultation1)
+											#}
+											ELSE
+											#{
+												CUST.DATA.totTran3=CINT(CUST.DATA.totTran3)+1
+												print(CUST.DATA.totTran3)
+												CUST.DATA.totalAmtTran3=CDOUBLE(CUST.DATA.totalAmtTran3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalAmtTran3)
+												CUST.DATA.totTran1=CINT(CUST.DATA.totTran1)+1
+												print(CUST.DATA.totTran1)
+												CUST.DATA.totalAmtTran1=CDOUBLE(CUST.DATA.totalAmtTran1)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalAmtTran1)
+											#}
+											ENDIF
+										
+										#}
+										ENDIF
+									#}
+									else
+									#{
+										CUST.DATA.settleAmtDiff=CDOUBLE(CUST.DATA.settleAmtDiff)*-1
+										print(CUST.DATA.settleAmtDiff)
+										CUST.DATA.incAcctTrnType="D"
+										CUST.DATA.debAccnt=CUST.DATA.exchLossAccntDebit
+										CUST.DATA.credAccnt=CUST.DATA.ForeignExTranAccntLossCredit
+										CUST.DATA.TranAmt=format$(CDOUBLE(CUST.DATA.settleAmtDiff),"%0.2f")
+										print(CUST.DATA.credAccnt)
+										print(CUST.DATA.TranAmt)
+										CUST.TRAN.UserTrnCode = CUST.DATA.WDLFOREIGNEXLOSS
+										CUST.TRAN.ChannelId = "ATM"
+										CUST.TRAN.tranCategory = "N"
+										CUST.TRAN.freeText7 = "I"
+										CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
+										IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
+										#{
+										
+											CUST.DATA.respTranId = CUST.DATA.TRANID
+											CUST.DATA.respTranDate = CUST.DATA.TRANDATE
+											CUST.DATA.respCod = "APL01"
+											CUST.DATA.respMsg = "APLICADO CDIFERENCIA CAMBIARIA"
+											CUST.DATA.incidentReason = ""
+											CUST.DATA.blockUser = ""
+											CUST.DATA.blockDate = ""
+											CUST.DATA.appliedSettleAmt=CUST.DATA.onlineAmt
+											CUST.DATA.pendingSettleAmt=""
+											CUST.DATA.exchangeAmtDiff=CUST.DATA.settleAmtDiff
+											
+											IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+											#{
+												CUST.DATA.totalConsultation3=CINT(CUST.DATA.totalConsultation3)+1
+												print(CUST.DATA.totalConsultation3)
+												CUST.DATA.totalAmtConsultation3=CDOUBLE(CUST.DATA.totalAmtConsultation3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalAmtConsultation3)
+												CUST.DATA.totalConsultation1=CINT(CUST.DATA.totalConsultation1)+1
+												print(CUST.DATA.totalConsultation1)
+												CUST.DATA.totalAmtConsultation1=CDOUBLE(CUST.DATA.totalAmtConsultation1)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalAmtConsultation1)
+											#}
+											ELSE
+											#{
+												CUST.DATA.totTran3=CINT(CUST.DATA.totTran3)+1
+												print(CUST.DATA.totTran3)
+												CUST.DATA.totalAmtTran3=CDOUBLE(CUST.DATA.totalAmtTran3)+CDOUBLE(CUST.DATA.TranAmt)
+												print(CUST.DATA.totalAmtTran3)
+												CUST.DATA.totTran1=CINT(CUST.DATA.totTran1)+1
+												print(CUST.DATA.totTran1)
+												CUST.DATA.totalAmtTran1=CDOUBLE(CUST.DATA.totalAmtTran1)+CDOUBLE(CUST.DATA.onlineAmt)
+												print(CUST.DATA.totalAmtTran1)
+											#}
+											ENDIF
+										
+										#}
+										ENDIF
+									#}
+									endif	
+								#}
+								endif
+							#}
+							endif
+					#}
+					endif
+				#}
+				endif
+			#}
+			else
+			#{
+				#####Offline transactions settlement	
+				CALLSCRIPTIFEXIST("atmRecordSettlement_offline.scr")
+			#}
+			endif
+		#}
+		ENDIF
+	#}
+	ENDIF	
+
+#}
+ENDIF
+
+ENDOFSCRIPT:
+
+PRINT(CUST.DATA.respTranId)
+PRINT(CUST.DATA.respTranDate)
+PRINT(CUST.DATA.respCod)
+PRINT(CUST.DATA.respMsg)
+PRINT(CUST.DATA.incidentReason)
+PRINT(CUST.DATA.blockUser)
+PRINT(CUST.DATA.blockDate)
+PRINT(CUST.DATA.LienSettleId)
+PRINT(CUST.DATA.LienSettleAmt)
+PRINT(CUST.DATA.LienExpSettle)
+
+if(CUST.DATA.respCod=="") then
+#{
+	CUST.DATA.recErrMsg=CUST.DATA.errorMsg
+#}
+else 
+#{
+	if((CUST.DATA.atmOnlineCnt>0) and (CUST.DATA.settleFlg!="Y")) then 
+	#{
+		sv_s=""
+		IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
+		#{
+			sv_s=sv_s+"UPDATE CUSTOM.C_BAL_INQ SET SETTLEMENT_FILE_FLG='Y' "
+			sv_s=sv_s+" WHERE ACCTID=?SVAR AND TO_CHAR(TRAN_DATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR "
+			if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+			#{
+				sv_s=sv_s+" AND REQ_AUTH_ID = ?SVAR "
+			#}
+			else 
+			#{
+				sv_s=sv_s+" AND RES_AUTH_ID = ?SVAR "
+			#}
+			endif
+		#}
+		else
+		#{
+			sv_s=sv_s+"UPDATE CUSTOM.CUST_MCP_TBL SET SETTLEMENT_FILE_FLG='Y' "
+			sv_s=sv_s+" WHERE ACCTID=?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR "
+			if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+			#{
+				sv_s=sv_s+" AND NUMERICREFNUM = ?SVAR "
+			#}
+			else 
+			#{
+				sv_s=sv_s+" AND AuthId = ?SVAR "
+			#}
+			endif
+		#}
+		endif
+		PRINT(sv_s)
+		BANCS.INPARAM.BINDVARS =CUST.DATA.accNumber +"|"+CUST.DATA.date+"|"+ BANCS.STDIN.contextBankId+"|"+CUST.DATA.authNum
+		PRINT(BANCS.INPARAM.BINDVARS)
+		sv_d = urhk_dbSQLWithBind(sv_s)
+		PRINT(sv_d)
+
+		IF(sv_d == 0)THEN
+		#{
+			PRINT("Data updated successfully")
+		#}
+		ELSE
+		#{
+			PRINT("Data update failed")
+		#}
+		ENDIF	
+	#}
+	ENDIF	
+			
+#}
+endif
+
+
+
+
+
+EXITSCRIPT
+#trace off
+end-->
+
