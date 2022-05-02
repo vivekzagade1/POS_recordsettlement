@@ -16,6 +16,7 @@ IF(sv_r == 0) THEN
         CREATECLASS ("CUST","DATA",5)
 #}
 ENDIF
+
 sv_r = CLASSEXISTS("CUST","TRAN")
 IF(sv_r == 0) THEN
 #{
@@ -84,7 +85,7 @@ CUST.DATA.arqc_verifier = ""
 CUST.DATA.detail28 = "" 
 CUST.DATA.accNumber = ""
 CUST.DATA.destAcct = ""
-CUST.DATA.ReportType = "ADQ"
+CUST.DATA.ReportType = "PROSA"
 CUST.DATA.CaptionDate = "DATE:"
 CUST.DATA.processTime = ""
 CUST.DATA.purTime = ""
@@ -147,7 +148,6 @@ CUST.DATA.freeText9     = ""
 CUST.DATA.destAcctFile  = ""
 
 ### End as a part of accountstatement
-
 CUST.DATA.recordLength=STRLEN(CUST.DATA.inputRecord)
 Print(CUST.DATA.recordLength)
 if(sv_l ==0)then
@@ -350,6 +350,7 @@ ENDIF
 if(sv_l >5)then
 #{
 	CUST.DATA.filler = TRIM(MID$(CUST.DATA.inputRecord,66,196))
+	PRINT(CUST.DATA.filler)
 	if(CUST.DATA.filler != "")then
 	#{
 		CUST.DATA.identifier="D"
@@ -358,8 +359,7 @@ if(sv_l >5)then
 			######################################################
 			#Getting the details from input record- header section
 			######################################################
-
-			CUST.DATA.settleFileType = "ADQ"
+			CUST.DATA.settleFileType = "PROSA"
 			CUST.DATA.buyer = TRIM(MID$(CUST.DATA.inputRecord,2,4))
 			CUST.DATA.cardNum = TRIM(MID$(CUST.DATA.inputRecord,24,19))
 			CUST.DATA.destAcct = TRIM(MID$(CUST.DATA.inputRecord,69,19))
@@ -558,6 +558,7 @@ if(sv_l >5)then
 	ENDIF
 #}
 ENDIF
+
 ENDOFRECORD:
 ####################################
 # Writing the response contents to file
@@ -620,7 +621,7 @@ IF(CUST.DATA.identifier=="D") then
 	sv_q = sv_q + "?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, ?SVAR ,?SVAR,?SVAR,"
 	sv_q = sv_q + "TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, SYSDATE, ?SVAR, ?SVAR ,?SVAR,"
 	sv_q = sv_q + "?SVAR, ?SVAR,TO_DATE(?SVAR,'DD-MM-YYYY'),"
-	sv_q = sv_q + "?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, ?SVAR, SYSDATE ,?SVAR, SYSDATE ,?SVAR,?SVAR, ?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'),"
+	sv_q = sv_q + "?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, ?SVAR, SYSDATE ,?SVAR, SYSDATE ,?SVAR, ?SVAR, ?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'),"
 	sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR)"
 
 	PRINT(sv_q)
@@ -644,9 +645,9 @@ IF(CUST.DATA.identifier=="D") then
 	PRINT(sv_o)
 	if(sv_o == 0)then
 	#{
-		 sv_r = urhk_dbSQL("commit")
-		 PRINT("INSERT SUCCESSFUL")
-		 CUST.DATA.inpFilProcStat="S"
+		sv_r = urhk_dbSQL("commit")
+		PRINT("INSERT SUCCESSFUL")
+		CUST.DATA.inpFilProcStat="S"
 	#}
 	endif
 #}
