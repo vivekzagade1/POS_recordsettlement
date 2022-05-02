@@ -1,0 +1,681 @@
+<--START
+libname CUSTOMSO
+sv_r = REPEXISTS("CUST")
+IF(sv_r == 0) THEN
+#{
+        CREATEREP ("CUST")
+#}
+ENDIF
+
+#-----------------------------------------------------------------
+# Check whether DATA Class exists else create it
+#-----------------------------------------------------------------
+sv_r = CLASSEXISTS("CUST","DATA")
+IF(sv_r == 0) THEN
+#{
+        CREATECLASS ("CUST","DATA",5)
+#}
+ENDIF
+sv_r = CLASSEXISTS("CUST","TRAN")
+IF(sv_r == 0) THEN
+#{
+        CREATECLASS ("CUST","TRAN",5)
+#}
+ENDIF
+
+CUST.DATA.cpFlPath1 = ""
+CUST.DATA.footer = ""
+CUST.DATA.comFile = ""
+CUST.DATA.fileRec1 = ""
+CUST.DATA.atmCntName = ""
+CUST.DATA.atmCntNameLength = ""
+CUST.DATA.settleFileType = "" 
+CUST.DATA.settleFileType = ""
+CUST.DATA.settleInstitName = ""
+CUST.DATA.settleFileNum = ""
+CUST.DATA.settleFileChar = ""
+CUST.DATA.serviceCode = ""
+CUST.DATA.respTranId = ""
+CUST.DATA.respTranDate = ""
+CUST.DATA.respCod = ""
+CUST.DATA.respMsg = ""
+CUST.DATA.incidentReason = ""
+CUST.DATA.blockUser = ""
+CUST.DATA.blockDate = ""
+CUST.DATA.respAuthCode = ""
+CUST.DATA.status = "S"
+CUST.DATA.description = "Success"
+CUST.DATA.identifier=""
+CUST.DATA.space = " "
+CUST.DATA.buyer = "" 
+CUST.DATA.cardNum = "" 
+CUST.DATA.cardNum1 = ""
+CUST.DATA.accNumber = "" 
+CUST.DATA.purDate = ""
+CUST.DATA.destAcct = "" 
+CUST.DATA.desc = ""  
+CUST.DATA.resp = ""
+CUST.DATA.Cr = "" 
+CUST.DATA.sequen = "" 
+CUST.DATA.detail8 = "" 
+CUST.DATA.settleFiledate = ""
+CUST.DATA.ATM = "" 
+CUST.DATA.date = "" 
+CUST.DATA.time = ""
+CUST.DATA.order = "" 
+CUST.DATA.network = "" 
+CUST.DATA.amount = "" 
+CUST.DATA.dollars = "" 
+CUST.DATA.authNum = "" 
+CUST.DATA.countryCode = "" 
+CUST.DATA.sourceAmt = "" 
+CUST.DATA.currCode = "" 
+CUST.DATA.surchargeFee = ""
+CUST.DATA.donation = "" 
+CUST.DATA.donation_id = "" 
+CUST.DATA.company = "" 
+CUST.DATA.sourceAcct = ""
+CUST.DATA.pos_entry_mode = "" 
+CUST.DATA.serviceCode = "" 
+CUST.DATA.respProcessDate = ""
+CUST.DATA.arqc = "" 
+CUST.DATA.arpc = ""  
+CUST.DATA.arqc_verifier = "" 
+CUST.DATA.detail28 = "" 
+CUST.DATA.accNumber = ""
+CUST.DATA.destAcct = ""
+CUST.DATA.ReportType = "ADQ"
+CUST.DATA.CaptionDate = "DATE:"
+CUST.DATA.processTime = ""
+CUST.DATA.purTime = ""
+CUST.DATA.descRev = ""
+CUST.DATA.bodDate1 = ""
+CUST.DATA.date1 = ""
+CUST.DATA.date2 = ""
+CUST.DATA.time1 = ""
+CUST.DATA.cardEncr = ""
+CUST.DATA.recErrMsg = ""
+CUST.DATA.sysDate = ""
+CUST.DATA.sysTime = MID$(BANCS.STDIN.sysDate,11,8)
+CUST.DATA.parentacc = ""
+CUST.DATA.stmtDesc = ""
+CUST.DATA.freeText10 = ""
+
+CUST.DATA.lienAccntParent=""
+CUST.DATA.custTranId=""
+CUST.DATA.custTranDate=""
+CUST.DATA.appliedSettleAmt=""
+CUST.DATA.pendingSettleAmt=""
+CUST.DATA.exchangeAmtDiff=""
+### Added as a part of accountstatement
+CUST.DATA.stmtDesc = ""
+CUST.TRAN.TranId  			= ""
+CUST.TRAN.sysTranC          = ""
+CUST.TRAN.UserTrnCode       = ""
+CUST.TRAN.freeText1         = ""
+CUST.TRAN.freeText2         = ""
+CUST.TRAN.freeText3         = ""
+CUST.TRAN.freeText5         = ""
+CUST.TRAN.freeText7         = ""
+CUST.TRAN.freeText9         = ""
+CUST.TRAN.requestId         = ""
+CUST.TRAN.freeText4         = ""
+CUST.TRAN.freeText6         = ""
+CUST.TRAN.NumericRefNum     = ""
+CUST.TRAN.TypeOfRev         = ""
+CUST.TRAN.freeText8         = ""
+CUST.TRAN.b2kId             = ""
+CUST.TRAN.freeText10        = ""
+CUST.TRAN.freeText12        = ""
+CUST.TRAN.user = ""
+CUST.TRAN.branchId = ""
+CUST.TRAN.terminal = ""
+CUST.DATA.TranId		= ""
+CUST.DATA.UserTrnCode   = ""
+CUST.TRAN.channelId     = ""
+CUST.DATA.Terminal		= ""
+CUST.DATA.freeText10    = ""
+CUST.DATA.freeText1     = ""
+CUST.DATA.freeText2     = ""
+CUST.DATA.freeText3     = ""
+CUST.DATA.freeText4     = ""
+CUST.DATA.freeText5     = ""
+CUST.DATA.freeText6     = ""
+CUST.DATA.freeText7     = ""
+CUST.DATA.freeText8     = ""
+CUST.DATA.freeText9     = ""
+### End as a part of accountstatement
+
+CUST.DATA.recordLength=STRLEN(CUST.DATA.inputRecord)
+Print(CUST.DATA.recordLength)
+if(sv_l ==0)then
+#{
+	if(CUST.DATA.recordLength >= 262) then
+	#{
+		CUST.DATA.header1=MID$(CUST.DATA.inputRecord,0,262)
+		CUST.DATA.identifier="H1"
+	#}
+	else
+	#{
+		CUST.DATA.processFlg = "FAILURE"
+		CUST.DATA.errMsg="The header record in input file is not proper."
+		PRINT(CUST.DATA.errMsg)
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.inpFilProcStat="F"
+		CUST.DATA.respCode="ERR0000357"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+	#}
+	endif
+#}
+endif
+if(sv_l ==1)then
+#{
+	if(CUST.DATA.recordLength >= 262) then
+	#{
+		CUST.DATA.header2=MID$(CUST.DATA.inputRecord,0,262)
+		CUST.DATA.identifier="H2"
+	#}
+	else
+	#{
+		CUST.DATA.processFlg = "FAILURE"
+		CUST.DATA.errMsg="The header record in input file is not proper."
+		PRINT(CUST.DATA.errMsg)
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.inpFilProcStat="F"
+		CUST.DATA.respCode="ERR0000357"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+	#}
+	endif
+#}
+endif
+if(sv_l ==2)then
+#{
+	if(CUST.DATA.recordLength >= 262) then
+	#{
+		CUST.DATA.processDate=MID$(CUST.DATA.inputRecord,179,6)
+		CUST.DATA.identifier="H3"
+	#}
+	else
+	#{
+		CUST.DATA.processFlg = "FAILURE"
+		CUST.DATA.errMsg="The header record in input file is not proper."
+		PRINT(CUST.DATA.errMsg)
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.inpFilProcStat="F"
+		CUST.DATA.respCode="ERR0000357"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+	#}
+	endif
+#}
+endif
+if(sv_l ==3)then
+#{
+	if(CUST.DATA.recordLength >= 262) then
+	#{
+		CUST.DATA.identifier="H4"
+	#}
+	else
+	#{
+		CUST.DATA.processFlg = "FAILURE"
+		CUST.DATA.errMsg="The header record in input file is not proper."
+		PRINT(CUST.DATA.errMsg)
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.inpFilProcStat="F"
+		CUST.DATA.respCode="ERR0000357"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+	#}
+	endif
+#}
+endif
+if(sv_l ==4)then
+#{
+	if(CUST.DATA.recordLength >= 262) then
+	#{
+		CUST.DATA.identifier="H5"
+	#}
+	else
+	#{
+		CUST.DATA.processFlg = "FAILURE"
+		CUST.DATA.errMsg="The header record in input file is not proper."
+		PRINT(CUST.DATA.errMsg)
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.inpFilProcStat="F"
+		CUST.DATA.respCode="ERR0000357"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+	#}
+	endif
+#}
+endif
+if(sv_l ==5)then
+#{
+	if(CUST.DATA.recordLength >= 262) then
+	#{
+		CUST.DATA.identifier="H6"
+	#}
+	else
+	#{
+		CUST.DATA.processFlg = "FAILURE"
+		CUST.DATA.errMsg="The header record in input file is not proper."
+		PRINT(CUST.DATA.errMsg)
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.inpFilProcStat="F"
+		CUST.DATA.respCode="ERR0000357"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+	#}
+	endif
+#}
+endif
+####to validate footer####
+CUST.DATA.cpFlPath1=CUST.DATA.atmSettlementReqPath
+print(CUST.DATA.cpFlPath1)
+
+CUST.DATA.footer = "tmpCntFile_"+CUST.DATA.Batchdate+".txt"
+print(CUST.DATA.footer)
+
+sv_r = urhk_getFileLocation("COM|atm_headerfooter.com")
+IF(sv_r == 0) THEN
+#{
+	CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + "atm_headerfooter.com"
+	print(CUST.DATA.comFile)
+#}
+endif
+
+sv_d = CUST.DATA.cpFlPath1 + " " + CUST.DATA.footer
+print(sv_d)
+sv_b = CUST.DATA.comFile+ " " + sv_d
+
+print(sv_b)
+sv_u = SYSTEM(sv_b)
+PRINT(sv_u)
+
+IF (sv_u ==0) THEN
+#{
+	####################################
+	#Access the Input the DAT FILE
+	###################################	
+	sv_t = ""
+	sv_t = urtn_fileAccess(CUST.DATA.footer)
+	print(sv_t)
+	CUST.DATA.fileRec1 = urtn_fileOpen(CUST.DATA.footer + "|r")
+	sv_t = urtn_fileRead(CUST.DATA.fileRec1 + "|CUST.DATA.inputRecordCnt")
+	print(sv_t)
+	
+	print(CUST.DATA.inputRecordCnt)
+	CUST.DATA.atmCntName = CUST.DATA.inputRecordCnt
+	sv_t = urtn_fileClose(CUST.DATA.fileRec1)
+	PRINT(sv_t)
+	
+	sv_q = "rm -f "+CUST.DATA.footer
+	sv_v = SYSTEM(sv_q)
+	PRINT(sv_v)
+	print(CUST.DATA.atmCntName)
+	CUST.DATA.atmCntNameLength = STRLEN(TRIM(CUST.DATA.atmCntName))
+	IF(CUST.DATA.atmCntNameLength > 42)THEN
+	#{
+		CUST.DATA.processFlg = "FAILURE"
+		CUST.DATA.errMsg="The footer record is either improper or not provided."
+		PRINT(CUST.DATA.errMsg)
+		CUST.DATA.failStatus="Y"
+		CUST.DATA.inpFilProcStat="F"
+		CUST.DATA.respCode="ERR0000431"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000431",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+		PRINT(sv_r)
+		PRINT(CUST.DATA.statMessage)
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ENDIF
+
+if(sv_l >5)then
+#{
+	CUST.DATA.filler = TRIM(MID$(CUST.DATA.inputRecord,66,196))
+	if(CUST.DATA.filler != "")then
+	#{
+		CUST.DATA.identifier="D"
+		if(CUST.DATA.recordLength >= 262) then
+		#{
+			######################################################
+			#Getting the details from input record- header section
+			######################################################
+
+			CUST.DATA.settleFileType = "ADQ"
+			CUST.DATA.buyer = TRIM(MID$(CUST.DATA.inputRecord,2,4))
+			CUST.DATA.cardNum = TRIM(MID$(CUST.DATA.inputRecord,24,19))
+			CUST.DATA.destAcct = TRIM(MID$(CUST.DATA.inputRecord,69,19))
+			print(CUST.DATA.destAcct)
+			CUST.DATA.desc = TRIM(MID$(CUST.DATA.inputRecord,90,15))
+			print(CUST.DATA.desc)
+			CUST.DATA.resp = TRIM(MID$(CUST.DATA.inputRecord,108,1))
+			print(CUST.DATA.resp)
+			CUST.DATA.Cr = TRIM(MID$(CUST.DATA.inputRecord,114,3))
+			print(CUST.DATA.Cr)
+			CUST.DATA.sequen = TRIM(MID$(CUST.DATA.inputRecord,120,12))
+			print(CUST.DATA.sequen)
+			CUST.DATA.ATM = TRIM(MID$(CUST.DATA.inputRecord,135,10))
+			CUST.DATA.date1 = TRIM(MID$(CUST.DATA.inputRecord,149,2)+MID$(CUST.DATA.inputRecord,152,2)+MID$(CUST.DATA.inputRecord,155,2))
+			print(CUST.DATA.date1)
+			CUST.DATA.date = TRIM(MID$(CUST.DATA.inputRecord,149,2) +"-" + MID$(CUST.DATA.inputRecord,152,2)+ "-20" + MID$(CUST.DATA.inputRecord,155,2))
+			print(CUST.DATA.date)
+			CUST.DATA.date2 = MID$(CUST.DATA.inputRecord,149,8)
+			print(CUST.DATA.date2)
+			CUST.DATA.time = TRIM(MID$(CUST.DATA.inputRecord,158,2)+MID$(CUST.DATA.inputRecord,161,2)+MID$(CUST.DATA.inputRecord,164,2))
+			print(CUST.DATA.time)
+			CUST.DATA.time1 = MID$(CUST.DATA.inputRecord,158,8)
+			PRINT(CUST.DATA.time1)
+			CUST.DATA.order = TRIM(MID$(CUST.DATA.inputRecord,169,4))
+			CUST.DATA.network = TRIM(MID$(CUST.DATA.inputRecord,175,4))
+			CUST.DATA.amount1 = LTRIM(MID$(CUST.DATA.inputRecord,180,10),'0')
+			CUST.DATA.amount = TRIM(MID$(CUST.DATA.inputRecord,180,10))
+			print(CUST.DATA.amount)
+			CUST.DATA.dollars = TRIM(MID$(CUST.DATA.inputRecord,191,7))
+			CUST.DATA.authNum = TRIM(MID$(CUST.DATA.inputRecord,200,6))
+			CUST.DATA.countryCode = TRIM(MID$(CUST.DATA.inputRecord,208,2))
+			CUST.DATA.sourceAmt = TRIM(MID$(CUST.DATA.inputRecord,212,13))
+			CUST.DATA.currCode = TRIM(MID$(CUST.DATA.inputRecord,227,3))
+			CUST.DATA.surchargeFee = TRIM(MID$(CUST.DATA.inputRecord,232,10))
+			CUST.DATA.donation = TRIM(MID$(CUST.DATA.inputRecord,244,10))	
+
+			if(CUST.DATA.cardNum == "") then
+			#{
+				IF(BANCS.STDIN.languageCode=="INFENG") then
+					CUST.DATA.recErrMsg = "Card Number is not provided"
+				ELSE
+					CUST.DATA.recErrMsg = "No se proporciona el número de tarjeta"
+				ENDIF
+				CUST.DATA.status = "F"
+				CUST.DATA.description = "Failure"
+				GOTO ENDOFRECORD
+			#}
+			ENDIF
+			if(CUST.DATA.desc == "") then
+			#{
+				IF(BANCS.STDIN.languageCode=="INFENG") then
+					CUST.DATA.recErrMsg = "description is not given"
+				ELSE
+					CUST.DATA.recErrMsg = "no se da la descripción"
+				ENDIF
+				CUST.DATA.status = "F"
+				CUST.DATA.description = "Failure"
+				GOTO ENDOFRECORD
+			#}
+			ENDIF
+			if(CUST.DATA.Cr == "") then
+			#{
+				IF(BANCS.STDIN.languageCode=="INFENG") then
+					CUST.DATA.recErrMsg = "Cr is not given"
+				ELSE
+					CUST.DATA.recErrMsg = "Cr no se da"
+				ENDIF
+				CUST.DATA.status = "F"
+				CUST.DATA.description = "Failure"
+				GOTO ENDOFRECORD
+			#}
+			ENDIF
+			if(CUST.DATA.date == "") then
+			#{
+				IF(BANCS.STDIN.languageCode=="INFENG") then
+					CUST.DATA.recErrMsg = "Date is not given"
+				ELSE
+					CUST.DATA.recErrMsg = "No se da la fecha"
+				ENDIF
+				CUST.DATA.status = "F"
+				CUST.DATA.description = "Failure"
+				GOTO ENDOFRECORD
+			#}
+			ENDIF
+			if(CUST.DATA.amount == "") then
+			#{
+				IF(BANCS.STDIN.languageCode=="INFENG") then
+					CUST.DATA.recErrMsg = "Amount is not given"
+				ELSE
+					CUST.DATA.recErrMsg = "No se da la cantidad"
+				ENDIF
+				CUST.DATA.status = "F"
+				CUST.DATA.description = "Failure"
+				GOTO ENDOFRECORD
+			#}
+			ENDIF
+			if(CDOUBLE(CUST.DATA.amount1) <= "00.00") then
+			#{
+				IF(BANCS.STDIN.languageCode=="INFENG") then
+					CUST.DATA.recErrMsg = "Enter non-zero amount value"
+				ELSE
+					CUST.DATA.recErrMsg = "Ingrese un valor de monto distinto de cero"
+				ENDIF
+				CUST.DATA.status = "F"
+				CUST.DATA.description = "Failure"
+				GOTO ENDOFRECORD
+			#}
+			ENDIF
+			if(CUST.DATA.authNum == "") then
+			#{
+				IF(BANCS.STDIN.languageCode=="INFENG") then
+					CUST.DATA.recErrMsg = "Auth Num is not given"
+				ELSE
+					CUST.DATA.recErrMsg = "Auth Num no se da"
+				ENDIF
+				CUST.DATA.status = "F"
+				CUST.DATA.description = "Failure"
+				GOTO ENDOFRECORD
+			#}
+			ENDIF
+			
+			sv_s = ""
+			sv_s = sv_s + "accNumber,cardEncr,parentacc|"
+			sv_s = sv_s + "select EMP_ACCNT_NUM,LNKED_CARD_NUM,PARENT_ACCT from CUSTOM.CUST_CARD_ACCT_TBL WHERE CRD_MOD_FRMT "
+			sv_s = sv_s + "IN (select to_char(?SVAR,'XXXXXXXXXXXXXXXX') from dual) AND "
+			sv_s = sv_s + "ENTITY_CRE_FLG = 'Y' AND BANK_ID = ?SVAR AND ROWNUM=1"
+			
+			print(sv_s)
+			BANCS.INPARAM.BINDVARS = CUST.DATA.cardNum + "|" + BANCS.STDIN.contextBankId
+			PRINT(BANCS.INPARAM.BINDVARS)
+			sv_d = urhk_dbSelectWithBind(sv_s)
+			print(sv_d)
+			IF(sv_d == 0) THEN
+			#{
+				CUST.DATA.accNumber = BANCS.OUTPARAM.accNumber
+				print(CUST.DATA.accNumber)
+				CUST.DATA.cardEncr = BANCS.OUTPARAM.cardEncr
+				print(CUST.DATA.cardEncr)
+				CUST.DATA.parentacc = BANCS.OUTPARAM.parentacc
+				print(CUST.DATA.parentacc)
+			#}
+			ENDIF
+			CUST.DATA.desc1 = ""
+			CUST.DATA.desc1 = RTRIM(MID$(CUST.DATA.desc,0,8))
+			IF((CUST.DATA.desc1 != "RETIRO") AND (CUST.DATA.desc1 != "CONSULTA"))THEN
+			#{
+				GOTO END1
+			#}
+			ENDIF
+			CALLSCRIPTIFEXIST("atmRecordSettlement.scr")
+		#}
+		else
+		#{
+			GOTO END1
+		#}
+		endif
+	#}
+	else
+	#{	
+		if(CUST.DATA.recordLength >= 262) then
+		#{
+			CUST.DATA.identifier="T"
+		#}
+		else
+		#{
+			IF(BANCS.STDIN.languageCode=="INFENG") then
+				CUST.DATA.recErrMsg = "Trailer is not proper"
+			ELSE
+				CUST.DATA.recErrMsg = "El remolque no es adecuado"
+			ENDIF
+			GOTO ENDOFRECORD
+		#}
+		endif
+	#}
+	ENDIF
+#}
+ENDIF
+ENDOFRECORD:
+####################################
+# Writing the response contents to file
+###################################
+		
+IF(CUST.DATA.identifier=="H5") then
+#{
+	CUST.DATA.consectiveNum = "1"
+	CUST.DATA.AllFields = RPAD(CUST.DATA.ReportType,10,' ')+" FECHA: "+RPAD(CUST.DATA.processDate,6,' ')+" HORA: "+RPAD(CUST.DATA.sysTime,6,' ')+" CONSECUTIVO: "+LPAD(CUST.DATA.consectiveNum,6,'0')+RPAD(CUST.DATA.space,304,' ')
+	
+	PRINT(CUST.DATA.AllFields)
+	CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+	sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+	print(sv_a)
+#}
+ENDIF
+IF(CUST.DATA.identifier=="D") then
+#{
+	CUST.DATA.incidentReason = MID$(CUST.DATA.incidentReason,0,40)
+	CUST.DATA.AllFields = RPAD(CUST.DATA.cardNum,16,' ')+" "+LPAD(CUST.DATA.accNumber,14,'0')+" "+LPAD(CUST.DATA.parentacc,14,'0')+" "+RPAD(CUST.DATA.authNum,6,' ')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.date2,8,' ')+" "+RPAD(CUST.DATA.time1,8,' ')+" "+RPAD(CUST.DATA.desc,15,' ')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.destAcct,19,' ')+" "+RPAD(CUST.DATA.resp,1,' ')+" "+RPAD(CUST.DATA.Cr,3,' ')+" "+RPAD(CUST.DATA.sequen,12,' ')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.ATM,10,' ')+" "+RPAD(CUST.DATA.countryCode,2,' ')+" "+RPAD(CUST.DATA.currCode,3,' ')+" "+RPAD(CUST.DATA.buyer,4,' ')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.network,4,' ')+" "+LPAD(CUST.DATA.amount,10,'0')+" "+LPAD(CUST.DATA.sourceAmt,13,' ')+" "+LPAD(CUST.DATA.surchargeFee,10,' ')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.donation,10,' ')+" "+RPAD(CUST.DATA.donation_id,4,' ')+" "+RPAD(CUST.DATA.respTranId,9,' ')+" "+RPAD(CUST.DATA.respCod,5,' ')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.respMsg,25,' ')+" "+RPAD(CUST.DATA.incidentReason,40,' ')+" "+RPAD(CUST.DATA.blockUser,15,' ')+" "+RPAD(CUST.DATA.blockDate,6,' ')+RPAD(CUST.DATA.space,12,' ')
+	
+	
+	PRINT(CUST.DATA.AllFields)
+	CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+	sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+	print(sv_a)
+	
+	CUST.DATA.bodDate1 = MID$(BANCS.STDIN.BODDate,0,10)
+
+	####################################
+	# Insert into Table
+	###################################
+	sv_q = "INSERT INTO CUSTOM.CUST_ATM_SETTLEMENT_FILE_TBL "
+	sv_q = sv_q + "(SETTLE_FILE_TYPE, SETTLE_FILE_DATE, SETTLE_INSTIT_NAME, SETTLE_FILE_NUM, SETTLE_FILE_CHAR, "
+	sv_q = sv_q + "BUYER_ID,ACCOUNT_NUMBER, CARD_NUMBER, SOURCE_ACCOUNT, DEST_ACCOUNT,PARENT_ACCOUNT, "
+	sv_q = sv_q + "REC_DESCRIPTION, REC_RESP, REC_CR, REC_SEQ, ATM_ID, "
+	sv_q = sv_q + "OPER_DATE, OPER_TIME, REC_ORDER, ATM_NETWORK, "
+	sv_q = sv_q + "REC_AMT, REC_DOLLARS, AUTH_ID, COUNTRY_ORIGIN_CODE, TOT_SOURCE_AMT, "
+	sv_q = sv_q + "SOURCE_CRNCY_CODE, SURCHARGE_FEE, DONATION, DONATION_ID, "
+	sv_q = sv_q + "BUSINESS_CODE, POS_ENTRY_MODE, SERV_CODE, REC_ARQC, "
+	sv_q = sv_q + "REC_ARQC_VERIFY, RESP_TRAN_ID ,RESP_TRAN_DATE, RESP_CODE, RESP_MSG,REC_ERR_MSG, INCIDENT_REASON,BLOCK_USER,"
+	sv_q = sv_q + "BLOCK_DATE, RESP_AUTH_CODE ,SETTLE_FILE_NAME, INP_FILE_DATE, RECORD_STRING, STATUS,DESCRIPTION,"
+	sv_q = sv_q + "LIEN_ID_SETTLE, LIEN_AMT_SETTLE ,LIEN_EXPIRY_SETTLE, "
+	sv_q = sv_q + "RESP_FILE_NAME, REC_PROCESS_DATE ,ENTITY_CRE_FLG, DEL_FLG, LCHG_USER_ID, LCHG_TIME,RCRE_USER_ID,RCRE_TIME,BANK_ID, FREE_TEXT10, LIEN_ACCT_NUM, CUST_TRAN_ID, CUST_TRAN_DATE,"
+	sv_q = sv_q + "APPLIED_AMT, PENDING_AMT_APPLY, EXCHANGE_DIFF_AMT)"
+	sv_q = sv_q + "VALUES("
+	sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+	sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+	sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+	sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+	sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+	sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+	sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR, ?SVAR,"
+	sv_q = sv_q + "?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, ?SVAR ,?SVAR,?SVAR,"
+	sv_q = sv_q + "TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, SYSDATE, ?SVAR, ?SVAR ,?SVAR,"
+	sv_q = sv_q + "?SVAR, ?SVAR,TO_DATE(?SVAR,'DD-MM-YYYY'),"
+	sv_q = sv_q + "?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'), ?SVAR, ?SVAR, ?SVAR, SYSDATE ,?SVAR, SYSDATE ,?SVAR,?SVAR, ?SVAR, ?SVAR, TO_DATE(?SVAR,'DD-MM-YYYY'),"
+	sv_q = sv_q + "?SVAR, ?SVAR, ?SVAR)"
+
+	PRINT(sv_q)
+
+	BANCS.INPARAM.BINDVARS = CUST.DATA.settleFileType + "|" + CUST.DATA.processDate + "|" + CUST.DATA.settleInstitName + "|" + CUST.DATA.settleFileNum + "|" + CUST.DATA.settleFileChar + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.buyer + "|" + CUST.DATA.accNumber + "|" + CUST.DATA.cardEncr + "|" + CUST.DATA.sourceAcct + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.destAcct + "|" + CUST.DATA.parentacc + "|" + CUST.DATA.desc + "|" + CUST.DATA.resp + "|" + CUST.DATA.Cr + "|" + CUST.DATA.sequen + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.ATM + "|" + CUST.DATA.date1 + "|" + CUST.DATA.time + "|" + CUST.DATA.order + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.network + "|" + CUST.DATA.amount + "|" + CUST.DATA.dollars + "|" + CUST.DATA.authNum + "|" + CUST.DATA.countryCode + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.sourceAmt + "|" + CUST.DATA.currCode + "|" + CUST.DATA.surchargeFee + "|" + CUST.DATA.donation + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.donation_id + "|" + CUST.DATA.company + "|" + CUST.DATA.pos_entry_mode + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.serviceCode + "|" + CUST.DATA.arqc + "|" + CUST.DATA.arqc_verifier + "|" + CUST.DATA.respTranId + "|" + CUST.DATA.respTranDate + "|" + CUST.DATA.respCod + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.respMsg + "|" + CUST.DATA.recErrMsg + "|" + CUST.DATA.incidentReason + "|" + CUST.DATA.blockUser + "|" + CUST.DATA.blockDate + "|" + CUST.DATA.respAuthCode + "|" + CUST.DATA.atmSettlementInpFileName + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.AllFields + "|" + CUST.DATA.status + "|" + CUST.DATA.description + "|" + CUST.DATA.LienSettleId + "|" + CUST.DATA.LienSettleAmt + "|" + CUST.DATA.LienExpSettle + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.respFileName + "|" + CUST.DATA.bodDate1 + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "Y" + "|" + "N" + "|" + BANCS.STDIN.userId  + "|" + BANCS.STDIN.userId + "|" + BANCS.STDIN.contextBankId + "|" + CUST.DATA.freeText10 + "|" + CUST.DATA.lienAccntParent+ "|" + CUST.DATA.custTranId + "|" + CUST.DATA.custTranDate + "|"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.appliedSettleAmt + "|" + CUST.DATA.pendingSettleAmt + "|" + CUST.DATA.exchangeAmtDiff	
+
+	PRINT(BANCS.INPARAM.BINDVARS)
+	sv_o = urhk_dbSQLWithBind(sv_q)
+	PRINT(sv_o)
+	if(sv_o == 0)then
+	#{
+		 sv_r = urhk_dbSQL("commit")
+		 PRINT("INSERT SUCCESSFUL")
+		 CUST.DATA.inpFilProcStat="S"
+	#}
+	endif
+#}
+ENDIF
+IF(CUST.DATA.identifier=="T") then
+#{
+	CUST.DATA.AllFields = RPAD(CUST.DATA.totalNational,20,' ')+" "+ LPAD(CUST.DATA.totTran,8,'0')+" "+LPAD(CUST.DATA.totalAmtTran,16,'0')+" "+LPAD(CUST.DATA.totalWithdrawalRevP,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalAmtWithdrawalRevP,16,'0')+" "+LPAD(CUST.DATA.totalWithdrawalRev,8,'0')+" "+LPAD(CUST.DATA.totalAmtWithdrawalRev,16,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalConsultation,8,'0')+" "+LPAD(CUST.DATA.totalAmtConsultation,16,'0')+" "+LPAD(CUST.DATA.totalRevConsultation,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalRevAmtConsultation,16,'0')+" "+LPAD(CUST.DATA.totalElec,8,'0')+" "+LPAD(CUST.DATA.totalAmtElec,16,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalRevElec,8,'0')+" "+LPAD(CUST.DATA.totalRevAmtElec,16,'0')+" "+LPAD(CUST.DATA.totalDonation,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalAmtDonation,16,'0')+" "+LPAD(CUST.DATA.totalFreeField,8,'0')+" "+LPAD(CUST.DATA.totalAmtFreeField,16,'0')+RPAD(CUST.DATA.space,70,' ')
+	PRINT(CUST.DATA.AllFields)
+	CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+	sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+	print(sv_a)
+	
+	CUST.DATA.AllFields = RPAD(CUST.DATA.totalInterNational,20,' ')+" "+ LPAD(CUST.DATA.totTran1,8,'0')+" "+LPAD(CUST.DATA.totalAmtTran1,16,'0')+" "+LPAD(CUST.DATA.totalWithdrawalRevP1,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalAmtWithdrawalRevP1,16,'0')+" "+LPAD(CUST.DATA.totalWithdrawalRev1,8,'0')+" "+LPAD(CUST.DATA.totalAmtWithdrawalRev1,16,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalConsultation1,8,'0')+" "+LPAD(CUST.DATA.totalAmtConsultation1,16,'0')+" "+LPAD(CUST.DATA.totalRevConsultation1,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalRevAmtConsultation1,16,'0')+" "+LPAD(CUST.DATA.totalElec1,8,'0')+" "+LPAD(CUST.DATA.totalAmtElec1,16,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalRevElec1,8,'0')+" "+LPAD(CUST.DATA.totalRevAmtElec1,16,'0')+" "+LPAD(CUST.DATA.totalDonation1,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalAmtDonation1,16,'0')+" "+LPAD(CUST.DATA.totalFreeField1,8,'0')+" "+LPAD(CUST.DATA.totalAmtFreeField1,16,'0')+RPAD(CUST.DATA.space,70,' ')
+	PRINT(CUST.DATA.AllFields)
+	CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+	sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+	print(sv_a)
+	
+	CUST.DATA.AllFields = RPAD(CUST.DATA.Applied,20,' ')+" "+ LPAD(CUST.DATA.totTran2,8,'0')+" "+LPAD(CUST.DATA.totalAmtTran2,16,'0')+" "+LPAD(CUST.DATA.totalWithdrawalRevP2,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalAmtWithdrawalRevP2,16,'0')+" "+LPAD(CUST.DATA.totalWithdrawalRev2,8,'0')+" "+LPAD(CUST.DATA.totalAmtWithdrawalRev2,16,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalConsultation2,8,'0')+" "+LPAD(CUST.DATA.totalAmtConsultation2,16,'0')+" "+LPAD(CUST.DATA.totalRevConsultation2,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalRevAmtConsultation2,16,'0')+" "+LPAD(CUST.DATA.totalElec2,8,'0')+" "+LPAD(CUST.DATA.totalAmtElec2,16,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalRevElec2,8,'0')+" "+LPAD(CUST.DATA.totalRevAmtElec2,16,'0')+" "+LPAD(CUST.DATA.totalDonation2,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalAmtDonation2,16,'0')+" "+LPAD(CUST.DATA.totalFreeField2,8,'0')+" "+LPAD(CUST.DATA.totalAmtFreeField2,16,'0')+RPAD(CUST.DATA.space,70,' ')
+	PRINT(CUST.DATA.AllFields)
+	CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+	sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+	print(sv_a)
+	
+	CUST.DATA.AllFields = RPAD(CUST.DATA.incidents,20,' ')+" "+ LPAD(CUST.DATA.totTran3,8,'0')+" "+LPAD(CUST.DATA.totalAmtTran3,16,'0')+" "+LPAD(CUST.DATA.totalWithdrawalRevP3,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalAmtWithdrawalRevP3,16,'0')+" "+LPAD(CUST.DATA.totalWithdrawalRev3,8,'0')+" "+LPAD(CUST.DATA.totalAmtWithdrawalRev3,16,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalConsultation3,8,'0')+" "+LPAD(CUST.DATA.totalAmtConsultation3,16,'0')+" "+LPAD(CUST.DATA.totalRevConsultation3,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalRevAmtConsultation3,16,'0')+" "+LPAD(CUST.DATA.totalElec3,8,'0')+" "+LPAD(CUST.DATA.totalAmtElec3,16,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalRevElec3,8,'0')+" "+LPAD(CUST.DATA.totalRevAmtElec3,16,'0')+" "+LPAD(CUST.DATA.totalDonation3,8,'0')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.totalAmtDonation3,16,'0')+" "+LPAD(CUST.DATA.totalFreeField3,8,'0')+" "+LPAD(CUST.DATA.totalAmtFreeField3,16,'0')+RPAD(CUST.DATA.space,70,' ')
+	PRINT(CUST.DATA.AllFields)
+	CUST.DATA.responseData=CUST.DATA.responseData+CUST.DATA.AllFields
+	sv_a = urtn_fileWrite(CUST.DATA.reportIndex + "|" + CUST.DATA.AllFields)
+	print(sv_a)
+#}
+ENDIF
+
+END1:
+EXITSCRIPT
+END-->

@@ -42,7 +42,7 @@ ENDIF
 				IF((CUST.DATA.countryCode!="") AND (CUST.DATA.currCode!="") AND (CUST.DATA.currCode!="484")) THEN
 				#{
 					#Intrernational Offline Transactions
-					if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+					if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSALP") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
 					#{
 						IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
 						#{
@@ -320,7 +320,7 @@ ENDIF
 									CUST.DATA.pendingSettleAmt=""
 									CUST.DATA.exchangeAmtDiff=""
 									
-									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSALP") OR (CUST.DATA.destAcct=="5")) THEN
 									#{
 										CUST.DATA.totalWithdrawalRevP2=CINT(CUST.DATA.totalWithdrawalRevP2)+1
 										print(CUST.DATA.totalWithdrawalRevP2)
@@ -375,7 +375,7 @@ ENDIF
 										CUST.DATA.appliedSettleAmt=""
 										CUST.DATA.pendingSettleAmt=CUST.DATA.amount
 										CUST.DATA.exchangeAmtDiff=""
-										IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+										IF((TOUPPER(CUST.DATA.destAcct)=="REVERSALP") OR (CUST.DATA.destAcct=="5")) THEN
 										#{
 											CUST.DATA.totalWithdrawalRevP1=CINT(CUST.DATA.totalWithdrawalRevP1)+1
 											print(CUST.DATA.totalWithdrawalRevP1)
@@ -448,7 +448,7 @@ ENDIF
 									CUST.DATA.appliedSettleAmt=""
 									CUST.DATA.pendingSettleAmt=CUST.DATA.amount
 									CUST.DATA.exchangeAmtDiff=""
-									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSALP") OR (CUST.DATA.destAcct=="5")) THEN
 									#{
 										CUST.DATA.totalWithdrawalRevP1=CINT(CUST.DATA.totalWithdrawalRevP1)+1
 										print(CUST.DATA.totalWithdrawalRevP1)
@@ -1304,7 +1304,7 @@ ENDIF
 				ELSE
 				#{
 					#Domestic Offline Transactions
-					if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
+					if((TOUPPER(CUST.DATA.destAcct)=="REVERSAL") OR (TOUPPER(CUST.DATA.destAcct)=="REVERSALP") OR (CUST.DATA.destAcct=="6") OR (CUST.DATA.destAcct=="5")) then 
 					#{
 						
 						IF((CUST.DATA.descType=="CONSULTA") or (CUST.DATA.descType=="310") or (CUST.DATA.descType=="311") or (CUST.DATA.descType=="312")) then
@@ -1591,7 +1591,7 @@ ENDIF
 									CUST.DATA.incidentReason = ""
 									CUST.DATA.blockUser = ""
 									CUST.DATA.blockDate = ""
-									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSALP") OR (CUST.DATA.destAcct=="5")) THEN
 									#{
 										CUST.DATA.totalWithdrawalRevP2=CINT(CUST.DATA.totalWithdrawalRevP2)+1
 										print(CUST.DATA.totalWithdrawalRevP2)
@@ -1645,7 +1645,7 @@ ENDIF
 										CUST.DATA.incidentReason = CUST.DATA.errorMsg
 										CUST.DATA.blockUser = ""
 										CUST.DATA.blockDate = ""
-										IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+										IF((TOUPPER(CUST.DATA.destAcct)=="REVERSALP") OR (CUST.DATA.destAcct=="5")) THEN
 										#{
 											CUST.DATA.totalWithdrawalRevP3=CINT(CUST.DATA.totalWithdrawalRevP3)+1
 											print(CUST.DATA.totalWithdrawalRevP3)
@@ -1719,7 +1719,7 @@ ENDIF
 									CUST.DATA.incidentReason = CUST.DATA.errorMsg
 									CUST.DATA.blockUser = ""
 									CUST.DATA.blockDate = ""
-									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSAL P") OR (CUST.DATA.destAcct=="5")) THEN
+									IF((TOUPPER(CUST.DATA.destAcct)=="REVERSALP") OR (CUST.DATA.destAcct=="5")) THEN
 									#{
 										CUST.DATA.totalWithdrawalRevP3=CINT(CUST.DATA.totalWithdrawalRevP3)+1
 										print(CUST.DATA.totalWithdrawalRevP3)
