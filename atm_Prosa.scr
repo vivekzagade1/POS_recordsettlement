@@ -368,9 +368,9 @@ if(sv_l >5)then
 
 			if(CUST.DATA.destAcct != "") then
 			#{
-				sv_d = ""
-				sv_d = sv_d + "destAcct|select replace(CUST.DATA.destAcct,' ','') from dual"
-				PRINT(sv_d)
+				sv_s = ""
+				sv_s = sv_s + "destAcct|select replace(?SVAR,' ','') from dual"
+				PRINT(sv_s)
 				
 				BANCS.INPARAM.BINDVARS = CUST.DATA.destAcct
 				PRINT(BANCS.INPARAM.BINDVARS)
