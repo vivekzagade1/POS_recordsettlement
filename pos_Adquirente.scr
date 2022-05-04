@@ -326,7 +326,7 @@ IF (sv_t == 0) THEN
 				CUST.DATA.bussLocation = MID$(CUST.DATA.inputRecord,23,13)
 				CUST.DATA.tranType = MID$(CUST.DATA.inputRecord,36,2)
 				CUST.DATA.PurAmt = MID$(CUST.DATA.inputRecord,38,11) + "." + MID$(CUST.DATA.inputRecord,49,2)
-				CUST.DATA.purSourceAmt = MID$(CUST.DATA.inputRecord,51,11) + "." + MID$(CUST.DATA.inputRecord,62,2)
+				CUST.DATA.purSourceAmt = MID$(CUST.DATA.inputRecord,253,6) + "." + MID$(CUST.DATA.inputRecord,259,2)
 				CUST.DATA.USDExcRate = MID$(CUST.DATA.inputRecord,87,7)
 				CUST.DATA.bussCode = MID$(CUST.DATA.inputRecord,94,9)
 				CUST.DATA.bussName = MID$(CUST.DATA.inputRecord,103,30)
