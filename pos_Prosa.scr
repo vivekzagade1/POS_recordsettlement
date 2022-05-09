@@ -138,10 +138,12 @@ CUST.DATA.custTranDate=""
 CUST.DATA.appliedSettleAmt=""
 CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
-CUST.DATA.settleFileTypeDb = "PROSA"
+CUST.DATA.settleFileTypeDb = "PRO"
+CUST.DATA.returnFlg = ""
 
 sv_i = CUST.DATA.inputRecord
 CUST.DATA.recordLengthFlg=""
+
 
 ### Added as a part of accountstatement
 CUST.DATA.stmtDesc = ""

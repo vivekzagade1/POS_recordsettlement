@@ -249,7 +249,7 @@ if(sv_l >0)then
 		#Getting the details from input record- header section
 		######################################################
 
-		CUST.DATA.settleFileType = "EGLO"
+		CUST.DATA.settleFileType = "EGL"
 		
 		sv_a = STRLEN(CUST.DATA.inputRecord)
 		print(sv_a)

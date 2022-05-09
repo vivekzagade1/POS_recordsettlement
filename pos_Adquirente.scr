@@ -180,6 +180,7 @@ CUST.DATA.freeText6     = ""
 CUST.DATA.freeText7     = ""
 CUST.DATA.freeText8     = ""
 CUST.DATA.freeText9     = ""
+CUST.DATA.returnFlg = ""
 
 ### End as a part of accountstatement
 

@@ -359,7 +359,7 @@ if(sv_l >5)then
 			######################################################
 			#Getting the details from input record- header section
 			######################################################
-			CUST.DATA.settleFileType = "PROSA"
+			CUST.DATA.settleFileType = "PRO"
 			CUST.DATA.buyer = TRIM(MID$(CUST.DATA.inputRecord,2,4))
 			CUST.DATA.cardNum = TRIM(MID$(CUST.DATA.inputRecord,24,19))
 			CUST.DATA.destAcct = TRIM(MID$(CUST.DATA.inputRecord,69,19))

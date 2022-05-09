@@ -1,0 +1,339 @@
+##########################################################################################
+# Source Name           : makeTransaction_CardSettlement.scr
+# Date                  : 12-Dec-2021
+# Description           : This Script is to make the transactions on Card Settlement
+# Author                : Sajin Azeez
+# Menu Option           : 
+# Calling Script        :
+# Called Script         : 
+# Modification History  :
+# <Serial No.>  <Date>        <Author Name>             <Description>
+# ------------  -----------   -----------------         --------------
+#      1        12-Dec-2021   Sajin Azeez             Base Version
+###########################################################################################
+
+<--START
+TRACE ON
+
+###########################################################################################
+# Check whether CUST Repository exists else create it
+###########################################################################################
+
+sv_r = REPEXISTS("CUST")
+
+IF(sv_r == 0) THEN
+#{
+		CREATEREP ("CUST")
+#}
+ENDIF
+
+###########################################################################################
+# Check whether TRAN Class exists else create it
+###########################################################################################
+
+sv_r = CLASSEXISTS("CUST","TRAN")
+
+IF(sv_r == 0) THEN
+#{
+		CREATECLASS ("CUST","TRAN",5)
+#}
+ENDIF
+
+###########################################################################################
+# Initialize the variables
+###########################################################################################	
+CUST.TRAN.TranType = "T"
+CUST.TRAN.TrnSubType = "CI"
+CUST.TRAN.Remarks = ""
+CUST.TRAN.PartTrnReccount = 0
+CUST.TRAN.errorMsg = ""
+CUST.TRAN.resMsg = ""
+BANCS.OUTPUT.successOrFailure = "S"
+CUST.TRAN.accnum= ""
+CUST.TRAN.debAccnt=""
+CUST.TRAN.credAccnt=""
+CUST.TRAN.debAccnt=CUST.DATA.debAccnt
+CUST.TRAN.credAccnt=CUST.DATA.credAccnt
+PRINT(CUST.TRAN.TranCurr)
+CUST.TRAN.TranAmt=CUST.DATA.TranAmt
+PRINT(CUST.TRAN.TranAmt)
+CUST.TRAN.stmtDesc = CUST.DATA.stmtDesc
+PRINT(CUST.TRAN.stmtDesc)
+PRINT(CUST.TRAN.ChannelId)
+CUST.TRAN.requestId = ""
+
+
+##SELECT SYS_GUID() FROM dual;
+lv_a = "reqUUID|"
+lv_a = lv_a + " SELECT REGEXP_REPLACE(sys_guid(), '([A-F0-9]{8})([A-F0-9]{4})([A-F0-9]{4})([A-F0-9]{4})([A-F0-9]{12})', '\1-\2-\3-\4-\5') FROM DUAL"
+BANCS.INPARAM.BINDVARS=""
+lv_a = urhk_dbSelectwithbind(lv_a)
+PRINT(lv_a)
+IF (lv_a == 0) THEN
+#{
+	CUST.DATA.REQUESTUUID = BANCS.OUTPARAM.reqUUID
+	PRINT(CUST.DATA.REQUESTUUID)
+	CUST.DATA.freeText11 = CUST.DATA.REQUESTUUID
+	CUST.TRAN.freeText11 = CUST.DATA.REQUESTUUID
+	CUST.TRAN.requestId = CUST.DATA.REQUESTUUID
+#}
+ELSE
+#{
+	CUST.TRAN.freeText11 = "34b7ae3b-22aa-5030-e253-07120a3e136e"
+	CUST.TRAN.requestId = CUST.TRAN.freeText11
+#}
+ENDIF
+
+
+IF(CUST.DATA.custAccntFlg=="Y") THEN
+#{
+	# Account status validation
+
+	sv_b = ""
+	sv_b= sv_b +" count|SELECT count(*)  from  TBAADM.GAM A,TBAADM.SMT D "
+	sv_b= sv_b +" WHERE  A.FORACID=?SVAR AND A.ACID = D.ACID AND A.BANK_ID=D.BANK_ID AND A.BANK_ID=?SVAR "
+	sv_b= sv_b +" AND A.ACCT_CLS_FLG!='Y' AND A.ACTIVE_STATUS not in ('D','I') "
+	if( FIELDEXISTS(CUST.DATA.returnFlg) )then
+	#{
+		IF( CUST.DATA.returnFlg == "Y" )THEN
+		#{
+			sv_b= sv_b +" and A.frez_code not in ('C','T')"
+		#}
+		ELSE
+		#{
+			sv_b= sv_b +" and A.frez_code not in ('D','T')"
+		#}
+		ENDIF
+	#}
+	else
+	#{
+		sv_b= sv_b +" and A.frez_code not in ('D','T')"
+	#}
+	endif
+	sv_b= sv_b +" AND D.acct_status not in ('D','I')"
+	print(sv_b)
+	
+	BANCS.INPARAM.BINDVARS = CUST.DATA.accntNum + "|" + BANCS.STDIN.contextBankId
+	PRINT(BANCS.INPARAM.BINDVARS)
+	
+	sv_u = urhk_dbSelectWithBind(sv_b)
+	print(sv_u)
+	IF(sv_u == 0)THEN
+	#{
+		IF(BANCS.OUTPARAM.count <1) THEN
+		#{
+		
+			BANCS.OUTPUT.successOrFailure = "F"	
+			CUST.DATA.errorCode = "ERRMGD0276"
+			sv_r = func_cmmsgerrdescWithInputs("ERRMGD0276",BANCS.STDIN.userId, "", BYREF CUST.DATA.errorMsg)
+			PRINT(sv_r)
+			PRINT(CUST.DATA.errorCode)
+			PRINT(CUST.DATA.errorMsg)
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+	#}
+	ENDIF
+
+#}
+ENDIF
+
+
+#----------------------Transaction service ------------------------------------
+
+sv_a= urhk_SetUrhkInp("tranHdr.tranTypeSubType.tranType|"+CUST.TRAN.TranType)
+sv_a= urhk_SetUrhkInp("tranHdr.tranTypeSubType.tranSubType|"+CUST.TRAN.TrnSubType)
+sv_a = urhk_SetUrhkInp("tranDtl.pstFlg|Y")
+sv_a = urhk_SetUrhkInp("tranDtl.ignoreXcpnFlg|Y")
+##sv_a= urhk_SetUrhkInp("tranDtl.deliveryChannelId|CUST.TRAN.ChannelId")
+sv_a= urhk_SetUrhkInp("tranDtl.deliveryChannelId|"+CUST.TRAN.ChannelId)
+
+
+IF(CUST.TRAN.Remarks != "")THEN
+#{
+       sv_a= urhk_SetUrhkInp("tranHdr.remarks|"+CUST.TRAN.Remarks)
+#}
+ENDIF
+
+sv_n=0
+WHILE(sv_n < 2)
+#{
+		print(BANCS.STDIN.BODDate)
+		if(sv_n==0) then 
+		#{
+			CUST.TRAN.partTranType="D"
+			CUST.TRAN.foracid=TRIM(CUST.TRAN.debAccnt)
+			PRINT(CUST.TRAN.foracid)
+			
+		#}
+		else 
+		#{
+			CUST.TRAN.partTranType="C"
+			CUST.TRAN.foracid=TRIM(CUST.TRAN.credAccnt)
+			PRINT(CUST.TRAN.foracid)
+			
+		#}
+		endif
+		
+		sv_a= urhk_SetUrhkInp("tranHdr.tranIdentifier.tranDate|" + BANCS.STDIN.BODDate)
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranIdentifier.tranDate|" +BANCS.STDIN.BODDate)
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.key.serial_num|"+FORMAT$(sv_n+1,"%d"))
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.valueDate|" + BANCS.STDIN.BODDate)
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.glDate|" + BANCS.STDIN.BODDate)
+			
+		
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.partTranType.code|"+CUST.TRAN.partTranType)
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.refCrncyCode.crncyCode|" + CUST.TRAN.TranCurr)
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.acctId.foracid|" + CUST.TRAN.foracid)
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.tranAmt|" + CUST.TRAN.TranAmt +"|"+CUST.TRAN.TranCurr  )
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.refAmt|" + CUST.TRAN.TranAmt +"|"+CUST.TRAN.TranCurr )
+		
+		IF(CUST.TRAN.stmtDesc!="")THEN
+		#{
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.tranParticulars|"+CUST.TRAN.stmtDesc)
+		#}
+		ENDIF
+			
+		sv_n =sv_n +1
+#}
+DO
+
+#-------------------- Setting up the Output from the service
+
+sv_a = urhk_SetUrhkOut("tranDtl.tranIdentifier.tranId|TranId")
+print(sv_a)
+sv_a = urhk_SetUrhkOut("tranDtl.partTranDetailLL.<rec_0>.tranAmt|TranAmt")
+print(sv_a)
+sv_a = urhk_SetUrhkOut("tranDtl.tranIdentifier.tranDate|TranDate")
+print(sv_a)
+
+#----------------------------------------------------
+# Executing SRV to add new limit code
+#----------------------------------------------------
+sv_u = urhk_ExecSrvNoCommit("SRV_AddAndPostXferTran|ignore_excp_flg = Y|retain_all_output = Y|same_user_verify = Y")
+PRINT(sv_u)
+
+IF(sv_u != 0)THEN
+#{
+    CUST.TRAN.makeTranErrFlg="Y"
+	sv_c = BANCS.OUTPARAM.Error_num
+	print(sv_c)
+	if (sv_c > 0) then
+	#{
+		sv_i = 1
+		sv_e = ""
+		while (sv_i <= sv_c)
+		#{
+				sv_j = FORMAT$(sv_i,"%d")
+				print(sv_j)
+				("CUST").("TRAN").("errorCode_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorCode_"+sv_j)
+				("CUST").("TRAN").("errorDesc_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorMesg_"+sv_j) + " " + ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+				sv_f = ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+				CUST.TRAN.makeTranErr=("CUST").("TRAN").("errorDesc_"+sv_j)
+				print(CUST.TRAN.makeTranErr)	
+				sv_i = sv_i + 1
+		#}
+		do
+		Print(CUST.TRAN.makeTranErr)
+		CUST.TRAN.errorMsg = CUST.TRAN.makeTranErr
+		CUST.DATA.errorMsg = CUST.TRAN.errorMsg
+		BANCS.OUTPUT.successOrFailure = "F"	
+		
+	#}
+	endif
+#}
+ELSE
+#{
+	CUST.TRAN.TranId   = BANCS.OUTPARAM.TranId
+	CUST.TRAN.TranDate = BANCS.OUTPARAM.TranDate 
+	CUST.TRAN.TranAmt  = BANCS.OUTPARAM.TranAmt
+	PRINT(CUST.TRAN.TranId)  
+	PRINT(CUST.TRAN.TranDate)
+	PRINT(CUST.TRAN.TranAmt) 	
+	CUST.TRAN.makeTranErrFlg="N"
+	CUST.DATA.TRANID    = CUST.TRAN.TranId
+	CUST.DATA.TRANDATE   = MID$(CUST.TRAN.TranDate,0,10)
+	CUST.TRAN.tranDate   = MID$(CUST.TRAN.TranDate,0,10)
+	CUST.TRAN.valueDate	 = CUST.TRAN.tranDate
+	
+	CUST.TRAN.valueDate = MID$(CUST.TRAN.TranDate,0,10)
+	CUST.TRAN.tranDate  = MID$(CUST.TRAN.TranDate,0,10)
+	CUST.TRAN.TranId   = CUST.TRAN.TranId
+	CUST.TRAN.UserTrnCode = CUST.DATA.UserTrnCode
+	CUST.TRAN.channelId = CUST.TRAN.ChannelId
+	CUST.TRAN.TranId      = CUST.DATA.TranId
+	CUST.TRAN.UserTrnCode = CUST.DATA.UserTrnCode
+	CUST.TRAN.channelId   = CUST.TRAN.ChannelId
+	CUST.TRAN.terminal    = CUST.DATA.Terminal		
+	CUST.TRAN.freeText10  = CUST.DATA.freeTextDesc
+	CUST.TRAN.freeText1   = CUST.DATA.freeText1
+	CUST.TRAN.freeText2   = CUST.DATA.freeText2
+	CUST.TRAN.freeText3   = CUST.DATA.freeText3
+	CUST.TRAN.freeText4   = CUST.DATA.freeText4
+	CUST.TRAN.freeText5   = CUST.DATA.freeText5
+	CUST.TRAN.freeText6   = CUST.DATA.freeText6
+	CUST.TRAN.freeText7   = CUST.DATA.freeText7
+	CUST.TRAN.freeText8   = CUST.DATA.freeText8
+	CUST.TRAN.freeText9   = CUST.DATA.freeText9
+
+	IF(FIELDEXISTS(CUST.DATA.userid)) THEN
+	#{
+		IF(CUST.DATA.userid!="")THEN
+		#{
+			CUST.TRAN.user = CUST.DATA.userid
+		#}
+		ELSE
+		#{
+			CUST.TRAN.user = BANCS.STDIN.userId
+		
+		#}
+		ENDIF
+	#}
+	ELSE
+	#{
+		CUST.TRAN.user = BANCS.STDIN.userId
+	#}
+	ENDIF
+	
+
+	IF(CUST.TRAN.user =="")THEN
+	#{
+		CUST.TRAN.user = "BUPAYHUB"
+	#}
+	ENDIF
+	
+	PRINT(CUST.TRAN.user)
+	
+	IF(CUST.TRAN.ChannelId == "ATM")THEN
+	#{
+		CUST.TRAN.terminal = CUST.DATA.ATM 
+		PRINT(CUST.TRAN.terminal)
+	#}
+	ELSE
+	#{
+		IF(CUST.TRAN.ChannelId == "POS")THEN
+		#{
+			CUST.TRAN.terminal = CUST.DATA.POSID
+			PRINT(CUST.TRAN.terminal)
+		#}
+		ELSE
+		#{
+			CUST.TRAN.terminal ="H2C0"
+		#}
+		ENDIF	
+	#}
+	ENDIF
+	
+	
+	
+	CALLSCRIPTIFEXIST("makeTranInsertCDTH.scr")
+	BANCS.OUTPUT.successOrFailure = "S"	
+#}
+ENDIF
+	
+
+ENDOFSCRIPT:
+
+EXITSCRIPT
+
+END--> 

@@ -15,6 +15,7 @@ CUST.DATA.LIENID=""
 CUST.DATA.parentAccntTrn="N"
 CUST.DATA.custTranId=""
 CUST.DATA.custTranDate=""
+CUST.DATA.returnFlg = ""
 
 IF(CUST.DATA.buyer!="")THEN
 #{
@@ -61,7 +62,7 @@ ENDIF
 							sv_b= sv_b +" count|SELECT count(*)  from  TBAADM.GAM A,TBAADM.SMT D "
 							sv_b= sv_b +" WHERE  A.FORACID=?SVAR AND A.ACID = D.ACID AND A.BANK_ID=D.BANK_ID AND A.BANK_ID=?SVAR "
 							sv_b= sv_b +" AND A.ACCT_CLS_FLG!='Y' AND A.ACTIVE_STATUS not in ('D','I') "
-							sv_b= sv_b +" and A.frez_code not in ('D','T')"
+							sv_b= sv_b +" and A.frez_code not in ('C','T')"
 							sv_b= sv_b +" AND D.acct_status not in ('D','I')"
 							print(sv_b)
 							
@@ -100,6 +101,7 @@ ENDIF
 								CUST.TRAN.ChannelId = "ATM"
 								CUST.TRAN.tranCategory = "N"
 								CUST.TRAN.freeText7 = "I"
+								CUST.DATA.returnFlg = "Y"
 								CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
 								IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 								#{
@@ -261,7 +263,7 @@ ENDIF
 							sv_b= sv_b +" count|SELECT count(*)  from  TBAADM.GAM A,TBAADM.SMT D "
 							sv_b= sv_b +" WHERE  A.FORACID=?SVAR AND A.ACID = D.ACID AND A.BANK_ID=D.BANK_ID AND A.BANK_ID=?SVAR "
 							sv_b= sv_b +" AND A.ACCT_CLS_FLG!='Y' AND A.ACTIVE_STATUS not in ('D','I') "
-							sv_b= sv_b +" and A.frez_code not in ('D','T')"
+							sv_b= sv_b +" and A.frez_code not in ('C','T')"
 							sv_b= sv_b +" AND D.acct_status not in ('D','I')"
 							print(sv_b)
 							
@@ -300,6 +302,7 @@ ENDIF
 								CUST.TRAN.ChannelId = "ATM"
 								CUST.TRAN.tranCategory = "N"
 								CUST.TRAN.freeText7 = "I"
+								CUST.DATA.returnFlg = "Y"
 								CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
 								IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 								#{
@@ -1356,7 +1359,7 @@ ENDIF
 							sv_b= sv_b +" count|SELECT count(*)  from  TBAADM.GAM A,TBAADM.SMT D "
 							sv_b= sv_b +" WHERE  A.FORACID=?SVAR AND A.ACID = D.ACID AND A.BANK_ID=D.BANK_ID AND A.BANK_ID=?SVAR "
 							sv_b= sv_b +" AND A.ACCT_CLS_FLG!='Y' AND A.ACTIVE_STATUS not in ('D','I') "
-							sv_b= sv_b +" and A.frez_code not in ('D','T')"
+							sv_b= sv_b +" and A.frez_code not in ('C','T')"
 							sv_b= sv_b +" AND D.acct_status not in ('D','I')"
 							print(sv_b)
 							
@@ -1395,6 +1398,7 @@ ENDIF
 								CUST.TRAN.ChannelId = "ATM"
 								CUST.TRAN.tranCategory = "N"
 								CUST.TRAN.freeText7 = "I"
+								CUST.DATA.returnFlg = "Y"
 								CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
 								IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 								#{
@@ -1555,7 +1559,7 @@ ENDIF
 							sv_b= sv_b +" count|SELECT count(*)  from  TBAADM.GAM A,TBAADM.SMT D "
 							sv_b= sv_b +" WHERE  A.FORACID=?SVAR AND A.ACID = D.ACID AND A.BANK_ID=D.BANK_ID AND A.BANK_ID=?SVAR "
 							sv_b= sv_b +" AND A.ACCT_CLS_FLG!='Y' AND A.ACTIVE_STATUS not in ('D','I') "
-							sv_b= sv_b +" and A.frez_code not in ('D','T')"
+							sv_b= sv_b +" and A.frez_code not in ('C','T')"
 							sv_b= sv_b +" AND D.acct_status not in ('D','I')"
 							print(sv_b)
 							
@@ -1604,6 +1608,7 @@ ENDIF
 								CUST.TRAN.ChannelId = "ATM"
 								CUST.TRAN.tranCategory = "N"
 								CUST.TRAN.freeText7 = "I"
+								CUST.DATA.returnFlg = "Y"
 								CALLSCRIPTIFEXIST("makeTransaction_CardSettlement.scr")
 								IF(BANCS.OUTPUT.successOrFailure=="S") THEN 
 								#{

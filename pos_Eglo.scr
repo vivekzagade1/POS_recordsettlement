@@ -140,7 +140,8 @@ CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
 
 CUST.DATA.recordLengthFlg = ""
-CUST.DATA.settleFileTypeDb = "EGLO"
+CUST.DATA.settleFileTypeDb = "EGL"
+CUST.DATA.returnFlg = ""
 
 ### Added as a part of accountstatement
 CUST.DATA.stmtDesc = ""

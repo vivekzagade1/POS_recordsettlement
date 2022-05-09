@@ -69,6 +69,7 @@ CUST.DATA.pendingSettleAmt=""
 CUST.DATA.exchangeAmtDiff=""
 CUST.DATA.userid=""
 CUST.DATA.totSourceAmt=format$(CDOUBLE(CUST.DATA.totSourceAmt),"%0.2f")
+CUST.DATA.returnFlg = "Y"
 
 IF(FIELDEXISTS(CUST.DATA.FIDADQ)) THEN
 #{
