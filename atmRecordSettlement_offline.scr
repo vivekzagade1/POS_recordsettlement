@@ -945,13 +945,21 @@ ENDIF
 										### Added as a part of tranParticular value passed withdrawal
 
 										##Withdrawal Interanational- Commision Amount - CUST.DATA.surchargeFee
-										##withdrawl domestic - CUST.DATA.surchargeFee is null then without commision 
+										##withdrawl domestic - CUST.DATA.surchargeFee is null then without commision
 										#RETIRO EN EFECTIVO+BankName+CAJERO+terminal+place+currency+originalamount+"COMISION DE USO DE CAJERO $"+feeAmount
 										
 										CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 										CUST.DATA.Nombre2= "COMISION DE USO DE CAJERO $"
 										CUST.DATA.Nombre3= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
+										if( CDOUBLE(CUST.DATA.surchargeFee) > CDOUBLE("0.00") )then
+										#{
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
+										#}
+										else
+										#{
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount
+										#}
+										endif
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)	
@@ -1005,7 +1013,15 @@ ENDIF
 										CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 										CUST.DATA.Nombre2= "COMISION DE USO DE CAJERO $"
 										CUST.DATA.Nombre3= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
+										if( CDOUBLE(CUST.DATA.surchargeFee) > CDOUBLE("0.00") )then
+										#{
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
+										#}
+										else
+										#{
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount
+										#}
+										endif
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)	
@@ -1065,7 +1081,15 @@ ENDIF
 												CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 												CUST.DATA.Nombre2= "COMISION DE USO DE CAJERO $"
 												CUST.DATA.Nombre3= "CAJERO"
-												CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
+												if( CDOUBLE(CUST.DATA.surchargeFee) > CDOUBLE("0.00") )then
+												#{
+													CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
+												#}
+												else
+												#{
+													CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount
+												#}
+												endif												
 												PRINT(CUST.DATA.stmtDesc)
 												CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 												CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1133,7 +1157,15 @@ ENDIF
 										CUST.DATA.Nombre= "RETIRO DE EFECTIVO"
 										CUST.DATA.Nombre2= "COMISION DE USO DE CAJERO $"
 										CUST.DATA.Nombre3= "CAJERO"
-										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
+										if( CDOUBLE(CUST.DATA.surchargeFee) > CDOUBLE("0.00") )then
+										#{
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount + " " +  CUST.DATA.Nombre2 + "" + CUST.DATA.surchargeFee
+										#}
+										else
+										#{
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bankName + " " + CUST.DATA.Nombre3 + " " + CUST.DATA.ATM + " " + CUST.DATA.currCode + " $" + CUST.DATA.amount
+										#}
+										endif
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)

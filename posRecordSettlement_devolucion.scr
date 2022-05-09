@@ -595,7 +595,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												##Devolucion Normal Devolucion
 											CUST.DATA.Nombre= "DEVOLUCION"
 											CUST.DATA.Nombre1= "CAJERO"
-											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)
 											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -872,7 +872,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												##Devolucion Normal Devolucion
 											CUST.DATA.Nombre= "DEVOLUCION"
 											CUST.DATA.Nombre1= "CAJERO"
-											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation 
+											CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
 											PRINT(CUST.DATA.stmtDesc)
 											CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)

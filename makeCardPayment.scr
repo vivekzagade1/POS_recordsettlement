@@ -2035,7 +2035,7 @@ IF(CUST.TRAN.channelId == "ATM") THEN
 			#}
 			ELSE
 			#{
-				IF((CUST.TRAN.FeeAmtAmount !="")OR(CUST.TRAN.FeeAmtAmount !="0")OR(CUST.TRAN.FeeAmtAmount !="0.00"))THEN
+				IF( (TRIM(CUST.TRAN.FeeAmtAmount) !="") AND (TRIM(CUST.TRAN.FeeAmtAmount) !="0") AND (CDOUBLE(CUST.TRAN.FeeAmtAmount)!=CDOUBLE("0.00")) )THEN
 				#{
 					CUST.TRAN.withoutComm = CDOUBLE(CUST.TRAN.TranAmt) - CDOUBLE(CUST.TRAN.FeeAmtAmount)
 					PRINT(CUST.TRAN.withoutComm)

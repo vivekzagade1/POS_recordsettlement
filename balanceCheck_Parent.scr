@@ -974,7 +974,12 @@ IF( (CUST.DATA.odFlg == "E") AND (CUST.DATA.settlemod != "DEV") )THEN
         PRINT(BANCS.OUTPUT.successOrFailure)
 #}
 ENDIF
-
+IF( (CUST.DATA.odFlg == "E") AND (CUST.DATA.settlemod == "DEV") )THEN
+#{
+	#When Parent and Child both account are frozen
+	BANCS.OUTPUT.successOrFailure = "F"
+#}
+ENDIF
 EXITSCRIPT
 END-->
 
