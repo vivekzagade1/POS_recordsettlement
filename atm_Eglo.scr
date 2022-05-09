@@ -16,6 +16,7 @@ IF(sv_r == 0) THEN
         CREATECLASS ("CUST","DATA",5)
 #}
 ENDIF
+
 sv_r = CLASSEXISTS("CUST","TRAN")
 IF(sv_r == 0) THEN
 #{
@@ -84,7 +85,7 @@ CUST.DATA.arqc_verifier = ""
 CUST.DATA.detail28 = "" 
 CUST.DATA.accNumber = ""
 CUST.DATA.destAcct = ""
-CUST.DATA.ReportType = "ADQ"
+CUST.DATA.ReportType = "EGLO"
 CUST.DATA.CaptionDate = "DATE:"
 CUST.DATA.processTime = ""
 CUST.DATA.purTime = ""
@@ -98,6 +99,7 @@ CUST.DATA.recErrMsg = ""
 CUST.DATA.sysDate = ""
 CUST.DATA.sysTime = MID$(BANCS.STDIN.sysDate,11,8)
 CUST.DATA.parentacc = ""
+CUST.DATA.InpFileDate = ""
 CUST.DATA.stmtDesc = ""
 CUST.DATA.freeText10 = ""
 
@@ -144,7 +146,6 @@ CUST.DATA.freeText6     = ""
 CUST.DATA.freeText7     = ""
 CUST.DATA.freeText8     = ""
 CUST.DATA.freeText9     = ""
-CUST.DATA.destAcctFile  = ""
 
 ### End as a part of accountstatement
 
@@ -152,10 +153,12 @@ CUST.DATA.recordLength=STRLEN(CUST.DATA.inputRecord)
 Print(CUST.DATA.recordLength)
 if(sv_l ==0)then
 #{
-	if(CUST.DATA.recordLength >= 262) then
+	if(CUST.DATA.recordLength >= 12) then
 	#{
-		CUST.DATA.header1=MID$(CUST.DATA.inputRecord,0,262)
-		CUST.DATA.identifier="H1"
+		CUST.DATA.recordType=MID$(CUST.DATA.inputRecord,0,2)
+		CUST.DATA.header1=MID$(CUST.DATA.inputRecord,2,1)
+		CUST.DATA.processDate=MID$(CUST.DATA.inputRecord,3,4)+ MID$(CUST.DATA.inputRecord,8,2)
+		CUST.DATA.identifier="H"
 	#}
 	else
 	#{
@@ -173,118 +176,7 @@ if(sv_l ==0)then
 	endif
 #}
 endif
-if(sv_l ==1)then
-#{
-	if(CUST.DATA.recordLength >= 262) then
-	#{
-		CUST.DATA.header2=MID$(CUST.DATA.inputRecord,0,262)
-		CUST.DATA.identifier="H2"
-	#}
-	else
-	#{
-		CUST.DATA.processFlg = "FAILURE"
-		CUST.DATA.errMsg="The header record in input file is not proper."
-		PRINT(CUST.DATA.errMsg)
-		CUST.DATA.failStatus="Y"
-		CUST.DATA.inpFilProcStat="F"
-		CUST.DATA.respCode="ERR0000357"
-		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
-		PRINT(sv_r)
-		PRINT(CUST.DATA.statMessage)
-		GOTO ENDOFSCRIPT
-	#}
-	endif
-#}
-endif
-if(sv_l ==2)then
-#{
-	if(CUST.DATA.recordLength >= 262) then
-	#{
-		CUST.DATA.processDate=MID$(CUST.DATA.inputRecord,179,6)
-		CUST.DATA.identifier="H3"
-	#}
-	else
-	#{
-		CUST.DATA.processFlg = "FAILURE"
-		CUST.DATA.errMsg="The header record in input file is not proper."
-		PRINT(CUST.DATA.errMsg)
-		CUST.DATA.failStatus="Y"
-		CUST.DATA.inpFilProcStat="F"
-		CUST.DATA.respCode="ERR0000357"
-		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
-		PRINT(sv_r)
-		PRINT(CUST.DATA.statMessage)
-		GOTO ENDOFSCRIPT
-	#}
-	endif
-#}
-endif
-if(sv_l ==3)then
-#{
-	if(CUST.DATA.recordLength >= 262) then
-	#{
-		CUST.DATA.identifier="H4"
-	#}
-	else
-	#{
-		CUST.DATA.processFlg = "FAILURE"
-		CUST.DATA.errMsg="The header record in input file is not proper."
-		PRINT(CUST.DATA.errMsg)
-		CUST.DATA.failStatus="Y"
-		CUST.DATA.inpFilProcStat="F"
-		CUST.DATA.respCode="ERR0000357"
-		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
-		PRINT(sv_r)
-		PRINT(CUST.DATA.statMessage)
-		GOTO ENDOFSCRIPT
-	#}
-	endif
-#}
-endif
-if(sv_l ==4)then
-#{
-	if(CUST.DATA.recordLength >= 262) then
-	#{
-		CUST.DATA.identifier="H5"
-	#}
-	else
-	#{
-		CUST.DATA.processFlg = "FAILURE"
-		CUST.DATA.errMsg="The header record in input file is not proper."
-		PRINT(CUST.DATA.errMsg)
-		CUST.DATA.failStatus="Y"
-		CUST.DATA.inpFilProcStat="F"
-		CUST.DATA.respCode="ERR0000357"
-		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
-		PRINT(sv_r)
-		PRINT(CUST.DATA.statMessage)
-		GOTO ENDOFSCRIPT
-	#}
-	endif
-#}
-endif
-if(sv_l ==5)then
-#{
-	if(CUST.DATA.recordLength >= 262) then
-	#{
-		CUST.DATA.identifier="H6"
-	#}
-	else
-	#{
-		CUST.DATA.processFlg = "FAILURE"
-		CUST.DATA.errMsg="The header record in input file is not proper."
-		PRINT(CUST.DATA.errMsg)
-		CUST.DATA.failStatus="Y"
-		CUST.DATA.inpFilProcStat="F"
-		CUST.DATA.respCode="ERR0000357"
-		sv_r = func_cmmsgerrdescWithInputs("ERR0000357",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
-		PRINT(sv_r)
-		PRINT(CUST.DATA.statMessage)
-		GOTO ENDOFSCRIPT
-	#}
-	endif
-#}
-endif
+
 ####to validate footer####
 CUST.DATA.cpFlPath1=CUST.DATA.atmSettlementReqPath
 print(CUST.DATA.cpFlPath1)
@@ -330,7 +222,7 @@ IF (sv_u ==0) THEN
 	PRINT(sv_v)
 	print(CUST.DATA.atmCntName)
 	CUST.DATA.atmCntNameLength = STRLEN(TRIM(CUST.DATA.atmCntName))
-	IF(CUST.DATA.atmCntNameLength > 42)THEN
+	IF(CUST.DATA.atmCntNameLength > 13)THEN
 	#{
 		CUST.DATA.processFlg = "FAILURE"
 		CUST.DATA.errMsg="The footer record is either improper or not provided."
@@ -346,226 +238,565 @@ IF (sv_u ==0) THEN
 	ENDIF
 #}
 ENDIF
-
-if(sv_l >5)then
+if(sv_l >0)then
 #{
-	CUST.DATA.filler = TRIM(MID$(CUST.DATA.inputRecord,66,196))
-	if(CUST.DATA.filler != "")then
+	CUST.DATA.recordLength=STRLEN(TRIM(CUST.DATA.inputRecord))
+	Print(CUST.DATA.recordLength)
+	if(CUST.DATA.recordLength > 13) then
 	#{
 		CUST.DATA.identifier="D"
-		if(CUST.DATA.recordLength >= 262) then
+		######################################################
+		#Getting the details from input record- header section
+		######################################################
+
+		CUST.DATA.settleFileType = "EGLO"
+		
+		sv_a = STRLEN(CUST.DATA.inputRecord)
+		print(sv_a)
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|")
+		print(sv_b)
+		
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord)
+		sv_d=strlen(CUST.DATA.inputRecord)
+		if(sv_d == 0) then
+		GOTO CLS
+		endif
+		endif
+		
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.buyer =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.buyer)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif 
+		
+		CUST.DATA.cardNum =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.cardNum)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif 
+		
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.destAcct =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1))
+		print(CUST.DATA.destAcct)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif 
+		
+		CUST.DATA.desc =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.desc)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.resp =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1))
+		PRINT(CUST.DATA.resp)		
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.Cr =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.Cr)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.sequen =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.sequen)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.ATM =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.ATM)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.date1 =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.date1)
+
+		CUST.DATA.sysDate = MID$(BANCS.STDIN.sysDate,6,4)
+		PRINT(CUST.DATA.sysDate)	
+
+		CUST.DATA.date = MID$(CUST.DATA.date1,2,2) + "-" + MID$(CUST.DATA.date1,0,2) + "-" + CUST.DATA.sysDate
+		PRINT(CUST.DATA.date)
+		CUST.DATA.date2 = MID$(CUST.DATA.date1,2,2) + "/" + MID$(CUST.DATA.date1,0,2) + "/" + MID$(CUST.DATA.sysDate,2,2)
+		PRINT(CUST.DATA.date2)
+		
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.time =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.time)
+		CUST.DATA.time1 =  MID$(CUST.DATA.time,0,2) + ":" + MID$(CUST.DATA.time,2,2) + ":" + MID$(CUST.DATA.time,4,2) 
+		PRINT(CUST.DATA.time1)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.order =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.order)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.network =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.network)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.amount =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.amount)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.dollars =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1))
+		PRINT(CUST.DATA.dollars)		
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.authNum =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.authNum)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.countryCode =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.countryCode)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.sourceAmt =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.sourceAmt)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.currCode =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.currCode)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.surchargeFee =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.surchargeFee)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.donation =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.donation)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.donation_id =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.donation_id)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.company =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.company)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.pos_entry_mode =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.pos_entry_mode)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+
+		CUST.DATA.serviceCode =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.serviceCode)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.arqc =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.arqc)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		
+		CUST.DATA.arpc =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.arpc)
+		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		if(sv_b == 0)then
+		print(CUST.DATA.inputRecord) 
+		sv_d=strlen(CUST.DATA.inputRecord) 
+		if(sv_d == 0) then 
+		GOTO CLS 
+		endif 
+		endif
+		CUST.DATA.arqc_verifier =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
+		PRINT(CUST.DATA.arqc_verifier)
+		#CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
+		#sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 
+		#if(sv_b == 0)then
+		#print(CUST.DATA.inputRecord) 
+		#sv_d=strlen(CUST.DATA.inputRecord) 
+		#if(sv_d == 0) then 
+		#GOTO CLS 
+		#endif 
+		#endif
+		
+		if(CUST.DATA.cardNum == "") then
 		#{
-			######################################################
-			#Getting the details from input record- header section
-			######################################################
-
-			CUST.DATA.settleFileType = "ADQ"
-			CUST.DATA.buyer = TRIM(MID$(CUST.DATA.inputRecord,2,4))
-			CUST.DATA.cardNum = TRIM(MID$(CUST.DATA.inputRecord,24,19))
-			CUST.DATA.destAcct = TRIM(MID$(CUST.DATA.inputRecord,69,19))
-			print(CUST.DATA.destAcct)
-			CUST.DATA.destAcctFile = CUST.DATA.destAcct
-
-			if(CUST.DATA.destAcct != "") then
-			#{
-				sv_d = ""
-				sv_d = sv_d + "destAcct|select replace(CUST.DATA.destAcct,' ','') from dual"
-				PRINT(sv_d)
-				
-				BANCS.INPARAM.BINDVARS = CUST.DATA.destAcct
-				PRINT(BANCS.INPARAM.BINDVARS)
-				
-				sv_d = urhk_dbSelectWithBind(sv_s)
-				print(sv_d)
-				IF(sv_d == 0) THEN
-				#{
-					CUST.DATA.destAcct = BANCS.OUTPARAM.destAcct
-				#}
-				ENDIF
-			#}
-			endif
-			
-			CUST.DATA.desc = TRIM(MID$(CUST.DATA.inputRecord,90,15))
-			print(CUST.DATA.desc)
-			CUST.DATA.resp = TRIM(MID$(CUST.DATA.inputRecord,108,1))
-			print(CUST.DATA.resp)
-			CUST.DATA.Cr = TRIM(MID$(CUST.DATA.inputRecord,114,3))
-			print(CUST.DATA.Cr)
-			CUST.DATA.sequen = TRIM(MID$(CUST.DATA.inputRecord,120,12))
-			print(CUST.DATA.sequen)
-			CUST.DATA.ATM = TRIM(MID$(CUST.DATA.inputRecord,135,10))
-			CUST.DATA.date1 = TRIM(MID$(CUST.DATA.inputRecord,149,2)+MID$(CUST.DATA.inputRecord,152,2)+MID$(CUST.DATA.inputRecord,155,2))
-			print(CUST.DATA.date1)
-			CUST.DATA.date = TRIM(MID$(CUST.DATA.inputRecord,149,2) +"-" + MID$(CUST.DATA.inputRecord,152,2)+ "-20" + MID$(CUST.DATA.inputRecord,155,2))
-			print(CUST.DATA.date)
-			CUST.DATA.date2 = MID$(CUST.DATA.inputRecord,149,8)
-			print(CUST.DATA.date2)
-			CUST.DATA.time = TRIM(MID$(CUST.DATA.inputRecord,158,2)+MID$(CUST.DATA.inputRecord,161,2)+MID$(CUST.DATA.inputRecord,164,2))
-			print(CUST.DATA.time)
-			CUST.DATA.time1 = MID$(CUST.DATA.inputRecord,158,8)
-			PRINT(CUST.DATA.time1)
-			CUST.DATA.order = TRIM(MID$(CUST.DATA.inputRecord,169,4))
-			CUST.DATA.network = TRIM(MID$(CUST.DATA.inputRecord,175,4))
-			CUST.DATA.amount1 = LTRIM(MID$(CUST.DATA.inputRecord,180,10),'0')
-			CUST.DATA.amount = TRIM(MID$(CUST.DATA.inputRecord,180,10))
-			print(CUST.DATA.amount)
-			CUST.DATA.dollars = TRIM(MID$(CUST.DATA.inputRecord,191,7))
-			CUST.DATA.authNum = TRIM(MID$(CUST.DATA.inputRecord,200,6))
-			CUST.DATA.countryCode = TRIM(MID$(CUST.DATA.inputRecord,208,2))
-			CUST.DATA.sourceAmt = TRIM(MID$(CUST.DATA.inputRecord,212,13))
-			CUST.DATA.currCode = TRIM(MID$(CUST.DATA.inputRecord,227,3))
-			CUST.DATA.surchargeFee = TRIM(MID$(CUST.DATA.inputRecord,232,10))
-			CUST.DATA.donation = TRIM(MID$(CUST.DATA.inputRecord,244,10))	
-
-			if(CUST.DATA.cardNum == "") then
-			#{
-				IF(BANCS.STDIN.languageCode=="INFENG") then
-					CUST.DATA.recErrMsg = "Card Number is not provided"
-				ELSE
-					CUST.DATA.recErrMsg = "No se proporciona el número de tarjeta"
-				ENDIF
-				CUST.DATA.status = "F"
-				CUST.DATA.description = "Failure"
-				GOTO ENDOFRECORD
-			#}
+			IF(BANCS.STDIN.languageCode=="INFENG") then
+				CUST.DATA.recErrMsg = "Card Number is not provided"
+			ELSE
+				CUST.DATA.recErrMsg = "No se proporciona el número de tarjeta"
 			ENDIF
-			if(CUST.DATA.desc == "") then
-			#{
-				IF(BANCS.STDIN.languageCode=="INFENG") then
-					CUST.DATA.recErrMsg = "description is not given"
-				ELSE
-					CUST.DATA.recErrMsg = "no se da la descripción"
-				ENDIF
-				CUST.DATA.status = "F"
-				CUST.DATA.description = "Failure"
-				GOTO ENDOFRECORD
-			#}
-			ENDIF
-			if(CUST.DATA.Cr == "") then
-			#{
-				IF(BANCS.STDIN.languageCode=="INFENG") then
-					CUST.DATA.recErrMsg = "Cr is not given"
-				ELSE
-					CUST.DATA.recErrMsg = "Cr no se da"
-				ENDIF
-				CUST.DATA.status = "F"
-				CUST.DATA.description = "Failure"
-				GOTO ENDOFRECORD
-			#}
-			ENDIF
-			if(CUST.DATA.date == "") then
-			#{
-				IF(BANCS.STDIN.languageCode=="INFENG") then
-					CUST.DATA.recErrMsg = "Date is not given"
-				ELSE
-					CUST.DATA.recErrMsg = "No se da la fecha"
-				ENDIF
-				CUST.DATA.status = "F"
-				CUST.DATA.description = "Failure"
-				GOTO ENDOFRECORD
-			#}
-			ENDIF
-			if(CUST.DATA.amount == "") then
-			#{
-				IF(BANCS.STDIN.languageCode=="INFENG") then
-					CUST.DATA.recErrMsg = "Amount is not given"
-				ELSE
-					CUST.DATA.recErrMsg = "No se da la cantidad"
-				ENDIF
-				CUST.DATA.status = "F"
-				CUST.DATA.description = "Failure"
-				GOTO ENDOFRECORD
-			#}
-			ENDIF
-			if(CDOUBLE(CUST.DATA.amount1) <= "00.00") then
-			#{
-				IF(BANCS.STDIN.languageCode=="INFENG") then
-					CUST.DATA.recErrMsg = "Enter non-zero amount value"
-				ELSE
-					CUST.DATA.recErrMsg = "Ingrese un valor de monto distinto de cero"
-				ENDIF
-				CUST.DATA.status = "F"
-				CUST.DATA.description = "Failure"
-				GOTO ENDOFRECORD
-			#}
-			ENDIF
-			if(CUST.DATA.authNum == "") then
-			#{
-				IF(BANCS.STDIN.languageCode=="INFENG") then
-					CUST.DATA.recErrMsg = "Auth Num is not given"
-				ELSE
-					CUST.DATA.recErrMsg = "Auth Num no se da"
-				ENDIF
-				CUST.DATA.status = "F"
-				CUST.DATA.description = "Failure"
-				GOTO ENDOFRECORD
-			#}
-			ENDIF
-			
-			sv_s = ""
-			sv_s = sv_s + "accNumber,cardEncr,parentacc|"
-			sv_s = sv_s + "select EMP_ACCNT_NUM,LNKED_CARD_NUM,PARENT_ACCT from CUSTOM.CUST_CARD_ACCT_TBL WHERE CRD_MOD_FRMT "
-			sv_s = sv_s + "IN (select to_char(?SVAR,'XXXXXXXXXXXXXXXX') from dual) AND "
-			sv_s = sv_s + "ENTITY_CRE_FLG = 'Y' AND BANK_ID = ?SVAR AND ROWNUM=1"
-			
-			print(sv_s)
-			BANCS.INPARAM.BINDVARS = CUST.DATA.cardNum + "|" + BANCS.STDIN.contextBankId
-			PRINT(BANCS.INPARAM.BINDVARS)
-			sv_d = urhk_dbSelectWithBind(sv_s)
-			print(sv_d)
-			IF(sv_d == 0) THEN
-			#{
-				CUST.DATA.accNumber = BANCS.OUTPARAM.accNumber
-				print(CUST.DATA.accNumber)
-				CUST.DATA.cardEncr = BANCS.OUTPARAM.cardEncr
-				print(CUST.DATA.cardEncr)
-				CUST.DATA.parentacc = BANCS.OUTPARAM.parentacc
-				print(CUST.DATA.parentacc)
-			#}
-			ENDIF
-			CUST.DATA.desc1 = ""
-			CUST.DATA.desc1 = RTRIM(MID$(CUST.DATA.desc,0,8))
-			IF((CUST.DATA.desc1 != "RETIRO") AND (CUST.DATA.desc1 != "CONSULTA"))THEN
-			#{
-				GOTO END1
-			#}
-			ENDIF
-			CALLSCRIPTIFEXIST("atmRecordSettlement.scr")
+			CUST.DATA.status = "F"
+			CUST.DATA.description = "Failure"
+			GOTO ENDOFRECORD
 		#}
-		else
+		ENDIF
+		if(CUST.DATA.desc == "") then
+		#{
+			IF(BANCS.STDIN.languageCode=="INFENG") then
+				CUST.DATA.recErrMsg = "description is not given"
+			ELSE
+				CUST.DATA.recErrMsg = "no se da la descripción"
+			ENDIF
+			CUST.DATA.status = "F"
+			CUST.DATA.description = "Failure"
+			GOTO ENDOFRECORD
+		#}
+		ENDIF
+		if(CUST.DATA.Cr == "") then
+		#{
+			IF(BANCS.STDIN.languageCode=="INFENG") then
+				CUST.DATA.recErrMsg = "Cr is not given"
+			ELSE
+				CUST.DATA.recErrMsg = "Cr no se da"
+			ENDIF
+			CUST.DATA.status = "F"
+			CUST.DATA.description = "Failure"
+			GOTO ENDOFRECORD
+		#}
+		ENDIF
+		if(CUST.DATA.date == "") then
+		#{
+			IF(BANCS.STDIN.languageCode=="INFENG") then
+				CUST.DATA.recErrMsg = "Date is not given"
+			ELSE
+				CUST.DATA.recErrMsg = "No se da la fecha"
+			ENDIF
+			CUST.DATA.status = "F"
+			CUST.DATA.description = "Failure"
+			GOTO ENDOFRECORD
+		#}
+		ENDIF
+		if(CUST.DATA.amount == "") then
+		#{
+			IF(BANCS.STDIN.languageCode=="INFENG") then
+				CUST.DATA.recErrMsg = "Amount is not given"
+			ELSE
+				CUST.DATA.recErrMsg = "No se da la cantidad"
+			ENDIF
+			CUST.DATA.status = "F"
+			CUST.DATA.description = "Failure"
+			GOTO ENDOFRECORD
+		#}
+		ENDIF
+		if(CDOUBLE(CUST.DATA.amount) <= "0.00") then
+		#{
+			IF(BANCS.STDIN.languageCode=="INFENG") then
+				CUST.DATA.recErrMsg = "Enter non-zero amount value"
+			ELSE
+				CUST.DATA.recErrMsg = "Ingrese un valor de monto distinto de cero"
+			ENDIF
+			CUST.DATA.status = "F"
+			CUST.DATA.description = "Failure"
+			GOTO ENDOFRECORD
+		#}
+		ENDIF
+		if(CUST.DATA.authNum == "") then
+		#{
+			IF(BANCS.STDIN.languageCode=="INFENG") then
+				CUST.DATA.recErrMsg = "Auth Num is not given"
+			ELSE
+				CUST.DATA.recErrMsg = "Auth Num no se da"
+			ENDIF
+			CUST.DATA.status = "F"
+			CUST.DATA.description = "Failure"
+			GOTO ENDOFRECORD
+		#}
+		ENDIF
+		sv_s = ""
+		sv_s = sv_s + "accNumber,cardEncr,parentacc|"
+		sv_s = sv_s + "select EMP_ACCNT_NUM,LNKED_CARD_NUM,PARENT_ACCT from CUSTOM.CUST_CARD_ACCT_TBL WHERE CRD_MOD_FRMT "
+		sv_s = sv_s + "IN (select to_char(?SVAR,'XXXXXXXXXXXXXXXX') from dual) AND "
+		sv_s = sv_s + "ENTITY_CRE_FLG = 'Y' AND BANK_ID = ?SVAR AND ROWNUM=1"
+			
+		print(sv_s)
+		BANCS.INPARAM.BINDVARS = CUST.DATA.cardNum + "|" + BANCS.STDIN.contextBankId
+		PRINT(BANCS.INPARAM.BINDVARS)
+		sv_d = urhk_dbSelectWithBind(sv_s)
+		print(sv_d)
+		IF(sv_d == 0) THEN
+		#{
+			CUST.DATA.accNumber = BANCS.OUTPARAM.accNumber
+			print(CUST.DATA.accNumber)
+			CUST.DATA.cardEncr = BANCS.OUTPARAM.cardEncr
+			print(CUST.DATA.cardEncr)
+			CUST.DATA.parentacc = BANCS.OUTPARAM.parentacc
+			print(CUST.DATA.parentacc)
+		#}
+		ENDIF
+		CUST.DATA.desc1 = ""
+		CUST.DATA.desc1 = RTRIM(MID$(CUST.DATA.desc,0,8))
+		IF((CUST.DATA.desc1 != "010") AND (CUST.DATA.desc1 != "011") AND (CUST.DATA.desc1 != "012") AND (CUST.DATA.desc1 != "310") AND (CUST.DATA.desc1 != "311") AND (CUST.DATA.desc1 != "312"))THEN
 		#{
 			GOTO END1
 		#}
-		endif
+		ENDIF
+		CALLSCRIPTIFEXIST("atmRecordSettlement.scr")
 	#}
 	else
-	#{	
-		if(CUST.DATA.recordLength >= 262) then
-		#{
-			CUST.DATA.identifier="T"
-		#}
-		else
-		#{
-			IF(BANCS.STDIN.languageCode=="INFENG") then
-				CUST.DATA.recErrMsg = "Trailer is not proper"
-			ELSE
-				CUST.DATA.recErrMsg = "El remolque no es adecuado"
-			ENDIF
-			GOTO ENDOFRECORD
-		#}
-		endif
+	#{
+		CUST.DATA.identifier="T"
 	#}
-	ENDIF
+	endif
 #}
-ENDIF
+endif
+
 ENDOFRECORD:
 ####################################
 # Writing the response contents to file
 ###################################
 		
-IF(CUST.DATA.identifier=="H5") then
+IF(CUST.DATA.identifier=="H") then
 #{
-	CUST.DATA.consectiveNum = "1"
+	CUST.DATA.InpFileDate = MID$(CUST.DATA.atmSettlementInpFileName,9,6)
+	
+	sv_s = ""
+	sv_s = sv_s + "consectiveNum|"
+	sv_s = sv_s + "select COUNT (DISTINCT SETTLE_FILE_NAME) from CUSTOM.CUST_ATM_SETTLEMENT_FILE_TBL WHERE substr(SETTLE_FILE_NAME,10,6) = ?SVAR "
+	sv_s = sv_s + "AND SETTLE_FILE_TYPE = 'ATM EGLO' AND "
+	sv_s = sv_s + "ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N' AND BANK_ID = ?SVAR"
+	
+	print(sv_s)
+	BANCS.INPARAM.BINDVARS = CUST.DATA.InpFileDate + "|" + BANCS.STDIN.contextBankId
+	PRINT(BANCS.INPARAM.BINDVARS)
+	sv_d = urhk_dbSelectWithBind(sv_s)
+	print(sv_d)
+	IF(sv_d == 0) THEN
+	#{
+		CUST.DATA.consectiveNum = CINT(BANCS.OUTPARAM.consectiveNum) + 1
+		print(CUST.DATA.consectiveNum)
+	#}
+	ENDIF
+	
 	CUST.DATA.AllFields = RPAD(CUST.DATA.ReportType,10,' ')+" FECHA: "+RPAD(CUST.DATA.processDate,6,' ')+" HORA: "+RPAD(CUST.DATA.sysTime,6,' ')+" CONSECUTIVO: "+LPAD(CUST.DATA.consectiveNum,6,'0')+RPAD(CUST.DATA.space,304,' ')
 	
 	PRINT(CUST.DATA.AllFields)
@@ -579,8 +810,8 @@ IF(CUST.DATA.identifier=="D") then
 	CUST.DATA.incidentReason = MID$(CUST.DATA.incidentReason,0,40)
 	CUST.DATA.AllFields = RPAD(CUST.DATA.cardNum,16,' ')+" "+LPAD(CUST.DATA.accNumber,14,'0')+" "+LPAD(CUST.DATA.parentacc,14,'0')+" "+RPAD(CUST.DATA.authNum,6,' ')+" "
 	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.date2,8,' ')+" "+RPAD(CUST.DATA.time1,8,' ')+" "+RPAD(CUST.DATA.desc,15,' ')+" "
-	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.destAcctFile,19,' ')+" "+RPAD(CUST.DATA.resp,1,' ')+" "+RPAD(CUST.DATA.Cr,3,' ')+" "+RPAD(CUST.DATA.sequen,12,' ')+" "
-	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.ATM,10,' ')+" "+RPAD(CUST.DATA.countryCode,2,' ')+" "+RPAD(CUST.DATA.currCode,3,' ')+" "+RPAD(CUST.DATA.buyer,4,' ')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.destAcct,19,' ')+" "+RPAD(CUST.DATA.resp,1,' ')+" "+RPAD(CUST.DATA.Cr,3,' ')+" "+RPAD(CUST.DATA.sequen,12,' ')+" "
+	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.ATM,10,' ')+" "+RPAD(CUST.DATA.countryCode,2,' ')+" "+RPAD(CUST.DATA.currCode,3,' ')+" "+RPAD(CUST.DATA.company,4,' ')+" "
 	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.network,4,' ')+" "+LPAD(CUST.DATA.amount,10,'0')+" "+LPAD(CUST.DATA.sourceAmt,13,' ')+" "+LPAD(CUST.DATA.surchargeFee,10,' ')+" "
 	CUST.DATA.AllFields = CUST.DATA.AllFields+LPAD(CUST.DATA.donation,10,' ')+" "+RPAD(CUST.DATA.donation_id,4,' ')+" "+RPAD(CUST.DATA.respTranId,9,' ')+" "+RPAD(CUST.DATA.respCod,5,' ')+" "
 	CUST.DATA.AllFields = CUST.DATA.AllFields+RPAD(CUST.DATA.respMsg,25,' ')+" "+RPAD(CUST.DATA.incidentReason,40,' ')+" "+RPAD(CUST.DATA.blockUser,15,' ')+" "+RPAD(CUST.DATA.blockDate,6,' ')+RPAD(CUST.DATA.space,12,' ')
@@ -637,16 +868,16 @@ IF(CUST.DATA.identifier=="D") then
 	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.AllFields + "|" + CUST.DATA.status + "|" + CUST.DATA.description + "|" + CUST.DATA.LienSettleId + "|" + CUST.DATA.LienSettleAmt + "|" + CUST.DATA.LienExpSettle + "|"
 	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.respFileName + "|" + CUST.DATA.bodDate1 + "|"
 	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "Y" + "|" + "N" + "|" + BANCS.STDIN.userId  + "|" + BANCS.STDIN.userId + "|" + BANCS.STDIN.contextBankId + "|" + CUST.DATA.freeText10 + "|" + CUST.DATA.lienAccntParent+ "|" + CUST.DATA.custTranId + "|" + CUST.DATA.custTranDate + "|"
-	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.appliedSettleAmt + "|" + CUST.DATA.pendingSettleAmt + "|" + CUST.DATA.exchangeAmtDiff	
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + CUST.DATA.appliedSettleAmt + "|" + CUST.DATA.pendingSettleAmt + "|" + CUST.DATA.exchangeAmtDiff
 
 	PRINT(BANCS.INPARAM.BINDVARS)
 	sv_o = urhk_dbSQLWithBind(sv_q)
 	PRINT(sv_o)
 	if(sv_o == 0)then
 	#{
-		 sv_r = urhk_dbSQL("commit")
-		 PRINT("INSERT SUCCESSFUL")
-		 CUST.DATA.inpFilProcStat="S"
+		sv_r = urhk_dbSQL("commit")
+		PRINT("INSERT SUCCESSFUL")
+		CUST.DATA.inpFilProcStat="S"
 	#}
 	endif
 #}
