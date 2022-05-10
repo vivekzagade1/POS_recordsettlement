@@ -148,6 +148,7 @@ CUST.DATA.freeText8     = ""
 CUST.DATA.freeText9     = ""
 
 ### End as a part of accountstatement
+CUST.DATA.returnFlg = ""
 
 CUST.DATA.recordLength=STRLEN(CUST.DATA.inputRecord)
 Print(CUST.DATA.recordLength)
