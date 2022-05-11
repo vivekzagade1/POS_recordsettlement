@@ -286,67 +286,72 @@ if(sv_l ==5)then
 	endif
 #}
 endif
-####to validate footer####
-CUST.DATA.cpFlPath1=CUST.DATA.atmSettlementReqPath
-print(CUST.DATA.cpFlPath1)
 
-CUST.DATA.footer = "tmpCntFile_"+CUST.DATA.Batchdate+".txt"
-print(CUST.DATA.footer)
-
-sv_r = urhk_getFileLocation("COM|atm_headerfooter.com")
-IF(sv_r == 0) THEN
+if(sv_l ==0)then
 #{
-	CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + "atm_headerfooter.com"
-	print(CUST.DATA.comFile)
-#}
-endif
+	####to validate footer####
+	CUST.DATA.cpFlPath1=CUST.DATA.atmSettlementReqPath
+	print(CUST.DATA.cpFlPath1)
 
-sv_d = CUST.DATA.cpFlPath1 + " " + CUST.DATA.footer
-print(sv_d)
-sv_b = CUST.DATA.comFile+ " " + sv_d
+	CUST.DATA.footer = "tmpCntFile_"+CUST.DATA.Batchdate+".txt"
+	print(CUST.DATA.footer)
 
-print(sv_b)
-sv_u = SYSTEM(sv_b)
-PRINT(sv_u)
-
-IF (sv_u ==0) THEN
-#{
-	####################################
-	#Access the Input the DAT FILE
-	###################################	
-	sv_t = ""
-	sv_t = urtn_fileAccess(CUST.DATA.footer)
-	print(sv_t)
-	CUST.DATA.fileRec1 = urtn_fileOpen(CUST.DATA.footer + "|r")
-	sv_t = urtn_fileRead(CUST.DATA.fileRec1 + "|CUST.DATA.inputRecordCnt")
-	print(sv_t)
-	
-	print(CUST.DATA.inputRecordCnt)
-	CUST.DATA.atmCntName = CUST.DATA.inputRecordCnt
-	sv_t = urtn_fileClose(CUST.DATA.fileRec1)
-	PRINT(sv_t)
-	
-	sv_q = "rm -f "+CUST.DATA.footer
-	sv_v = SYSTEM(sv_q)
-	PRINT(sv_v)
-	print(CUST.DATA.atmCntName)
-	CUST.DATA.atmCntNameLength = STRLEN(TRIM(CUST.DATA.atmCntName))
-	IF(CUST.DATA.atmCntNameLength > 42)THEN
+	sv_r = urhk_getFileLocation("COM|atm_headerfooter.com")
+	IF(sv_r == 0) THEN
 	#{
-		CUST.DATA.processFlg = "FAILURE"
-		CUST.DATA.errMsg="The footer record is either improper or not provided."
-		PRINT(CUST.DATA.errMsg)
-		CUST.DATA.failStatus="Y"
-		CUST.DATA.inpFilProcStat="F"
-		CUST.DATA.respCode="ERR0000431"
-		sv_r = func_cmmsgerrdescWithInputs("ERR0000431",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
-		PRINT(sv_r)
-		PRINT(CUST.DATA.statMessage)
-		GOTO ENDOFSCRIPT
+		CUST.DATA.comFile = BANCS.OUTPARAM.fileLocation + "atm_headerfooter.com"
+		print(CUST.DATA.comFile)
+	#}
+	endif
+
+	sv_d = CUST.DATA.cpFlPath1 + " " + CUST.DATA.footer
+	print(sv_d)
+	sv_b = CUST.DATA.comFile+ " " + sv_d
+
+	print(sv_b)
+	sv_u = SYSTEM(sv_b)
+	PRINT(sv_u)
+
+	IF (sv_u ==0) THEN
+	#{
+		####################################
+		#Access the Input the DAT FILE
+		###################################	
+		sv_t = ""
+		sv_t = urtn_fileAccess(CUST.DATA.footer)
+		print(sv_t)
+		CUST.DATA.fileRec1 = urtn_fileOpen(CUST.DATA.footer + "|r")
+		sv_t = urtn_fileRead(CUST.DATA.fileRec1 + "|CUST.DATA.inputRecordCnt")
+		print(sv_t)
+	
+		print(CUST.DATA.inputRecordCnt)
+		CUST.DATA.atmCntName = CUST.DATA.inputRecordCnt
+		sv_t = urtn_fileClose(CUST.DATA.fileRec1)
+		PRINT(sv_t)
+	
+		sv_q = "rm -f "+CUST.DATA.footer
+		sv_v = SYSTEM(sv_q)
+		PRINT(sv_v)
+		print(CUST.DATA.atmCntName)
+		CUST.DATA.atmCntNameLength = STRLEN(TRIM(CUST.DATA.atmCntName))
+		IF(CUST.DATA.atmCntNameLength > 42)THEN
+		#{
+			CUST.DATA.processFlg = "FAILURE"
+			CUST.DATA.errMsg="The footer record is either improper or not provided."
+			PRINT(CUST.DATA.errMsg)
+			CUST.DATA.failStatus="Y"
+			CUST.DATA.inpFilProcStat="F"
+			CUST.DATA.respCode="ERR0000431"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000431",BANCS.STDIN.userId, "", BYREF CUST.DATA.statMessage)
+			PRINT(sv_r)
+			PRINT(CUST.DATA.statMessage)
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
 	#}
 	ENDIF
 #}
-ENDIF
+endif
 
 if(sv_l >5)then
 #{
