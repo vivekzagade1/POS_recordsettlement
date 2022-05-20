@@ -94,7 +94,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 			IF(CUST.DATA.tranType=="01") then
 			#{
 					sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL  "  
-					sv_s = sv_s + " WHERE ACCTID=?SVAR AND AuthId = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND CHANNELID=?SVAR AND BANK_ID = ?SVAR AND MODEOFOPN=?SVAR"
+					sv_s = sv_s + " WHERE ACCTID=?SVAR AND AuthId = ?SVAR AND TO_CHAR(NVL(REQTRANDATE,TRANDATE),'DD-MM-YYYY')=?SVAR AND CHANNELID=?SVAR AND BANK_ID = ?SVAR AND MODEOFOPN=?SVAR"
 					
 			#}
 			ENDIF
@@ -117,7 +117,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 				sv_s = ""
 				sv_s = "onlineAmt,freeTxt1,TRANDATE,LIENID,settleFlg,userid|SELECT TRUNC(LIENAMT,2),FREETEXT1,TO_CHAR(TRANDATE,'DD-MM-YYYY'),LIENID,SETTLEMENT_FILE_FLG,userid "
 				sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL "  
-				sv_s = sv_s + " WHERE ACCTID=?SVAR AND AuthId = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND CHANNELID=?SVAR AND BANK_ID = ?SVAR AND MODEOFOPN=?SVAR AND ROWNUM=1"
+				sv_s = sv_s + " WHERE ACCTID=?SVAR AND AuthId = ?SVAR AND TO_CHAR(NVL(REQTRANDATE,TRANDATE),'DD-MM-YYYY')=?SVAR AND CHANNELID=?SVAR AND BANK_ID = ?SVAR AND MODEOFOPN=?SVAR AND ROWNUM=1"
 				
 				
 				print(sv_s)
@@ -281,6 +281,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En" 
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC 
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -296,6 +297,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										##international purchase
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + " $" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -307,6 +309,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -602,6 +605,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 																					##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										#}
@@ -613,6 +617,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
 																						CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " " + CUST.DATA.currCode + " $" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -624,6 +629,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 																						##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1073,6 +1079,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 												CUST.TRAN.UserTrnCode = CUST.DATA.FOREIGN_PUR
 																						CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1084,6 +1091,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 																						##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 											#}
@@ -1528,6 +1536,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 																			##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1542,6 +1551,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										## international
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1555,6 +1565,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 																				##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1615,6 +1626,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1629,6 +1641,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										## international
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1641,6 +1654,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1728,6 +1742,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 										##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1742,6 +1757,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											## international
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1754,6 +1770,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 											##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1825,6 +1842,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 								##Normal Purchase Compra En
 								CUST.DATA.Nombre= "Compra En"
 								CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+								CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 								PRINT(CUST.DATA.stmtDesc)
 								CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 								CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1839,6 +1857,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									## international
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + "" + CUST.DATA.currCode + "$" + LTRIM(CUST.DATA.totSourceAmt,'0') + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -1851,6 +1870,7 @@ IF(FIELDEXISTS(CUST.DATA.cardNum) AND FIELDEXISTS(CUST.DATA.accNumber) AND FIELD
 									##Normal Purchase Compra En
 										CUST.DATA.Nombre= "Compra En"
 										CUST.DATA.stmtDesc= CUST.DATA.Nombre + " " + CUST.DATA.bussName + " " + CUST.DATA.bussLocation + " RFC:" + CUST.DATA.RFC
+										CUST.DATA.stmtDesc=TOUPPER(CUST.DATA.stmtDesc)
 										PRINT(CUST.DATA.stmtDesc)
 										CUST.DATA.freeText10 = LEFT$(CUST.DATA.stmtDesc,100)
 										CUST.DATA.freeTextDesc = LEFT$(CUST.DATA.stmtDesc,200)
@@ -2083,7 +2103,7 @@ else
 	#{
 		sv_s=""
 		sv_s=sv_s+"UPDATE CUSTOM.CUST_MCP_TBL SET SETTLEMENT_FILE_FLG='Y' "
-		sv_s=sv_s+" WHERE ACCTID=?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR "
+		sv_s=sv_s+" WHERE ACCTID=?SVAR AND TO_CHAR(NVL(REQTRANDATE,TRANDATE),'DD-MM-YYYY')=?SVAR AND BANK_ID = ?SVAR "
 		sv_s=sv_s+" AND (AuthId = ?SVAR OR NUMERICREFNUM = ?SVAR)  AND MODEOFOPN IN ('P','A')"
 		
 		

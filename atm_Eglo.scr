@@ -158,7 +158,7 @@ if(sv_l ==0)then
 	#{
 		CUST.DATA.recordType=MID$(CUST.DATA.inputRecord,0,2)
 		CUST.DATA.header1=MID$(CUST.DATA.inputRecord,2,1)
-		CUST.DATA.processDate=MID$(CUST.DATA.inputRecord,3,4)+ MID$(CUST.DATA.inputRecord,8,2)
+		CUST.DATA.processDate=MID$(CUST.DATA.inputRecord,3,4)+ MID$(CUST.DATA.inputRecord,9,2) 
 		CUST.DATA.identifier="H"
 	#}
 	else
@@ -388,14 +388,26 @@ if(sv_l >0)then
 		
 		CUST.DATA.date1 =  TRIM(MID$(CUST.DATA.inputRecord,0,sv_b-1)) 
 		PRINT(CUST.DATA.date1)
-
+		
 		CUST.DATA.sysDate = MID$(BANCS.STDIN.sysDate,6,4)
-		PRINT(CUST.DATA.sysDate)	
+		PRINT(CUST.DATA.sysDate)
 
-		CUST.DATA.date = MID$(CUST.DATA.date1,2,2) + "-" + MID$(CUST.DATA.date1,0,2) + "-" + CUST.DATA.sysDate
-		PRINT(CUST.DATA.date)
-		CUST.DATA.date2 = MID$(CUST.DATA.date1,2,2) + "/" + MID$(CUST.DATA.date1,0,2) + "/" + MID$(CUST.DATA.sysDate,2,2)
-		PRINT(CUST.DATA.date2)
+		if( MID$(CUST.DATA.date1,0,2) > MID$(CUST.DATA.processDate,2,2) )then
+		#{
+            CUST.DATA.sysDate = CINT(CUST.DATA.sysDate) - 1
+			CUST.DATA.date = MID$(CUST.DATA.date1,2,2) + "-" + MID$(CUST.DATA.date1,0,2) + "-" + CUST.DATA.sysDate
+			PRINT(CUST.DATA.date)
+			CUST.DATA.date2 = MID$(CUST.DATA.date1,2,2) + "/" + MID$(CUST.DATA.date1,0,2) + "/" + MID$(CUST.DATA.sysDate,2,2)
+			PRINT(CUST.DATA.date2)
+		#}
+		else
+		#{
+			CUST.DATA.date = MID$(CUST.DATA.date1,2,2) + "-" + MID$(CUST.DATA.date1,0,2) + "-" + CUST.DATA.sysDate
+			PRINT(CUST.DATA.date)
+			CUST.DATA.date2 = MID$(CUST.DATA.date1,2,2) + "/" + MID$(CUST.DATA.date1,0,2) + "/" + MID$(CUST.DATA.sysDate,2,2)
+			PRINT(CUST.DATA.date2)
+		#}
+		endif
 		
 		CUST.DATA.inputRecord = TRIM(MID$(CUST.DATA.inputRecord,sv_b,sv_a)) 
 		sv_b = GETPOSITION(CUST.DATA.inputRecord,"|") 

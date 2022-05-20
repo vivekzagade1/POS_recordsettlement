@@ -1,0 +1,2630 @@
+###########################################################################################
+# Source Name           : makeCardPayment.scr
+# Date                  : 28-June-2021
+# Description           : This Script is called on firing the makeCardPayment API.
+# Author                : Kavitha HS
+# Menu Option           : 
+# Calling Script        :
+# Called Script         : makeCardPayment.scr
+# Modification History  :
+# <Serial No.>  <Date>        <Author Name>         <Description>
+# ------------  -----------   -----------------     --------------
+#      1        28-June-2021    Kavitha HS          Base Version
+#      2        02-Nov-2021     Kavitha HS          Enhancement for the type of Reversal,Return,Cash Back and Adjustment type of Transaction.
+###########################################################################################
+
+IMPORT LibCommon001
+#IMPORT CommonFunc
+
+<--START
+TRACE ON
+
+###########################################################################################
+# Check whether CUST Repository exists else create it
+###########################################################################################
+
+sv_r = REPEXISTS("CUST")
+
+IF(sv_r == 0) THEN
+#{
+	CREATEREP ("CUST")
+#}
+ENDIF
+
+###########################################################################################
+# Check whether TRAN Class exists else create it
+###########################################################################################
+
+sv_r = CLASSEXISTS("CUST","TRAN")
+
+IF(sv_r == 0) THEN
+#{
+	CREATECLASS ("CUST","TRAN",5)
+#}
+ENDIF
+
+
+###########################################################################################
+# Initialize the variables
+###########################################################################################	
+BANCS.INPARAM.blockMode = ""
+CUST.TRAN.blockMode = ""
+CUST.TRAN.TranId = ""
+CUST.TRAN.TranType = ""
+CUST.TRAN.TrnSubType = ""
+CUST.TRAN.UserTrnCode = ""
+CUST.TRAN.NumericRefNum = ""
+CUST.TRAN.Remarks = ""
+CUST.TRAN.PartTrnReccount = 1
+CUST.TRAN.PmtInstReccount = 1
+CUST.TRAN.errorCode = ""
+CUST.TRAN.errorMsg = ""
+CUST.TRAN.resMsg = ""
+BANCS.OUTPUT.successOrFailure = "S"
+CUST.TRAN.AcctId1 = ""
+CUST.TRAN.accnum= ""
+CUST.TRAN.chrgReqFlg= "N"
+CUST.TRAN.inwardPay= "N"
+CUST.TRAN.sysTranCode = ""
+CUST.TRAN.freeText1 = ""
+CUST.TRAN.freeText2 = ""
+CUST.TRAN.freeText3 = ""
+CUST.TRAN.freeText4 = ""
+CUST.TRAN.freeText5 = ""
+CUST.TRAN.freeText6 = ""
+CUST.TRAN.freeText7 = "N"
+CUST.TRAN.freeText8 = ""
+CUST.TRAN.freeText9 = ""
+CUST.TRAN.freeText10 = ""
+CUST.TRAN.freeText11 = ""
+CUST.TRAN.freeText12 = ""
+CUST.TRAN.TypeOfRev = ""
+CUST.TRAN.sysTranC = ""
+CUST.TRAN.userTranC = ""
+CUST.TRAN.tranCategory = "N"
+CUST.TRAN.channelId    = ""
+CUST.TRAN.placeholder = ""
+CUST.TRAN.beneficiary = ""
+CUST.TRAN.TranAmount = ""
+CUST.TRAN.chrgReqForCrFlg = "N"
+CUST.TRAN.chrgReqForDbFlg = "N"
+CUST.TRAN.eventIdCr = ""
+CUST.TRAN.ChqCount = ""
+CUST.TRAN.eventIdDb = ""
+CUST.TRAN.terminal = ""
+CUST.TRAN.user = ""
+CUST.TRAN.branchId = ""
+CUST.TRAN.tranDate = ""
+CUST.TRAN.valueDate = ""
+CUST.TRAN.PmtInstDt =	""
+CUST.TRAN.PmtInstType = ""
+CUST.TRAN.PmtInstNum =  ""
+CUST.TRAN.rcreDate=""
+CUST.TRAN.CertChqType=""
+CUST.TRAN.oap=""
+CUST.TRAN.trId=""
+CUST.TRAN.pTSrlNo=""
+CUST.TRAN.PmtType=""
+CUST.TRAN.acid=""
+CUST.TRAN.AUTH_SIGN1=""
+CUST.TRAN.AUTH_SIGN2=""
+CUST.TRAN.crncy=""
+CUST.TRAN.trAmt = ""
+CUST.TRAN.instNo=""
+CUST.TRAN.certChqFlg=""
+CUST.TRAN.ddAcct = ""
+CUST.TRAN.countFolioStatus = ""
+CUST.TRAN.PmtInstType1 = ""
+CUST.TRAN.debitAcctId = ""
+CUST.TRAN.AuthId  = ""
+CUST.TRAN.CardNumber = ""
+CUST.TRAN.LienId = ""
+CUST.TRAN.CreditDebitFlg = ""
+CUST.TRAN.UserPartTrnCode = ""
+CUST.TRAN.PartTrnRmks = ""
+CUST.TRAN.accntNum = ""
+CUST.TRAN.amount = ""
+CUST.TRAN.CCY = ""
+CUST.TRAN.LienAmt = ""
+CUST.TRAN.RefLienId = ""
+CUST.TRAN.REFACCOUNTNUM = ""
+CUST.TRAN.LIENFLGEOS = ""
+CUST.TRAN.LIMIT_LEVEL = ""
+CUST.TRAN.STRUCTUREID = ""
+CUST.TRAN.lienDate = " "
+CUST.TRAN.TranId_TranAmt = " "
+CUST.TRAN.TranDate_TranAmt = " "
+CUST.TRAN.RevTranId_Fee = " "
+CUST.TRAN.RevTranDate_Fee = " "
+CUST.TRAN.RevTranId_TranAmt = " "
+CUST.TRAN.RevTranDate_TranAmt = " "
+CUST.TRAN.RevFlg = "N"
+CUST.TRAN.LienId_Created = " "
+CUST.TRAN.LienId_Released = " "
+CUST.TRAN.ChannelId = ""
+CUST.TRAN.lienRemoveErrFlg=""
+CUST.TRAN.SwitchId =""
+CUST.TRAN.MessageType =""
+CUST.TRAN.ModeOfOpn = ""
+CUST.TRAN.HomeCrncyAmtAmount = ""
+CUST.TRAN.HomeCrncyAmtCrncy = ""
+CUST.TRAN.FeeAmtAmount = ""
+CUST.TRAN.FeeAmtCrncy = ""
+CUST.TRAN.TranAmtCrncy = ""
+CUST.TRAN.TranAmtAmount = ""
+CUST.TRAN.rateCode = ""
+CUST.TRAN.FeeAmt = ""
+CUST.TRAN.IvaAmt = ""
+CUST.TRAN.rateFlg = 0
+CUST.TRAN.blockMode = ""
+CUST.TRAN.UserTrnCodeTransaction=""
+CUST.TRAN.authId = ""
+CUST.TRAN.UserTrnCode1=""
+CUST.TRAN.stmtDesc = ""
+CUST.TRAN.TranCurr = ""
+CUST.TRAN.TrnParticulars = ""
+CUST.TRAN.TrnParticularCode = ""
+
+BANCS.INPARAM.blockMode = ""
+#sv_u = urhk_b2k_printrepos("BANCS")	
+#print(sv_u)
+
+PRINT(BANCS.STDIN.globalUUID)
+IF(FIELDEXISTS(BANCS.STDIN.globalUUID))THEN
+#{
+	CUST.TRAN.requestId = BANCS.STDIN.globalUUID
+	PRINT(CUST.TRAN.requestId)
+	CUST.TRAN.freeText11 = CUST.TRAN.requestId
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.TranType")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.TranType") != "")THEN
+	#{
+		CUST.TRAN.TranType = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.TranType")
+		print(CUST.TRAN.TranType)
+		IF((CUST.TRAN.TranType != "C") AND (CUST.TRAN.TranType != "T") AND (CUST.TRAN.TranType != "L")) THEN
+		#{
+			CUST.TRAN.errorCode = "ERR0000152"	
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000152",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT			
+		#}
+		ENDIF
+	#}
+	ELSE
+	#{
+		CUST.TRAN.errorCode = "ERR0000149"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000149",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+		PRINT(sv_r)
+		BANCS.OUTPUT.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.TrnSubType")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.TrnSubType") != "")THEN
+	#{
+		CUST.TRAN.TrnSubType = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.TrnSubType")
+		print(CUST.TRAN.TrnSubType)
+		IF((CUST.TRAN.TrnSubType == "CI") OR (CUST.TRAN.TrnSubType == "BI") OR (CUST.TRAN.TrnSubType == "NR") OR (CUST.TRAN.TrnSubType == "NP")) THEN
+		#{
+			
+		#}
+		ELSE
+		#{
+			CUST.TRAN.errorCode = "ERR0000151"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000151",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+	#}
+	ELSE
+	#{
+		CUST.TRAN.errorCode = "ERR0000150"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000150",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+		PRINT(sv_r)
+		BANCS.OUTPUT.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.UserTrnCode")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.UserTrnCode") != "")THEN
+	#{
+		CUST.TRAN.UserTrnCode = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.UserTrnCode")
+		print(CUST.TRAN.UserTrnCode)
+		CUST.TRAN.UserTrnCode1 = CUST.TRAN.UserTrnCode
+		PRINT(CUST.TRAN.UserTrnCode1)
+	#}
+	ELSE
+	#{
+		CUST.TRAN.errorCode = "ERR0000153"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000153",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+		PRINT(sv_r)
+		BANCS.OUTPUT.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ELSE
+#{
+	CUST.TRAN.errorCode = "ERR0000153"
+	sv_r = func_cmmsgerrdescWithInputs("ERR0000153",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+	PRINT(sv_r)
+	BANCS.OUTPUT.successOrFailure = "F"
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.NumericRefNum")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.NumericRefNum") != "")THEN
+	#{
+		CUST.TRAN.NumericRefNum = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.NumericRefNum")
+		print(CUST.TRAN.NumericRefNum)
+		IF(STRLEN(CUST.TRAN.NumericRefNum)>30) THEN
+		#{
+			CUST.TRAN.errorCode = "ERR0000297"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000297",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+	#}
+	ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.Remarks")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.Remarks") != "")THEN
+	#{
+		CUST.TRAN.Remarks = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.Remarks")
+		print(CUST.TRAN.Remarks)
+	#}
+	ENDIF
+#}
+ENDIF
+
+#--------------------- Free Text -------------------------
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText1")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText1") != "")THEN
+	#{
+		CUST.TRAN.freeText1 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText1")
+		print(CUST.TRAN.freeText1)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText2")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText2") != "")THEN
+	#{
+		CUST.TRAN.freeText2 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText2")
+		print(CUST.TRAN.freeText2)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText3")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText3") != "")THEN
+	#{
+		CUST.TRAN.freeText3 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText3")
+		print(CUST.TRAN.freeText3)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText4")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText4") != "")THEN
+	#{
+		CUST.TRAN.freeText4 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText4")
+		print(CUST.TRAN.freeText4)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText5")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText5") != "")THEN
+	#{
+		CUST.TRAN.freeText5 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText5")
+		print(CUST.TRAN.freeText5)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText6")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText6") != "")THEN
+	#{
+		CUST.TRAN.freeText6 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText6")
+		print(CUST.TRAN.freeText6)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText7")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText7") != "")THEN
+	#{
+		CUST.TRAN.freeText7 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText7")
+		print(CUST.TRAN.freeText7)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText8")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText8") != "")THEN
+	#{
+		CUST.TRAN.freeText8 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText8")
+		print(CUST.TRAN.freeText8)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText9")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText9") != "")THEN
+	#{
+		CUST.TRAN.freeText9 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText9")
+		print(CUST.TRAN.freeText9)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText10")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText10") != "")THEN
+	#{
+		CUST.TRAN.freeText10 = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.FreeText10")
+		print(CUST.TRAN.freeText10)
+	#}
+	ENDIF
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.ChannelId")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.ChannelId") != "")THEN
+	#{
+		CUST.TRAN.channelId= ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.ChannelId")
+		print(CUST.TRAN.channelId)
+		CUST.TRAN.ChannelId = CUST.TRAN.channelId
+		IF((CUST.TRAN.channelId =="POS")OR(CUST.TRAN.channelId =="ATM"))THEN
+		#{
+		
+		#}
+		ELSE
+		#{
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000406",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF	
+	#}
+	ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.Terminal")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.Terminal") != "")THEN
+	#{
+		CUST.TRAN.terminal = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.Terminal")
+		print(CUST.TRAN.terminal)
+	#}
+	ELSE
+	#{
+		CUST.TRAN.terminal = "H2C0"
+	#}
+	ENDIF
+#}
+ELSE
+#{
+	CUST.TRAN.terminal = "H2C0"
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.User")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.User") != "")THEN
+	#{
+		CUST.TRAN.user = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.User")
+		print(CUST.TRAN.user)
+	#}
+	ELSE
+	#{
+		CUST.TRAN.user = "BUPAYHUB"
+	#}
+	ENDIF
+#}
+ELSE
+#{
+	CUST.TRAN.user = "BUPAYHUB"
+#}
+ENDIF
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.BranchId")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.BranchId") != "")THEN
+	#{
+		CUST.TRAN.branchId = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.BranchId")
+		print(CUST.TRAN.branchId)
+	#}
+	ENDIF
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.MessageType")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.MessageType") != "")THEN
+	#{
+		CUST.TRAN.MessageType = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.MessageType")
+		print(CUST.TRAN.MessageType)
+	#}
+	ELSE
+	#{
+		CUST.TRAN.errorCode = "ERR0000456"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000456",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+		PRINT(sv_r)
+		BANCS.OUTPUT.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ELSE
+#{
+	CUST.TRAN.errorCode = "ERR0000456"
+	sv_r = func_cmmsgerrdescWithInputs("ERR0000456",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+	PRINT(sv_r)
+	BANCS.OUTPUT.successOrFailure = "F"
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.ModeOfOpn")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.ModeOfOpn") != "")THEN
+	#{
+		CUST.TRAN.ModeOfOpn = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.ModeOfOpn")
+		CUST.TRAN.ModeOfOpn = TRIM(CUST.TRAN.ModeOfOpn)
+		print(CUST.TRAN.ModeOfOpn)
+
+		IF(((CUST.TRAN.ModeOfOpn =="A"))OR((CUST.TRAN.ModeOfOpn =="D"))OR((CUST.TRAN.ModeOfOpn =="C"))OR((CUST.TRAN.ModeOfOpn =="R"))OR((CUST.TRAN.ModeOfOpn =="P")))THEN
+		#{
+			print("KAVI")
+		#}
+		ELSE
+		#{
+			CUST.TRAN.errorCode = "ERR0000446"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000446",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+
+	#}
+	ELSE
+	#{
+		CUST.TRAN.errorCode = "ERR0000445"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000445",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+		PRINT(sv_r)
+		BANCS.OUTPUT.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ELSE
+#{
+	CUST.TRAN.errorCode = "ERR0000445"
+	sv_r = func_cmmsgerrdescWithInputs("ERR0000445",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+	PRINT(sv_r)
+	BANCS.OUTPUT.successOrFailure = "F"
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+
+#######Added for Mode of operation validation for ATM/POS Start#############
+IF( (CUST.TRAN.channelId == "ATM") ) THEN
+#{
+	IF((CUST.TRAN.ModeOfOpn!="P") AND (CUST.TRAN.ModeOfOpn!="R")) THEN
+	#{
+		CUST.TRAN.errorCode = "ERR0000550"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000550",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+		PRINT(sv_r)
+		BANCS.OUTPUT.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ELSE
+#{
+	IF((CUST.TRAN.ModeOfOpn!="P") AND (CUST.TRAN.ModeOfOpn!="R") AND (CUST.TRAN.ModeOfOpn!="D") AND (CUST.TRAN.ModeOfOpn!="C") AND (CUST.TRAN.ModeOfOpn!="A")) THEN
+	#{
+		CUST.TRAN.errorCode = "ERR0000551"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000551",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+		PRINT(sv_r)
+		BANCS.OUTPUT.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+#}
+ENDIF
+#######Added for Mode of operation validation for ATM/POS End#############
+
+
+
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.SwitchId")))THEN
+#{
+	IF(("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.SwitchId") != "")THEN
+	#{
+		CUST.TRAN.SwitchId = ("BANCS").("INPUT").("MakeCardPaymentRq.TrnHdr.SwitchId")
+		print(CUST.TRAN.SwitchId)
+
+		#Only for ATM - Partial devolution "R" CUST.TRAN.SwitchId can be repetead
+		IF(((CUST.TRAN.ModeOfOpn !="R") AND (CUST.TRAN.channelId == "ATM")) OR ((CUST.TRAN.ModeOfOpn =="P") AND (CUST.TRAN.channelId == "POS")) OR ((CUST.TRAN.ModeOfOpn =="C") AND (CUST.TRAN.channelId == "POS")))THEN
+		#{	
+			sv_s = ""
+			sv_s = "SwitchIdCount|SELECT COUNT(*) FROM custom.mcp WHERE 1=1 "
+			sv_s = sv_s + " AND switchid = ?SVAR and bank_id =?SVAR"
+			BANCS.INPARAM.BINDVARS = ""
+			BANCS.INPARAM.BINDVARS = CUST.TRAN.SwitchId + "|" + BANCS.STDIN.contextBankId
+			PRINT(sv_s)
+			PRINT(BANCS.INPARAM.BINDVARS)
+			sv_u = urhk_dbSelectWithBind(sv_s)
+			print(sv_u)
+			IF(sv_u == 0)THEN
+			#{
+				CUST.TRAN.SwitchIdCount = BANCS.OUTPARAM.SwitchIdCount
+				PRINT(CUST.TRAN.SwitchIdCount)
+				IF(CUST.TRAN.SwitchIdCount >= 1)THEN
+				#{
+					CUST.TRAN.errorCode = "ERR0000443"
+					sv_r = func_cmmsgerrdescWithInputs("ERR0000443",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+					PRINT(sv_r)
+					BANCS.OUTPUT.successOrFailure = "F"
+					GOTO ENDOFSCRIPT
+				#}
+				ENDIF
+			#}
+			ENDIF
+		#}
+		ENDIF
+
+	#}
+#	ELSE
+#	#{
+#		CUST.TRAN.errorCode = "ERR0000444"
+#		sv_r = func_cmmsgerrdescWithInputs("ERR0000444",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+#		PRINT(sv_r)
+#		BANCS.OUTPUT.successOrFailure = "F"
+#		GOTO ENDOFSCRIPT
+#	#}
+	ENDIF
+#}
+ELSE
+#{
+	CUST.TRAN.errorCode = "ERR0000444"
+	sv_r = func_cmmsgerrdescWithInputs("ERR0000444",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+	PRINT(sv_r)
+	BANCS.OUTPUT.successOrFailure = "F"
+	GOTO ENDOFSCRIPT
+#}
+ENDIF
+#--------------------- PartTrnRec array details start -------------------------
+sv_n = 0
+IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.count")))THEN
+#{
+CUST.TRAN.PartTrnReccount = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.count")
+print(CUST.TRAN.PartTrnReccount)
+WHILE(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.count")> sv_n)
+#{
+	("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("TrnParticulars_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("TrnParticularCode_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("UserPartTrnCode"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("PartTrnRmks_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("TranDate_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("PmtInstDt_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("PmtInstNum_"+FORMAT$(sv_n,"%d")) = ""
+	("CUST").("TRAN").("PmtInstType_"+FORMAT$(sv_n,"%d")) = ""
+		
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.AcctId")))THEN
+	#{
+		("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.AcctId")
+		PRINT(("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")))
+		CUST.TRAN.AccountId	= ("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d"))
+		CUST.TRAN.AcctCRNCY = ""
+		sv_s = ""
+		sv_s  = "countAcctCurr| SELECT ACCT_CRNCY_CODE FROM TBAADM.GAM "
+		sv_s = sv_s + " WHERE FORACID = ?SVAR AND BANK_ID = ?SVAR AND ENTITY_CRE_FLG = 'Y' "
+		sv_s = sv_s + " AND DEL_FLG = 'N' AND ACCT_CLS_FLG = 'N' "
+		print(sv_s)
+		BANCS.INPARAM.BINDVARS = ("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")) +"|"+ BANCS.STDIN.contextBankId
+		PRINT(sv_s)
+		PRINT(BANCS.INPARAM.BINDVARS)
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		print(sv_u)
+		IF(sv_u == 0) THEN
+		#{
+			CUST.TRAN.AcctCRNCY = BANCS.OUTPARAM.countAcctCurr
+		#}
+		ELSE
+		#{
+			CUST.TRAN.errorCode = "ERR0000101"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000101",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+	#}
+	ENDIF
+
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.CreditDebitFlg")))THEN
+	#{
+		("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.CreditDebitFlg")
+		CUST.TRAN.CreditDebitFlg = ("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d"))
+		
+	#}
+	ENDIF
+	PRINT(("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")))
+	IF(("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")) == "D") THEN
+		CUST.TRAN.debitAcctId = ("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d"))
+		print(CUST.TRAN.debitAcctId)
+	ENDIF
+
+	### Adding the new Fieds as a part of POS Enhancement ###
+
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TranAmt.Amount")))THEN
+	#{
+		("CUST").("TRAN").("TranAmtAmount_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TranAmt.Amount")
+		("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n,"%d")) = ("CUST").("TRAN").("TranAmtAmount_"+FORMAT$(sv_n,"%d"))
+		PRINT(("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n,"%d")))
+		CUST.TRAN.TranAmtAmount = ("CUST").("TRAN").("TranAmtAmount_"+FORMAT$(sv_n,"%d"))
+		CUST.TRAN.TranAmtAmount = format$(CDOUBLE(CUST.TRAN.TranAmtAmount),"%0.2f")
+		CUST.TRAN.TranAmt = CUST.TRAN.TranAmtAmount
+		
+		CUST.TRAN.reqFeeLength=STRLEN(CUST.TRAN.TranAmt)
+		PRINT(CUST.TRAN.reqFeeLength)
+		CUST.TRAN.reqFeeDecimalPos= getposition(CUST.TRAN.TranAmt,".")
+		PRINT(CUST.TRAN.reqFeeDecimalPos)
+		if(CINT(CUST.TRAN.reqFeeDecimalPos)<CINT(CUST.TRAN.reqFeeLength)) then 
+		#{
+			CUST.TRAN.reqFeeNumeric=MID$(CUST.TRAN.TranAmt,0,CINT(CUST.TRAN.reqFeeDecimalPos)-1)
+			PRINT(CUST.TRAN.reqFeeNumeric)
+			if(CUST.TRAN.reqFeeNumeric!="") THEN
+			#{
+				sv_u = urhk_B2k_isStringNumeric(CUST.TRAN.reqFeeNumeric)
+				print(sv_u)
+				IF(sv_u != 0)THEN
+				#{
+					CUST.TRAN.errorCode = "ERRMGD0249"
+					sv_r = func_cmmsgerrdescWithInputs("ERRMGD0249",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+					PRINT(sv_r)
+					BANCS.OUTPUT.successOrFailure = "F"
+					GOTO ENDOFSCRIPT
+				#}
+				ENDIF
+			#}
+			ENDIF
+			CUST.TRAN.reqFeeDecimal=MID$(CUST.TRAN.TranAmt,CINT(CUST.TRAN.reqFeeDecimalPos)+1,CINT(CUST.TRAN.reqFeeLength))
+			PRINT(CUST.TRAN.reqFeeDecimal)
+			if(CUST.TRAN.reqFeeDecimal!="") THEN
+			#{
+				sv_u = urhk_B2k_isStringNumeric(CUST.TRAN.reqFeeDecimal)
+				print(sv_u)
+				IF(sv_u != 0)THEN
+				#{
+					CUST.TRAN.errorCode = "ERRMGD0249"
+					sv_r = func_cmmsgerrdescWithInputs("ERRMGD0249",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+					PRINT(sv_r)
+					BANCS.OUTPUT.successOrFailure = "F"
+					GOTO ENDOFSCRIPT
+				#}
+				ENDIF
+			#}
+			ENDIF
+		#}
+		else
+		#{
+			CUST.TRAN.errorCode = "ERRMGD0249"
+			sv_r = func_cmmsgerrdescWithInputs("ERRMGD0249",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		endif
+		
+		IF(CUST.TRAN.reqFeeDecimalPos == "") THEN
+		#{
+			sv_u = urhk_B2k_isStringNumeric(CUST.TRAN.TranAmt)
+			print(sv_u)
+			IF(sv_u != 0)THEN
+			#{
+				CUST.TRAN.errorCode = "ERRMGD0249"
+				sv_r = func_cmmsgerrdescWithInputs("ERRMGD0249",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+				PRINT(sv_r)
+				BANCS.OUTPUT.successOrFailure = "F"
+				GOTO ENDOFSCRIPT
+			#}
+			ENDIF
+		#}
+		ENDIF	
+		
+		CUST.TRAN.TranAmt = format$(CDOUBLE(CUST.TRAN.TranAmt),"%0.2f")
+		print(CUST.TRAN.TranAmt)	
+			
+	#}
+	ENDIF
+			
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TranAmt.Crncy")))THEN
+	#{
+		("CUST").("TRAN").("TranAmtCrncy_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TranAmt.Crncy")
+		("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")) = ("CUST").("TRAN").("TranAmtCrncy_"+FORMAT$(sv_n,"%d"))
+		CUST.TRAN.TranAmtCrncy = ("CUST").("TRAN").("TranAmtCrncy_"+FORMAT$(sv_n,"%d"))
+		CUST.TRAN.TranCurr = CUST.TRAN.TranAmtCrncy
+		
+		IF(CUST.TRAN.AcctCRNCY == "")THEN
+		#{
+			CUST.TRAN.errorCode = "ERR000222"
+			sv_r = func_cmmsgerrdescWithInputs("ERR000222",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+		
+		
+		IF(CUST.TRAN.TranAmtCrncy != "MXP")THEN
+		#{
+			CUST.TRAN.VarAmtCrncy = "MXP"
+		
+			CUST.TRAN.inputParam1="BALINQ_FEE_CRNCY_RATE"
+			CUST.TRAN.paramLvl="BNKL"
+			CUST.TRAN.modName="LIABILITIES"
+			BANCS.INPARAM.BINDVARS = CUST.TRAN.inputParam1+ "|" + CUST.TRAN.paramLvl+ "|" + CUST.TRAN.modName+ "|" + BANCS.STDIN.contextBankId
+			PRINT(BANCS.INPARAM.BINDVARS)
+			
+			sv_s = ""
+			sv_s = sv_s + "crncyRatecode|"
+			sv_s = sv_s + "select A.PARAMETER_VALUE from "
+			sv_s = sv_s + "custom.C_CPVALUE A,custom.C_CPMASTER B where A.PARAMETER_ID=?SVAR "
+			sv_s = sv_s + "and A.PARAMETER_ID=B.PARAMETER_ID and A.bank_id=B.bank_id "
+			sv_s = sv_s + "and B.PARAMETER_LEVEL=?SVAR and B.MODULE_NAME=?SVAR "
+			sv_s = sv_s + "and A.bank_id=?SVAR and A.ENTITY_CRE_FLG='Y' AND A.DEL_FLG!='Y'"
+			print(sv_s)
+			sv_d = urhk_dbSelectWithBind(sv_s)
+			print(sv_d)
+			IF(sv_d == 0)THEN
+			#{
+				CUST.TRAN.crncyRatecode = BANCS.OUTPARAM.crncyRatecode
+				print(CUST.TRAN.crncyRatecode)
+			#}
+			ELSE
+			#{
+				CUST.TRAN.errorCode = "ERR00028"
+				sv_r = func_cmmsgerrdescWithInputs("ERR00028",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+				PRINT(sv_r)
+				BANCS.OUTPUT.successOrFailure = "F"
+				GOTO ENDOFSCRIPT
+			#}
+			ENDIF
+		
+		
+			sv_s = ""
+			sv_s  = "varCrncyUnit,rateCode| select var_crncy_units,RATECODE from tbaadm.rtl "
+			sv_s = sv_s + " WHERE FXd_crncy_code = ?SVAR AND var_crncy_code = ?SVAR AND ENTITY_CRE_FLG = 'Y' "
+			sv_s = sv_s + " and RATECODE=?SVAR AND DEL_FLG = 'N'"
+			sv_s = sv_s + " AND rtlist_date=(select max(r.rtlist_date) from tbaadm.rtl r "
+			sv_s = sv_s + " WHERE r.FXd_crncy_code = ?SVAR AND r.var_crncy_code = ?SVAR AND r.ENTITY_CRE_FLG = 'Y' "
+			sv_s = sv_s + " and r.RATECODE=?SVAR AND r.DEL_FLG = 'N' and rownum =1) "
+			sv_s = sv_s + " AND rownum = 1"
+			BANCS.INPARAM.BINDVARS = CUST.TRAN.VarAmtCrncy +"|"+ CUST.TRAN.TranAmtCrncy + "|"+ CUST.TRAN.crncyRatecode +"|"+ CUST.TRAN.VarAmtCrncy +"|"+ CUST.TRAN.TranAmtCrncy + "|"+ CUST.TRAN.crncyRatecode
+			PRINT(sv_s)
+			PRINT(BANCS.INPARAM.BINDVARS)
+			sv_u = urhk_dbSelectWithBind(sv_s)
+			print(sv_u)
+			IF(sv_u == 0) THEN
+			#{
+				CUST.TRAN.varCrncyUnit = BANCS.OUTPARAM.varCrncyUnit
+				CUST.TRAN.rateCode = BANCS.OUTPARAM.rateCode
+				
+				BANCS.INPARAM.InputAmount=CUST.TRAN.TranAmt
+				PRINT(CUST.TRAN.TranAmt)
+				BANCS.INPARAM.FromCurrency=CUST.TRAN.TranAmtCrncy
+				PRINT(CUST.TRAN.TranAmtCrncy)
+				BANCS.INPARAM.ToCurrency=CUST.TRAN.VarAmtCrncy
+				PRINT(CUST.TRAN.VarAmtCrncy)
+				BANCS.INPARAM.RateCode=CUST.TRAN.rateCode
+				PRINT(CUST.TRAN.rateCode)
+				BANCS.INPARAM.Rate=0
+
+				CUST.TRAN.TranAmt = CDOUBLE(BANCS.INPARAM.InputAmount) * CDOUBLE(CUST.TRAN.varCrncyUnit)
+				("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n,"%d")) = format$(CDOUBLE(CUST.TRAN.TranAmt),"%0.2f")
+				print(CUST.TRAN.TranAmt)
+				CUST.TRAN.TranCurr = "MXP"
+				("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")) = "MXP"
+			#}
+			ELSE
+			#{
+				CUST.TRAN.rateCode =""
+			#}
+			ENDIF
+
+		#}
+		ELSE
+		#{
+			CUST.TRAN.rateCode = "0"
+		#}
+		ENDIF
+	#}
+	ENDIF
+		
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.HomeCrncyAmt.Amount")))THEN
+	#{
+		("CUST").("TRAN").("HomeCrncyAmtAmount_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.HomeCrncyAmt.Amount")
+		 #("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n,"%d")) = ("CUST").("TRAN").("HomeCrncyAmtAmount_"+FORMAT$(sv_n,"%d"))
+		CUST.TRAN.HomeCrncyAmtAmount = ("CUST").("TRAN").("HomeCrncyAmtAmount_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.HomeCrncyAmtAmount)
+		IF(CUST.TRAN.rateCode =="")THEN
+		#{
+			CUST.TRAN.TranAmt = CUST.TRAN.HomeCrncyAmtAmount
+			
+			CUST.TRAN.TranAmt = format$(CDOUBLE(CUST.TRAN.HomeCrncyAmtAmount),"%0.2f")
+			
+			("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n,"%d")) = CUST.TRAN.HomeCrncyAmtAmount
+		#}
+		ENDIF
+
+	#}
+	ENDIF
+		
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.HomeCrncyAmt.Crncy")))THEN
+	#{
+		("CUST").("TRAN").("HomeCrncyAmtCrncy_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.HomeCrncyAmt.Crncy")
+		CUST.TRAN.HomeCrncyAmtCrncy = ("CUST").("TRAN").("HomeCrncyAmtCrncy_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.HomeCrncyAmtCrncy)
+		IF(CUST.TRAN.rateCode =="")THEN
+		#{
+			CUST.TRAN.TranCurr = CUST.TRAN.HomeCrncyAmtCrncy
+			("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")) = CUST.TRAN.HomeCrncyAmtCrncy
+		#}
+		ENDIF
+
+	#}
+	ENDIF
+
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.FeeAmt.Amount")))THEN
+	#{
+		("CUST").("TRAN").("FeeAmtAmount_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.FeeAmt.Amount")
+		CUST.TRAN.FeeAmtAmount = ("CUST").("TRAN").("FeeAmtAmount_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.FeeAmtAmount)
+	#}
+	ENDIF
+	
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.FeeAmt.Crncy")))THEN
+	#{
+		("CUST").("TRAN").("FeeAmtCrncy_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.FeeAmt.Crncy")
+		CUST.TRAN.FeeAmtCrncy = ("CUST").("TRAN").("FeeAmtCrncy_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.FeeAmtCrncy)
+	#}
+	ENDIF
+		
+	############## End of the Enhancement of the debit card Transaction ##############		
+		
+	CUST.TRAN.amount = format$(CDOUBLE(CUST.TRAN.TranAmt),"%0.2f")
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TrnParticulars")))THEN
+	#{
+		("CUST").("TRAN").("TrnParticulars_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TrnParticulars")
+		CUST.TRAN.TrnParticulars = ("CUST").("TRAN").("TrnParticulars_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.TrnParticulars)
+	#}
+	ENDIF
+
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TrnParticularCode")))THEN
+	#{
+		("CUST").("TRAN").("TrnParticularCode_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TrnParticularCode")
+		CUST.TRAN.TrnParticularCode = ("CUST").("TRAN").("TrnParticularCode_"+FORMAT$(sv_n,"%d")) 
+		PRINT(CUST.TRAN.TrnParticularCode)
+	#}
+	ENDIF
+
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.UserPartTrnCode")))THEN
+	#{
+		("CUST").("TRAN").("UserPartTrnCode_"+FORMAT$(sv_n,"%d")) = ("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.UserPartTrnCode")
+		CUST.TRAN.UserPartTrnCode = ("CUST").("TRAN").("UserPartTrnCode_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.UserPartTrnCode)
+	#}
+	ENDIF
+
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.PartTrnRmks")))THEN
+	#{
+		("CUST").("TRAN").("PartTrnRmks_"+FORMAT$(sv_n,"%d")) = MID$(TRIM(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.PartTrnRmks")),0,20)
+		CUST.TRAN.PartTrnRmks = ("CUST").("TRAN").("PartTrnRmks_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.PartTrnRmks)
+	#}
+	ENDIF
+
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.ValueDate")))THEN
+	#{
+		("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")) = MID$(TRIM(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.ValueDate")),0,10) + " 00:00:00"
+		CUST.TRAN.ValueDate = ("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.ValueDate)
+
+		sv_a = urhk_B2k_valDate(CUST.TRAN.ValueDate)
+		IF(sv_a == 1) THEN
+		#{
+			CUST.TRAN.errorCode = "ERR000243"
+			sv_r = func_cmmsgerrdescWithInputs("ERR000243",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+	#}
+	ENDIF
+
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TranDate")))THEN
+	#{
+		("CUST").("TRAN").("TranDate_"+FORMAT$(sv_n,"%d")) = MID$(TRIM(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.TranDate")),0,20)
+		CUST.TRAN.TranDate = ("CUST").("TRAN").("TranDate_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.TranDate)
+
+		sv_a = urhk_B2k_valDate(CUST.TRAN.TranDate)
+		IF(sv_a == 1) THEN
+		#{
+			CUST.TRAN.errorCode = "ERR000243"
+			sv_r = func_cmmsgerrdescWithInputs("ERR000243",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+		
+		IF((CUST.TRAN.SwitchId == "") AND ((CUST.TRAN.ModeOfOpn == "R") OR (CUST.TRAN.ModeOfOpn == "A") OR (CUST.TRAN.ModeOfOpn == "D")) )THEN
+		#{
+			sv_s = ""
+			sv_s  = "count9| SELECT count(*) FROM CUSTOM.CUST_MCP_TBL "
+			sv_s = sv_s + " WHERE AuthId = ?SVAR AND BANK_ID = ?SVAR "
+			sv_s = sv_s + " AND TO_CHAR(TRANDATE,'DD-MM-YYYY') = ?SVAR "
+			print(sv_s)
+			BANCS.INPARAM.BINDVARS = CUST.TRAN.NumericRefNum +"|"+ BANCS.STDIN.contextBankId +"|"+ CUST.TRAN.TranDate
+			PRINT(BANCS.INPARAM.BINDVARS)
+			sv_u = urhk_dbSelectWithBind(sv_s)
+			print(sv_u)
+			IF(sv_u == 0) THEN
+			#{
+				CUST.TRAN.count9 = BANCS.OUTPARAM.count9
+				IF(CUST.TRAN.count9 == 0) THEN
+				#{
+					CUST.TRAN.errorCode = "ERR000242"
+					sv_r = func_cmmsgerrdescWithInputs("ERR000242",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+					BANCS.OUTPUT.successOrFailure = "F"
+					GOTO ENDOFSCRIPT
+				#}
+				ENDIF
+			#}
+			ENDIF
+		#}
+		ENDIF
+	#}
+	ELSE
+	#{
+		CUST.TRAN.errorCode = "ERR0000455"
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000455",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+		PRINT(sv_r)
+		BANCS.OUTPUT.successOrFailure = "F"
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+
+	IF(FIELDEXISTS(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.CardNumber")))THEN
+	#{
+		("CUST").("TRAN").("CardNumber_"+FORMAT$(sv_n,"%d")) = MID$(TRIM(("BANCS").("INPUT").("MakeCardPaymentRq.PartTrnRec.<rec_"+FORMAT$(sv_n,"%d")+">.CardNumber")),0,20)
+		CUST.TRAN.CardNumber = ("CUST").("TRAN").("CardNumber_"+FORMAT$(sv_n,"%d"))
+		PRINT(CUST.TRAN.CardNumber)
+		
+		
+		sv_u = urhk_B2k_isStringNumeric(CUST.TRAN.CardNumber)
+        print(sv_u)
+        IF(sv_u != 0)THEN
+        #{
+            CUST.TRAN.errorCode = "ERRMGD0254"
+			sv_r = func_cmmsgerrdescWithInputs("ERRMGD0254",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+        #}
+        ENDIF
+
+		
+		IF(STRLEN(CUST.TRAN.CardNumber) != 16) THEN
+		#{
+			CUST.TRAN.errorCode = "ERRMGD0255"
+			sv_r = func_cmmsgerrdescWithInputs("ERRMGD0255",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+		
+		
+			sv_s = ""
+			sv_s  = sv_s + "card| select to_char(?SVAR,'XXXXXXXXXXXXXXXX') from dual "
+			
+			print(sv_s)
+			BANCS.INPARAM.BINDVARS = CUST.TRAN.CardNumber 
+			PRINT(sv_s)
+			PRINT(BANCS.INPARAM.BINDVARS)
+			sv_u = urhk_dbSelectWithBind(sv_s)
+			print(sv_u)
+			IF(sv_u == 0) THEN
+			#{
+				CUST.TRAN.card = BANCS.OUTPARAM.card
+				PRINT(CUST.TRAN.card)
+				
+				CUST.TRAN.card = LPAD(CUST.TRAN.card,17,' ')
+				print(CUST.TRAN.card)
+				
+				
+				sv_t = ""
+				sv_t  = sv_t + "cardCnt| SELECT LNKED_CARD_NUM FROM CUSTOM.CUST_CARD_ACCT_TBL "
+				sv_t = sv_t + " WHERE EMP_ACCNT_NUM=?SVAR AND CRD_MOD_FRMT=?SVAR AND BANK_ID = ?SVAR  "
+				sv_t = sv_t + " AND ENTITY_CRE_FLG = 'Y' AND DEL_FLG = 'N'  "
+				print(sv_t)
+				BANCS.INPARAM.BINDVARS = CUST.TRAN.AccountId +"|"+ CUST.TRAN.card +"|"+ BANCS.STDIN.contextBankId
+				PRINT(sv_t)
+				PRINT(BANCS.INPARAM.BINDVARS)
+				sv_u = urhk_dbSelectWithBind(sv_t)
+				print(sv_u)
+				
+				IF(sv_u == 0) THEN
+				#{
+					CUST.TRAN.cardCnt = BANCS.OUTPARAM.cardCnt
+					PRINT(CUST.TRAN.cardCnt)
+					
+				#}
+				ELSE		
+				#{
+					CUST.TRAN.errorCode = "ERRMGD0256"
+					sv_r = func_cmmsgerrdescWithInputs("ERRMGD0256",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+					PRINT(sv_r)
+					BANCS.OUTPUT.successOrFailure = "F"
+					GOTO ENDOFSCRIPT
+				#}
+				ENDIF
+			#}
+			ELSE		
+			#{
+				CUST.TRAN.errorCode = "ERRMGD0256"
+				sv_r = func_cmmsgerrdescWithInputs("ERRMGD0256",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+				PRINT(sv_r)
+				BANCS.OUTPUT.successOrFailure = "F"
+				GOTO ENDOFSCRIPT
+			#}
+			ENDIF
+		
+	#}
+	ENDIF
+	
+	CUST.TRAN.drAcctId = ("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d"))
+	print(CUST.TRAN.drAcctId)
+		
+	sv_s = ""
+	sv_s = "freezeCode|SELECT FREZ_CODE FROM TBAADM.GAM WHERE FREZ_CODE IN (?SVAR,?SVAR,?SVAR) AND FORACID = ?SVAR AND BANK_ID = ?SVAR"
+	print(sv_s)
+	BANCS.INPARAM.BINDVARS = "C|D|T|" +  ("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")) + "|" + BANCS.STDIN.contextBankId
+	PRINT(BANCS.INPARAM.BINDVARS)
+	sv_u = urhk_dbSelectWithBind(sv_s)
+	print(sv_u)
+	IF(sv_u == 0) THEN
+	#{
+		print(BANCS.OUTPARAM.freezeCode)
+		CUST.TRAN.freezeCode = BANCS.OUTPARAM.freezeCode
+		IF((CUST.TRAN.freezeCode == "D") AND (("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d"))  == "D"))THEN
+		#{
+			CUST.TRAN.errorCode = "ERR0000409"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000409",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ELSE
+		#{
+			IF((CUST.TRAN.freezeCode == "C") AND (("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d"))  == "C"))THEN
+			#{
+				CUST.TRAN.errorCode = "ERR0000158"
+				sv_r = func_cmmsgerrdescWithInputs("ERR0000158",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+				PRINT(sv_r)
+				BANCS.OUTPUT.successOrFailure = "F"
+				GOTO ENDOFSCRIPT
+			#}
+			ENDIF
+		#}
+		ENDIF
+		
+		IF(CUST.TRAN.freezeCode == "T")THEN
+		#{
+			CUST.TRAN.errorCode = "ERR0000229"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000229",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			#CUST.TRAN.errorMsg = "Cuenta bloqueada.La cuenta estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ totalmente congelada"
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ENDIF
+	#}
+	ENDIF
+
+	IF((CUST.TRAN.TranType == "T") AND (CUST.TRAN.TrnSubType == "CI"))THEN
+	#{
+		CUST.TRAN.PmtInstType = ("CUST").("TRAN").("PmtInstType_"+FORMAT$(sv_n,"%d"))	
+		IF((CUST.TRAN.PmtInstType =="CER" ) AND (CUST.TRAN.PartTrnReccount == 1))THEN
+		#{
+			CUST.TRAN.PmtInstType1 = "CHQ"
+			
+			
+			sv_s  =  " countFolioStatus|SELECT STATUS FROM CUSTOM.CUST_CHQ_DTLS_TBL "	
+			sv_s  =  sv_s + " WHERE ACCOUNT_NUMBER = ?SVAR AND CHQ_NUM = ?SVAR AND BANK_ID = ?SVAR "
+			sv_s  =  sv_s + " AND ENTITY_CRE_FLG = ?SVAR AND DEL_FLG = ?SVAR"
+			print(sv_s)
+
+		
+			BANCS.INPARAM.BINDVARS = ("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")) + "|" + ("CUST").("TRAN").("PmtInstNum_"+FORMAT$(sv_n,"%d"))
+			BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + BANCS.STDIN.contextBankId
+			BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + "Y|N"
+			print(BANCS.INPARAM.BINDVARS)
+			
+			sv_u = urhk_dbSelectWithBind(sv_s)
+			print(sv_u)
+			
+			IF(sv_u == 0) THEN
+			#{
+				CUST.TRAN.countFolioStatus= BANCS.OUTPARAM.countFolioStatus
+				print(CUST.TRAN.countFolioStatus)	
+			#}
+			ENDIF
+			IF((CUST.TRAN.countFolioStatus == "0") OR (CUST.TRAN.countFolioStatus == ""))THEN
+			#{
+				CUST.TRAN.errorCode = "ERR0000632"
+				#ERR0000632=Cheque Folio Creation is not done
+				sv_r = func_cmmsgerrdescWithInputs("ERR0000632",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+				PRINT(sv_r)
+				BANCS.OUTPUT.successOrFailure = "F"
+				GOTO ENDOFSCRIPT
+			#}
+			ENDIF
+			
+			("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n,"%d"))
+			sv_s  =  " TranAmount,beneficiary|SELECT FREE_TEXT2,FREE_TEXT3 FROM CUSTOM.CUST_CHQ_DTLS_TBL "	
+			sv_s  =  sv_s + " WHERE ACCOUNT_NUMBER = ?SVAR AND CHQ_NUM = ?SVAR AND BANK_ID = ?SVAR "
+			sv_s  =  sv_s + " AND ENTITY_CRE_FLG = ?SVAR AND DEL_FLG = ?SVAR"
+			print(sv_s)
+
+		
+			BANCS.INPARAM.BINDVARS = ("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")) + "|" + ("CUST").("TRAN").("PmtInstNum_"+FORMAT$(sv_n,"%d"))
+			BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + BANCS.STDIN.contextBankId
+			BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + "Y|N"
+			print(BANCS.INPARAM.BINDVARS)
+			
+			sv_u = urhk_dbSelectWithBind(sv_s)
+			print(sv_u)
+			
+			IF(sv_u == 0) THEN
+			#{
+				CUST.TRAN.TranAmount= BANCS.OUTPARAM.TranAmount
+				print(CUST.TRAN.TranAmount)
+				CUST.TRAN.beneficiary = BANCS.OUTPARAM.beneficiary
+				print(CUST.TRAN.beneficiary)
+			#}	
+			ENDIF
+		
+			IF(CUST.TRAN.beneficiary != "")THEN
+			#{
+				IF(CUST.TRAN.freeText2 != CUST.TRAN.beneficiary) THEN
+				#{
+					CUST.TRAN.errorCode = "ERR0000633"
+					#ERR0000633= Beneficiary mismatch
+					sv_r = func_cmmsgerrdescWithInputs("ERR0000633",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+					PRINT(sv_r)
+					BANCS.OUTPUT.successOrFailure = "F"
+					GOTO ENDOFSCRIPT
+				#}
+				ENDIF
+			#}
+			ENDIF
+		
+			print(("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n+1,"%d")))	
+			print(CUST.TRAN.TranAmount)
+			IF(CUST.TRAN.TranAmount != "")THEN
+			#{
+				IF(("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n+1,"%d")) != CUST.TRAN.TranAmount) THEN
+				#{
+						CUST.TRAN.errorCode = "ERR0000634"
+						#ERR0000634=Amount Mismatch
+						sv_r = func_cmmsgerrdescWithInputs("ERR0000634",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+						PRINT(sv_r)
+						BANCS.OUTPUT.successOrFailure = "F"
+						GOTO ENDOFSCRIPT
+				#}
+				ENDIF
+			#}
+			ENDIF
+		#}
+		ENDIF	
+	#}
+	ENDIF
+
+	IF((CUST.TRAN.PartTrnReccount == 1) AND (CUST.TRAN.TranType != "C") AND (CUST.TRAN.TrnSubType != "NR")) THEN
+	#{
+		("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n,"%d"))
+		("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d"))
+		("CUST").("TRAN").("TrnParticulars_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("TrnParticulars_"+FORMAT$(sv_n,"%d"))
+		("CUST").("TRAN").("TrnParticularCode_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("TrnParticularCode_"+FORMAT$(sv_n,"%d"))
+		("CUST").("TRAN").("UserPartTrnCode"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("UserPartTrnCode"+FORMAT$(sv_n,"%d"))
+		("CUST").("TRAN").("PartTrnRmks_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("PartTrnRmks_"+FORMAT$(sv_n,"%d"))
+		("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d"))
+		("CUST").("TRAN").("TranDate_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("TranDate_"+FORMAT$(sv_n,"%d"))	
+
+		("CUST").("TRAN").("PmtInstDt_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("PmtInstDt_"+FORMAT$(sv_n,"%d"))
+		("CUST").("TRAN").("PmtInstNum_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("PmtInstNum_"+FORMAT$(sv_n,"%d"))
+		("CUST").("TRAN").("PmtInstType_"+FORMAT$(sv_n+1,"%d")) = ("CUST").("TRAN").("PmtInstType_"+FORMAT$(sv_n,"%d"))
+		
+		("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n+1,"%d")) = ""
+		("CUST").("TRAN").("ddAcct_"+FORMAT$(sv_n+1,"%d")) = ""
+		
+		sv_s  =  "placeholder|SELECT ACCOUNT_PLACEHOLDER FROM CUSTOM.CUST_PART_TRAN_CODE_MAINT_TABLE "
+		sv_s  =  sv_s + " WHERE USER_TRAN_CODE = ?SVAR AND CHANNEL_ID = ?SVAR AND TRAN_CATEGORY = ?SVAR "	
+		sv_s  =  sv_s + " AND TYPE_OF_TRAN = ?SVAR AND BANK_ID = ?SVAR AND ENTITY_CRE_FLG = ?SVAR AND DEL_FLG = ?SVAR "
+		sv_s  =  sv_s + " AND TRAN_TYPE = ?SVAR "
+		print(sv_s)
+	
+		BANCS.INPARAM.BINDVARS = CUST.TRAN.UserTrnCode + "|" + 	CUST.TRAN.channelId
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.tranCategory
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.freeText7
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + BANCS.STDIN.contextBankId
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + "Y|N"
+		print(BANCS.INPARAM.BINDVARS)
+
+		IF(("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")) == "D")THEN
+		#{
+			BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + "C"
+			("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n+1,"%d")) = "C"
+		#}
+		ELSE
+		#{
+			BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + "D"
+			("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n+1,"%d")) = "D"
+		#}
+		ENDIF
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		print(sv_u)
+		IF(sv_u == 0) THEN
+		#{
+			CUST.TRAN.placeholder = BANCS.OUTPARAM.placeholder
+			print(CUST.TRAN.placeholder)
+		#}
+		ENDIF
+		
+		IF (CUST.TRAN.placeholder == "") THEN
+		#{
+			CUST.TRAN.errorCode = "ERR0000154"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000154",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			PRINT(sv_r)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		#}
+		ELSE
+		#{
+			sv_s = CUST.TRAN.placeholder + "|" + CUST.TRAN.TranCurr
+			sv_s = sv_s + "|" + BANCS.STDIN.homeSolId
+			print(sv_s)
+			sv_u = urhk_B2k_BacidtoAcctId (sv_s)
+			PRINT(sv_u)
+			IF (sv_u == 0) THEN
+			#{
+				("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n+1,"%d")) = BANCS.OUTPARAM.AcctId
+				PRINT(("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n+1,"%d")))
+				CUST.TRAN.ddAcct = BANCS.OUTPARAM.AcctId
+			#}
+			ELSE
+			#{
+				CUST.TRAN.errorCode = "ERR0000154"
+				sv_r = func_cmmsgerrdescWithInputs("ERR0000154",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+				PRINT(sv_r)
+				BANCS.OUTPUT.successOrFailure = "F"
+				GOTO ENDOFSCRIPT
+			#}
+			ENDIF
+		#}
+		ENDIF
+	#}
+	ENDIF
+
+	IF((CUST.TRAN.PartTrnReccount == 2) AND (sv_n ==1)) THEN
+	#{
+		sv_s = "cif1,cif2|SELECT (SELECT cif_id FROM tbaadm.gam WHERE foracid = ?SVAR AND bank_id = ?SVAR), "
+		sv_s = sv_s + "(SELECT cif_id FROM tbaadm.gam WHERE foracid = ?SVAR AND bank_id = ?SVAR) from DUAL "
+		print(sv_s)
+		BANCS.INPARAM.BINDVARS =  ("CUST").("TRAN").("AcctId_0") + "|" + BANCS.STDIN.contextBankId 
+		BANCS.INPARAM.BINDVARS =  BANCS.INPARAM.BINDVARS + "|" + ("CUST").("TRAN").("AcctId_1") + "|" + BANCS.STDIN.contextBankId 
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		print(sv_u)
+		IF(sv_u == 0) THEN
+		#{
+			print(BANCS.OUTPARAM.cif1)
+
+			print(BANCS.OUTPARAM.cif2)
+			IF((BANCS.OUTPARAM.cif1 != "") AND (BANCS.OUTPARAM.cif2 != ""))THEN
+			#{
+				IF(BANCS.OUTPARAM.cif1 != BANCS.OUTPARAM.cif2)THEN	
+				#{
+					CUST.TRAN.tranCategory = "O"
+				#}
+				ELSE
+				#{
+					CUST.TRAN.tranCategory = "S"
+				#}		
+				ENDIF	
+			#}
+			ENDIF		
+		#}
+		ENDIF		
+	#}
+	ENDIF
+	sv_n =sv_n +1
+
+#}
+DO
+
+	sv_s = ""
+	sv_s = "eventIdDb,eventIdCr|SELECT "
+	sv_s = sv_s + " (SELECT EVENT_ID FROM CUSTOM.CUST_PART_TRAN_CODE_MAINT_TABLE WHERE USER_TRAN_CODE = ?SVAR AND CHANNEL_ID = ?SVAR AND TRAN_CATEGORY = ?SVAR AND TYPE_OF_TRAN = ?SVAR AND BANK_ID = ?SVAR AND ENTITY_CRE_FLG = ?SVAR AND DEL_FLG = ?SVAR AND TRAN_TYPE = ?SVAR), "
+	sv_s = sv_s + " (SELECT EVENT_ID FROM CUSTOM.CUST_PART_TRAN_CODE_MAINT_TABLE WHERE USER_TRAN_CODE = ?SVAR AND CHANNEL_ID = ?SVAR AND TRAN_CATEGORY = ?SVAR AND TYPE_OF_TRAN = ?SVAR AND BANK_ID = ?SVAR AND ENTITY_CRE_FLG = ?SVAR AND DEL_FLG = ?SVAR AND TRAN_TYPE = ?SVAR) FROM DUAL"
+	print(sv_s)
+
+	BANCS.INPARAM.BINDVARS = CUST.TRAN.UserTrnCode + "|" + 	CUST.TRAN.channelId
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.tranCategory
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.freeText7
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + BANCS.STDIN.contextBankId
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + "Y|N|FD"
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.UserTrnCode 
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" +	CUST.TRAN.channelId
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.tranCategory
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.freeText7
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + BANCS.STDIN.contextBankId
+	BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + "Y|N|FC"
+	print(BANCS.INPARAM.BINDVARS)
+
+	sv_u = urhk_dbSelectWithBind(sv_s)
+	print(sv_u)
+	IF(sv_u == 0) THEN
+	#{
+		print(BANCS.OUTPARAM.eventIdDb)	
+		print(BANCS.OUTPARAM.eventIdCr)
+		IF(BANCS.OUTPARAM.eventIdDb != "")THEN
+		#{
+				CUST.TRAN.chrgReqFlg= "Y"				
+				CUST.TRAN.chrgReqForDbFlg = "Y"
+				CUST.TRAN.eventIdDb = BANCS.OUTPARAM.eventIdDb
+		#}
+		ELSE
+		#{
+			IF(BANCS.OUTPARAM.eventIdCr != "")THEN
+			#{
+				CUST.TRAN.chrgReqFlg= "Y"
+				CUST.TRAN.chrgReqForCrFlg = "Y"
+				CUST.TRAN.eventIdCr = BANCS.OUTPARAM.eventIdCr
+			#}
+			ENDIF
+		#}		
+		ENDIF
+	#}
+	ENDIF
+#}
+ENDIF	
+#--------------------- PartTrnRec array details ends -------------------------
+
+#### Validating for settled record ############
+
+IF((CUST.TRAN.ModeOfOpn != "P") AND (CUST.TRAN.ModeOfOpn != "C"))THEN
+#{
+	sv_s = ""
+	sv_s = "count6| SELECT count(*) FROM CUSTOM.CUST_MCP_TBL where acctid = ?SVAR and bank_id =?SVAR  "
+	sv_s = sv_s + " and entity_cre_flg ='Y' and del_flg ='N' and settlement_file_flg ='Y' "
+	
+	BANCS.INPARAM.BINDVARS = CUST.TRAN.AccountId + "|" + BANCS.STDIN.contextBankId
+	IF(CUST.TRAN.SwitchId != "")THEN
+	#{
+		sv_s = sv_s + " AND SWITCHID = ?SVAR"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.SwitchId
+	#}
+	ENDIF
+	IF((CUST.TRAN.TranDate != "") AND (CUST.TRAN.NumericRefNum != ""))THEN
+	#{
+		sv_s = sv_s + " AND AUTHID = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY') = ?SVAR"
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.NumericRefNum + "|" + CUST.TRAN.TranDate
+	#}
+	ENDIF
+	PRINT(sv_s)
+	PRINT(BANCS.INPARAM.BINDVARS)
+	sv_u = urhk_dbSelectWithBind(sv_s)
+	print(sv_u)
+	IF(sv_u == 0) THEN
+	#{
+	
+		CUST.TRAN.settleCount = BANCS.OUTPARAM.count6
+		PRINT(CUST.TRAN.settleCount)
+		IF(CUST.TRAN.settleCount >0)THEN
+		#{
+			CUST.TRAN.errorCode = "ERR0000454"
+			sv_r = func_cmmsgerrdescWithInputs("ERR0000454",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+			BANCS.OUTPUT.successOrFailure = "F"
+			GOTO ENDOFSCRIPT
+		
+		#}
+		ENDIF
+	
+	#}
+	ENDIF
+#}
+ENDIF
+	
+CUST.TRAN.accntNum = CUST.TRAN.AccountId
+CUST.TRAN.CCY = CUST.TRAN.TranCurr
+PRINT(CUST.TRAN.accntNum)
+PRINT(CUST.TRAN.channelId)
+
+#########################################
+#	ATM - Partial Reversal Scenario
+#########################################
+IF((CUST.TRAN.ModeOfOpn == "R") AND (CUST.TRAN.channelId == "ATM"))THEN
+#{
+	CALLSCRIPTIFEXIST("makeCardPayment_ATM_R.scr")
+	IF(BANCS.OUTPUT.successOrFailure == "F")THEN
+	#{
+		GOTO ENDOFSCRIPT
+	#}
+	ENDIF
+	#GOTO ENDOFSCRIPT
+#}
+ENDIF
+############ User Tran Code Configuration ##########################################
+
+IF(CUST.TRAN.ModeOfOpn == "A")THEN
+#{
+	CUST.TRAN.UserTrnCodeTransaction = "A"
+#}
+ENDIF
+
+IF(CUST.TRAN.ModeOfOpn == "D")THEN
+#{
+	CUST.TRAN.UserTrnCodeTransaction = "D"
+#}
+ENDIF
+
+IF(CUST.TRAN.ModeOfOpn == "R")THEN
+#{
+	CUST.TRAN.UserTrnCodeTransaction = "R"
+#}
+ENDIF
+
+IF(CUST.TRAN.ModeOfOpn == "C")THEN
+#{
+	CUST.TRAN.UserTrnCodeTransaction = "C"
+#}
+ENDIF
+IF(CUST.TRAN.ModeOfOpn == "P")THEN
+#{
+	CUST.TRAN.UserTrnCodeTransaction = "P"
+#}
+ENDIF	
+
+PRINT(CUST.TRAN.ModeOfOpn)
+IF(CUST.TRAN.channelId == "POS") THEN
+#{
+
+	PRINT(CUST.TRAN.AccountId)	
+	BANCS.INPUT.AcctNum  = CUST.TRAN.AccountId
+	BANCS.INPUT.TranAmt  = format$(CDOUBLE(CUST.TRAN.TranAmt),"%0.2f")
+	CUST.TRAN.TranAmt = format$(CDOUBLE(CUST.TRAN.TranAmt),"%0.2f")
+	print(CUST.TRAN.TranAmt)
+	CUST.TRAN.CardNumber = CUST.TRAN.CardNumber
+	CUST.TRAN.AuthId  = CUST.TRAN.AuthId 
+	
+	IF(CUST.TRAN.UserTrnCodeTransaction == "R")THEN
+	#{
+	
+		##----------------------------------------------------------------------------
+		### Adding As a part of New Enhancement  --Reversal
+		##----------------------------------------------------------------------------	
+		BANCS.INPARAM.BINDVARS = ""
+		sv_s = ""
+		sv_s = "tranIdOrg,tranAmtOrg,acctIdOrg,tranCurrOrg,tranDateOrg,lienIdOrg,lienAmtOrg,feeamt,ivaamt,usertrncode,authId|SELECT Tranid,tranamt,acctid,trancurr, "
+		sv_s = sv_s + " TO_CHAR(trandate,'DD-MM-YYYY'),lienid,lienamt,feeamt,ivaamt,usertrncode,AUTHID FROM CUSTOM.CUST_MCP_TBL "  
+		#SwitchId = CUST.TRAN.UniqueRefNum
+		sv_s = sv_s + " WHERE 1=1 AND BANK_ID = ?SVAR "
+		BANCS.INPARAM.BINDVARS = BANCS.STDIN.contextBankId
+		PRINT(CUST.TRAN.SwitchId)
+		PRINT(CUST.TRAN.TranDate)
+		PRINT(CUST.TRAN.NumericRefNum)
+		IF((CUST.TRAN.SwitchId == "") AND (CUST.TRAN.TranDate != "") AND (CUST.TRAN.NumericRefNum != ""))THEN
+		#{
+			sv_s = sv_s + " AND AUTHID = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY') = ?SVAR"
+			BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.NumericRefNum + "|" + CUST.TRAN.TranDate
+			CUST.TRAN.errorCode = "ERR000233"
+			print(sv_s)	
+		#}
+		ENDIF
+		
+		IF((CUST.TRAN.SwitchId != "") AND (CUST.TRAN.NumericRefNum == ""))THEN
+		#{
+			sv_s = sv_s + " AND SWITCHID = ?SVAR"
+			BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.SwitchId
+			CUST.TRAN.errorCode = "ERR000236"
+		#}
+		ENDIF
+		#Add searching by 3 fields - No original transaction/lien for reversal
+		IF((CUST.TRAN.SwitchId != "") AND (CUST.TRAN.NumericRefNum != ""))THEN
+		#{
+			sv_s = sv_s + " AND AUTHID = ?SVAR AND TO_CHAR(TRANDATE,'DD-MM-YYYY') = ?SVAR AND SWITCHID = ?SVAR"	
+			BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.NumericRefNum + "|" + CUST.TRAN.TranDate + "|" + CUST.TRAN.SwitchId
+			CUST.TRAN.errorCode = "ERR000234"
+		#}
+		ENDIF
+		sv_s = sv_s + " AND MODEOFOPN in ('P','C')"
+		
+		PRINT(sv_s)
+		PRINT(BANCS.INPARAM.BINDVARS)
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		print(sv_u)
+		IF(sv_u == 0) THEN
+		#{
+			CUST.TRAN.TrnId = BANCS.OUTPARAM.tranIdOrg
+			PRINT(CUST.TRAN.TrnId)
+			CUST.TRAN.tranAmtOrg = BANCS.OUTPARAM.tranAmtOrg
+			PRINT(CUST.TRAN.tranAmtOrg)
+			CUST.TRAN.acctIdOrg = BANCS.OUTPARAM.acctIdOrg
+			PRINT(CUST.TRAN.acctIdOrg)
+			CUST.TRAN.tranCurrOrg = BANCS.OUTPARAM.tranCurrOrg
+			PRINT(CUST.TRAN.tranCurrOrg)
+			CUST.TRAN.TrnDt = BANCS.OUTPARAM.tranDateOrg
+			PRINT(CUST.TRAN.TrnDt)
+			CUST.TRAN.lienIdOrg = BANCS.OUTPARAM.lienIdOrg
+			PRINT(CUST.TRAN.lienIdOrg)
+			CUST.TRAN.lienAmtOrg = BANCS.OUTPARAM.lienAmtOrg
+			PRINT(CUST.TRAN.lienAmtOrg)	
+			CUST.TRAN.feeamt = BANCS.OUTPARAM.feeamt
+			PRINT(CUST.TRAN.feeamt)
+			CUST.TRAN.ivaamt = BANCS.OUTPARAM.ivaamt
+			PRINT(CUST.TRAN.ivaamt)
+			CUST.TRAN.UsrTranCode = BANCS.OUTPARAM.usertrncode
+			PRINT(CUST.TRAN.UsrTranCode)
+			PRINT(CUST.TRAN.UserTrnCode1)
+			CUST.TRAN.authId = BANCS.OUTPARAM.authId
+			PRINT(CUST.TRAN.authId)	
+			
+			IF(CUST.TRAN.tranAmtOrg == CUST.TRAN.TranAmt)THEN
+			#{
+					
+			#}
+			else
+			#{
+				CUST.TRAN.tranAmtOrg = format$(CDOUBLE(CUST.TRAN.tranAmtOrg),"%0.2f")
+				PRINT(CUST.TRAN.tranAmtOrg)
+				PRINT(CUST.TRAN.TranAmt)
+				IF(CDOUBLE(CUST.TRAN.tranAmtOrg) > CDOUBLE(CUST.TRAN.TranAmt))THEN
+				#{
+					sv_s = ""
+					sv_s = "totTranAmt| select sum(tranamt) "
+					sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL"
+					sv_s = sv_s + " WHERE numericrefnum = ?SVAR AND TRANDATE = TO_DATE(?SVAR,'DD-MM-RRRR')"
+					sv_s = sv_s + " AND MODEOFOPN = ?SVAR"
+					sv_s = sv_s + " AND channelid ='POS' "
+					BANCS.INPARAM.BINDVARS = ""
+					BANCS.INPARAM.BINDVARS = CUST.TRAN.NumericRefNum + "|" + CUST.TRAN.TranDate + "|R"
+					PRINT(BANCS.INPARAM.BINDVARS)
+					PRINT(sv_s)
+					sv_u = urhk_dbSelectWithBind(sv_s)
+					print(sv_u)
+					IF(sv_u == 0) THEN
+					#{
+						CUST.TRAN.totTranAmt = BANCS.OUTPARAM.totTranAmt
+						PRINT(CUST.TRAN.totTranAmt)
+					#}
+					ELSE
+					#{
+						CUST.TRAN.totTranAmt = 0
+					#}
+					ENDIF
+				
+					CUST.TRAN.TranAmt1 = CDOUBLE(CUST.TRAN.tranAmtOrg) - CDOUBLE(CUST.TRAN.TranAmt) - CDOUBLE(CUST.TRAN.totTranAmt)
+					PRINT(CUST.TRAN.TranAmt1)
+					CUST.TRAN.TranAmt = CUST.TRAN.TranAmt1
+					IF(CDOUBLE(CUST.TRAN.TranAmt)<0)THEN
+					#{
+						CUST.TRAN.errorCode = "ERR000238"
+						sv_r = func_cmmsgerrdescWithInputs("ERR000238",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+						BANCS.OUTPUT.successOrFailure = "F"
+						GOTO ENDOFSCRIPT
+					#}
+					ENDIF
+				#}
+				ELSE
+				#{
+					CUST.TRAN.errorCode = "ERR000238"
+					sv_r = func_cmmsgerrdescWithInputs("ERR000238",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+					BANCS.OUTPUT.successOrFailure = "F"
+					GOTO ENDOFSCRIPT
+				#}
+				ENDIF	
+			#}
+			ENDIF
+			
+			CUST.TRAN.accountNum = CUST.TRAN.AccountId
+			CUST.TRAN.LienType="ULIEN"
+			CUST.TRAN.LienAmt=CUST.TRAN.TranAmt
+			CUST.TRAN.recCount=""
+			CUST.TRAN.lienId = CUST.TRAN.lienIdOrg
+			BANCS.INPARAM.blockMode = "M"
+			CUST.TRAN.blockMode = "M"
+			
+			CALLSCRIPTIFEXIST("MakeCardPayMarkLien.scr")
+			IF(CUST.TRAN.lienRemoveErrFlg=="N")THEN
+			#{
+				sv_s = ""
+				sv_s = "AuthId| SELECT LPAD(CUSTOM.C_MCP_AUTH_SEQ.NEXTVAL,6,0) from dual"
+				print(sv_s)
+				sv_u = urhk_dbSelectWithBind(sv_s)
+				IF(sv_u ==0) THEN
+				#{
+					CUST.TRAN.AuthId  = BANCS.OUTPARAM.AuthId
+					print(CUST.TRAN.AuthId)
+				#}
+				ENDIF
+				
+				IF(CUST.TRAN.NumericRefNum=="")THEN
+				#{
+					CUST.TRAN.NumericRefNum = CUST.TRAN.authId
+					PRINT(CUST.TRAN.NumericRefNum)
+				#}
+				ENDIF
+				
+                                ##### Added this as a part of 11thmay2022 MDPC5112 ###
+                                ##CARD Number Fetching for this account Number
+
+sv_s = ""
+sv_s = "CardNumber| SELECT LNKED_CARD_NUM "
+sv_s = sv_s + " FROM CUSTOM.CUST_CARD_ACCT_TBL "
+sv_s = sv_s + " WHERE EMP_ACCNT_NUM = ?SVAR AND BANK_ID = ?SVAR "
+sv_s = sv_s + " AND ENTITY_CRE_FLG = 'Y' "
+sv_s = sv_s + " AND DEL_FLG = 'N' AND ROWNUM =1"
+print(sv_s)
+
+BANCS.INPARAM.BINDVARS = CUST.TRAN.AccountId +"|"+ BANCS.STDIN.contextBankId
+PRINT(sv_s)
+PRINT(BANCS.INPARAM.BINDVARS)
+sv_u = urhk_dbSelectWithBind(sv_s)
+print(sv_u)
+IF(sv_u == 0) THEN
+#{
+        CUST.TRAN.CardNumber = BANCS.OUTPARAM.CardNumber
+        PRINT(CUST.TRAN.CardNumber)
+
+#}
+ELSE
+#{
+        CUST.TRAN.CardNumber = ""
+#}
+ENDIF
+
+
+IF(CUST.TRAN.CardNumber !="")THEN
+#{
+        PRINT(CUST.TRAN.CardNumber)
+        BANCS.INPARAM.encrStr = CUST.TRAN.CardNumber
+        sv_e = urhk_decryptString("")
+        CUST.TRAN.CardNumber = BANCS.OUTPARAM.decrStr
+        PRINT(CUST.TRAN.CardNumber)
+
+#}
+ENDIF
+
+
+
+
+
+
+                                CUST.TRAN.UserTrnCode = CUST.TRAN.UserTrnCode1
+                                CALLSCRIPTIFEXIST("makeCardPayInsertMCP.scr")
+                                CALLSCRIPTIFEXIST("makeTranInsertCDTH.scr")
+
+                                ### Response:
+                                sv_u = urhk_SetOrbOut("MakeCardPaymentRs.TranId| "+ CUST.TRAN.TranId)
+                                print(sv_u)
+                                sv_u = urhk_SetOrbOut("MakeCardPaymentRs.TranDate| "+ CUST.TRAN.TrnDt)
+                                print(sv_u)
+                                sv_u = urhk_SetOrbOut("MakeCardPaymentRs.AuthId| "+ CUST.TRAN.AuthId)
+                                print(sv_u)
+                                sv_u = urhk_SetOrbOut("MakeCardPaymentRs.CardNumber| "+ CUST.TRAN.CardNumber)
+print(sv_u)
+
+
+                        #}
+                        ENDIF
+                        GOTO ENDOFSCRIPT
+                #}
+                ELSE
+                #{
+                        CUST.TRAN.tranIdOrg = ""
+                        CUST.TRAN.tranAmtOrg = ""
+                        CUST.TRAN.acctIdOrg = ""
+                        CUST.TRAN.tranCurrOrg = ""
+                        CUST.TRAN.tranDateOrg = ""
+                        CUST.TRAN.lienIdOrg = ""
+                        CUST.TRAN.lienAmtOrg  = ""
+                        CUST.TRAN.feeamt = ""
+                        CUST.TRAN.ivaamt = ""
+
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000372",BANCS.STDIN.userId, "" , BYREF CUST.TRAN.errorMsg)
+                        CUST.TRAN.errorCode = "ERR0000372"
+                        PRINT(sv_r)
+                        CUST.TRAN.successOrFailure = "F"
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+
+                #}
+                ENDIF
+
+        #}
+        ENDIF
+        IF(CUST.TRAN.UserTrnCodeTransaction == "D")THEN
+        #{
+
+                ##----------------------------------------------------------------------------
+                ### Adding As a part of New Enhancement  --Devolution
+                ##----------------------------------------------------------------------------
+                sv_s = ""
+                sv_s = "lienid|SELECT lienid "
+                sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL "
+                sv_s = sv_s + " WHERE AuthId = ?SVAR AND BANK_ID = ?SVAR  AND TO_CHAR(TRANDATE,'DD-MM-YYYY') = ?SVAR"
+                print(sv_s)
+                BANCS.INPARAM.BINDVARS = CUST.TRAN.NumericRefNum +"|"+ BANCS.STDIN.contextBankId +"|"+ CUST.TRAN.TranDate
+                PRINT(sv_s)
+                PRINT(BANCS.INPARAM.BINDVARS)
+                sv_u = urhk_dbSelectWithBind(sv_s)
+                print(sv_u)
+                IF(sv_u == 0) THEN
+                #{
+                        CUST.TRAN.lienid = BANCS.OUTPARAM.lienid
+                        PRINT(CUST.TRAN.lienid)
+                        CUST.TRAN.LienId = CUST.TRAN.lienid
+                #}
+                ELSE
+                #{
+                        CUST.TRAN.LienId = ""
+                #}
+                ENDIF
+
+                ##----------------------------------------------------------------------------
+                ### Adding As a part of New Enhancement  --Devolution
+                ##----------------------------------------------------------------------------
+
+                ##CARD Number Fetching for this account Number
+
+                sv_s = ""
+                sv_s = "CardNumber| SELECT LNKED_CARD_NUM "
+                sv_s = sv_s + " FROM CUSTOM.CUST_CARD_ACCT_TBL "
+                sv_s = sv_s + " WHERE EMP_ACCNT_NUM = ?SVAR AND BANK_ID = ?SVAR "
+                sv_s = sv_s + " AND ENTITY_CRE_FLG = 'Y' "
+                sv_s = sv_s + " AND DEL_FLG = 'N' AND ROWNUM =1"
+                print(sv_s)
+
+                BANCS.INPARAM.BINDVARS = CUST.TRAN.AccountId +"|"+ BANCS.STDIN.contextBankId
+                PRINT(sv_s)
+                PRINT(BANCS.INPARAM.BINDVARS)
+                sv_u = urhk_dbSelectWithBind(sv_s)
+                print(sv_u)
+                IF(sv_u == 0) THEN
+                #{
+                        CUST.TRAN.CardNumber = BANCS.OUTPARAM.CardNumber
+                        PRINT(CUST.TRAN.CardNumber)
+
+		#}
+		ELSE
+		#{
+			CUST.TRAN.CardNumber = ""
+		#}	
+		ENDIF
+		
+		#------------------- Auth ID  ---------------------------------#
+		sv_s = ""
+		sv_s = "AuthId| SELECT LPAD(CUSTOM.C_MCP_AUTH_SEQ.NEXTVAL,6,0) from dual"
+		print(sv_s)
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		IF(sv_u ==0) THEN
+		#{
+			CUST.TRAN.AuthId  = BANCS.OUTPARAM.AuthId
+			print(CUST.TRAN.AuthId)
+		#}
+		ENDIF
+
+		CALLSCRIPTIFEXIST("makeCardPayInsertMCP.scr")
+
+		sv_u = urhk_SetOrbOut("MakeCardPaymentRs.AuthId| "+ CUST.TRAN.AuthId)
+		print(sv_u)
+
+		GOTO ENDOFSCRIPT
+
+	#}	
+	ENDIF
+	
+	
+	IF(CUST.TRAN.UserTrnCodeTransaction == "C")THEN  
+	#{
+	
+		##----------------------------------------------------------------------------
+		### Adding As a part of New Enhancement  --Cash Back
+		##----------------------------------------------------------------------------
+		
+	#}	
+	ENDIF
+	
+	##----------------------------------------------------------------------------
+	
+	IF(CUST.TRAN.UserTrnCodeTransaction == "A")THEN
+	#{
+		sv_s = ""
+		sv_s = "count3| select count(*) "
+		sv_s = sv_s + " FROM CUSTOM.CUST_MCP_TBL"
+		sv_s = sv_s + " WHERE numericrefnum = ?SVAR AND TRANDATE = TO_DATE(?SVAR,'DD-MM-RRRR')"
+		sv_s = sv_s + " AND (MODEOFOPN in ('D','R') OR MODEOFOPN is null)"
+		sv_s = sv_s + " AND channelid ='POS' "
+		BANCS.INPARAM.BINDVARS = ""
+		BANCS.INPARAM.BINDVARS = CUST.TRAN.NumericRefNum + "|" + CUST.TRAN.TranDate 
+		PRINT(BANCS.INPARAM.BINDVARS)
+		PRINT(sv_s)
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		print(sv_u)
+		IF(sv_u == 0) THEN
+		#{
+			CUST.TRAN.count3 = BANCS.OUTPARAM.count3
+			PRINT(CUST.TRAN.count3)
+			IF(CUST.TRAN.count3 >0)THEN
+			#{
+				sv_r = func_cmmsgerrdescWithInputs("ERR0000448",BANCS.STDIN.userId, "" , BYREF CUST.TRAN.errorMsg)
+				CUST.TRAN.errorCode = "ERR0000448"
+				PRINT(sv_r)
+				CUST.TRAN.successOrFailure = "F"
+				BANCS.OUTPUT.successOrFailure = "F"
+				GOTO ENDOFSCRIPT
+			#}
+			ENDIF
+				
+		#}
+		ELSE
+		#{
+			CUST.TRAN.count3 = 0
+		#}
+		ENDIF
+				
+		##----------------------------------------------------------------------------
+		### Adding As a part of New Enhancement  --Adjustment
+		##----------------------------------------------------------------------------	
+		sv_s = ""
+		sv_s = "tranIdOrg,tranAmtOrg,acctIdOrg,tranCurrOrg,tranDateOrg,lienIdOrg,lienAmtOrg,feeamt,ivaamt,usertrncode|SELECT Tranid,tranamt,acctid,trancurr, "
+                sv_s = sv_s + "TO_CHAR(trandate,'DD-MM-YYYY'),lienid,lienamt,feeamt,ivaamt,usertrncode FROM CUSTOM.CUST_MCP_TBL "
+		sv_s = sv_s + " WHERE AuthId = ?SVAR AND BANK_ID = ?SVAR "
+		print(sv_s)
+		BANCS.INPARAM.BINDVARS = CUST.TRAN.NumericRefNum +"|"+ BANCS.STDIN.contextBankId
+		PRINT(sv_s)
+		PRINT(BANCS.INPARAM.BINDVARS)
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		print(sv_u)
+		IF(sv_u == 0) THEN
+		#{
+			CUST.TRAN.TrnId = BANCS.OUTPARAM.tranIdOrg
+			PRINT(CUST.TRAN.TrnId)
+			CUST.TRAN.tranAmtOrg = BANCS.OUTPARAM.tranAmtOrg
+			PRINT(CUST.TRAN.tranAmtOrg)
+			CUST.TRAN.acctIdOrg = BANCS.OUTPARAM.acctIdOrg
+			PRINT(CUST.TRAN.acctIdOrg)
+			CUST.TRAN.tranCurrOrg = BANCS.OUTPARAM.tranCurrOrg
+			PRINT(CUST.TRAN.tranCurrOrg)
+			CUST.TRAN.TrnDt = BANCS.OUTPARAM.tranDateOrg
+			PRINT(CUST.TRAN.TrnDt)
+			CUST.TRAN.lienIdOrg = BANCS.OUTPARAM.lienIdOrg
+			PRINT(CUST.TRAN.lienIdOrg)
+			CUST.TRAN.lienAmtOrg = BANCS.OUTPARAM.lienAmtOrg
+			PRINT(CUST.TRAN.lienAmtOrg)	
+			CUST.TRAN.feeamt = BANCS.OUTPARAM.feeamt
+			PRINT(CUST.TRAN.feeamt)
+			CUST.TRAN.ivaamt = BANCS.OUTPARAM.ivaamt
+			PRINT(CUST.TRAN.ivaamt)
+
+			CUST.TRAN.UsrTranCode = BANCS.OUTPARAM.usertrncode
+			PRINT(CUST.TRAN.UsrTranCode)
+			
+			CUST.TRAN.accountNum = CUST.TRAN.AccountId
+			CUST.TRAN.LienType="ULIEN"
+			CUST.TRAN.LienAmt=CUST.TRAN.TranAmt
+			CUST.TRAN.recCount=""
+			CUST.TRAN.lienId = CUST.TRAN.lienIdOrg
+			CUST.TRAN.LienId = CUST.TRAN.lienIdOrg
+			BANCS.INPARAM.blockMode = "M"
+			CUST.TRAN.blockMode = "M"
+	
+	
+			##----------------------------------------------------------------------------
+			### Adding As a part of New Enhancement  --Adjustment (No need of changing the behaviour)
+			##----------------------------------------------------------------------------
+			BANCS.INPARAM.blockMode = "M"
+			CUST.TRAN.blockMode = "M"
+			PRINT(CUST.TRAN.TranAmt)
+
+                        ##CARD Number Fetching for this account Number
+
+sv_s = ""
+sv_s = "CardNumber| SELECT LNKED_CARD_NUM "
+sv_s = sv_s + " FROM CUSTOM.CUST_CARD_ACCT_TBL "
+sv_s = sv_s + " WHERE EMP_ACCNT_NUM = ?SVAR AND BANK_ID = ?SVAR "
+sv_s = sv_s + " AND ENTITY_CRE_FLG = 'Y' "
+sv_s = sv_s + " AND DEL_FLG = 'N' AND ROWNUM =1"
+print(sv_s)
+
+BANCS.INPARAM.BINDVARS = CUST.TRAN.AccountId +"|"+ BANCS.STDIN.contextBankId
+PRINT(sv_s)
+PRINT(BANCS.INPARAM.BINDVARS)
+sv_u = urhk_dbSelectWithBind(sv_s)
+print(sv_u)
+IF(sv_u == 0) THEN
+#{
+        CUST.TRAN.CardNumber = BANCS.OUTPARAM.CardNumber
+        PRINT(CUST.TRAN.CardNumber)
+
+#}
+ELSE
+#{
+        CUST.TRAN.CardNumber = ""
+#}
+ENDIF
+
+
+IF(CUST.TRAN.CardNumber !="")THEN
+#{
+        PRINT(CUST.TRAN.CardNumber)
+        BANCS.INPARAM.encrStr = CUST.TRAN.CardNumber
+        sv_e = urhk_decryptString("")
+        CUST.TRAN.CardNumber = BANCS.OUTPARAM.decrStr
+        PRINT(CUST.TRAN.CardNumber)
+
+#}
+ENDIF
+
+sv_u = urhk_SetOrbOut("MakeCardPaymentRs.CardNumber| "+ CUST.TRAN.CardNumber)
+print(sv_u)
+
+
+                        #CALLSCRIPTIFEXIST("MakeCardPayMarkLien.scr")
+                        CALLSCRIPTIFEXIST("balanceCheckPOS_MCP.scr")
+
+                        sv_u = urhk_SetOrbOut("MakeCardPaymentRs.TranId| "+ CUST.TRAN.TranId)
+                        print(sv_u)
+                        sv_u = urhk_SetOrbOut("MakeCardPaymentRs.TranDate| "+ CUST.TRAN.TrnDt)
+                        print(sv_u)
+                        sv_u = urhk_SetOrbOut("MakeCardPaymentRs.AuthId| "+ CUST.TRAN.AuthId)
+                        print(sv_u)
+
+                        GOTO ENDOFSCRIPT
+                #}
+                ELSE
+                #{
+                        CUST.TRAN.tranIdOrg = ""
+                        CUST.TRAN.tranAmtOrg = ""
+                        CUST.TRAN.acctIdOrg = ""
+                        CUST.TRAN.tranCurrOrg = ""
+                        CUST.TRAN.tranDateOrg = ""
+                        CUST.TRAN.lienIdOrg = ""
+                        CUST.TRAN.lienAmtOrg  = ""
+                        CUST.TRAN.feeamt = ""
+                        CUST.TRAN.ivaamt = ""
+
+                        sv_r = func_cmmsgerrdescWithInputs("ERR0000372",BANCS.STDIN.userId, "" , BYREF CUST.TRAN.errorMsg)
+                        CUST.TRAN.errorCode = "ERR0000372"
+                        PRINT(sv_r)
+                        CUST.TRAN.successOrFailure = "F"
+                        BANCS.OUTPUT.successOrFailure = "F"
+                        GOTO ENDOFSCRIPT
+
+                #}
+                ENDIF
+
+        #}
+        ENDIF
+
+	
+	BANCS.INPARAM.blockMode = "A"
+	CUST.TRAN.blockMode = "A"
+	CALLSCRIPTIFEXIST("balanceCheckPOS_MCP.scr")
+	IF(CUST.TRAN.LienId != "")THEN
+	#{
+		BANCS.OUTPUT.successOrFailure = "S"
+		
+		IF(CUST.TRAN.CardNumber !="")THEN
+		#{
+			PRINT(CUST.TRAN.CardNumber)
+			BANCS.INPARAM.encrStr = CUST.TRAN.CardNumber
+			sv_e = urhk_decryptString("")
+			CUST.TRAN.CardNumber = BANCS.OUTPARAM.decrStr
+			PRINT(CUST.TRAN.CardNumber)
+			
+		#}	
+		ENDIF	
+
+		sv_u = urhk_SetOrbOut("MakeCardPaymentRs.LienId| "+ CUST.TRAN.LienId)
+		print(sv_u)
+		sv_u = urhk_SetOrbOut("MakeCardPaymentRs.lienDate| "+ CUST.TRAN.lienDate)
+		print(sv_u)
+		sv_u = urhk_SetOrbOut("MakeCardPaymentRs.AuthId| "+ CUST.TRAN.AuthId)
+		print(sv_u)
+		sv_u = urhk_SetOrbOut("MakeCardPaymentRs.CardNumber| "+ CUST.TRAN.CardNumber)
+		print(sv_u)
+	#}
+	ENDIF
+	
+	GOTO ENDOFSCRIPT
+
+#}
+ENDIF
+
+IF(CUST.TRAN.channelId == "ATM") THEN
+#{
+	IF(CUST.TRAN.ModeOfOpn == "P")THEN
+	#{
+
+		IF((CUST.TRAN.freeText1 != "") AND (CUST.TRAN.freeText1 =="B127"))THEN
+		#{
+			#Nombre de Banco + free Text 2 + free Text 3
+			CUST.TRAN.Nombre= "RETIRO DE EFECTIVO"
+			CUST.TRAN.Nombre1= "CAJERO"
+			CUST.TRAN.stmtDesc= CUST.TRAN.Nombre + " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.Nombre1 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3
+			CUST.TRAN.stmtDesc=TOUPPER(CUST.TRAN.stmtDesc)
+			PRINT(CUST.TRAN.stmtDesc)
+			CUST.TRAN.freeText10 = LEFT$(CUST.TRAN.stmtDesc,200)
+			
+		#}
+		ELSE
+		#{
+			IF((CUST.TRAN.freeText1 != "")AND((CUST.TRAN.freeText1 =="MDS")OR(CUST.TRAN.freeText1 =="BNET")OR(CUST.TRAN.freeText1 =="VISA")))THEN
+			#{
+				## originalAmt(requestamt) along with currency+ "COMISION DE USO DE CAJERO" feeamt from the request 
+				## CUST.TRAN.TranAmt + CUST.TRAN.TranCurr + CUST.TRAN.FeeAmtAmount
+				CUST.TRAN.Nombre= "RETIRO DE EFECTIVO"
+				CUST.TRAN.Nombre1= "CAJERO"
+				CUST.TRAN.Nombre2= "COMISION DE USO DE CAJERO"
+				CUST.TRAN.stmtDesc= CUST.TRAN.Nombre+ " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.Nombre1 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3 + " " + CUST.TRAN.TranAmtCrncy + " $" + CUST.TRAN.TranAmtAmount + " " + CUST.TRAN.Nombre2 + " $" + CUST.TRAN.FeeAmtAmount
+				CUST.TRAN.stmtDesc=TOUPPER(CUST.TRAN.stmtDesc)
+				PRINT(CUST.TRAN.stmtDesc)
+				CUST.TRAN.freeText10 = LEFT$(CUST.TRAN.stmtDesc,200)
+
+			#}
+			ELSE
+			#{
+				IF( (TRIM(CUST.TRAN.FeeAmtAmount) !="") AND (TRIM(CUST.TRAN.FeeAmtAmount) !="0") AND (CDOUBLE(CUST.TRAN.FeeAmtAmount)!=CDOUBLE("0.00")) )THEN
+				#{
+					CUST.TRAN.withoutComm = CDOUBLE(CUST.TRAN.TranAmt) - CDOUBLE(CUST.TRAN.FeeAmtAmount)
+					PRINT(CUST.TRAN.withoutComm)
+					CUST.TRAN.withoutComm = format$(CDOUBLE(CUST.TRAN.withoutComm),"%0.2f")
+				
+					## With Commission
+					#RETIRO DE EFECTIVO+amt+free2+terminal+free3+"MONTO RETIRO"+originalAmt-commsion(without fee and iva)+comision USO DE CAJERO  fee
+					CUST.TRAN.Nombre= "RETIRO DE EFECTIVO"
+					CUST.TRAN.Nombre1= "MONTO RETIRO:"
+					CUST.TRAN.Nombre2= "COMISION USO DE CAJERO: $"
+					CUST.TRAN.Nombre3= "CAJERO"
+					CUST.TRAN.stmtDesc= CUST.TRAN.Nombre + " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.Nombre3 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3 + " " + CUST.TRAN.Nombre1 + " $" + CUST.TRAN.withoutComm + " " + CUST.TRAN.Nombre2 + "" + CUST.TRAN.FeeAmtAmount
+					CUST.TRAN.stmtDesc=TOUPPER(CUST.TRAN.stmtDesc)
+					PRINT(CUST.TRAN.stmtDesc)
+					CUST.TRAN.freeText10 = LEFT$(CUST.TRAN.stmtDesc,200)
+	
+				#}
+				ELSE
+				#{
+					## Without Commission
+					CUST.TRAN.Nombre= "RETIRO DE EFECTIVO"
+					CUST.TRAN.Nombre3= "CAJERO"
+					CUST.TRAN.stmtDesc= CUST.TRAN.Nombre + " " + CUST.TRAN.freeText2 + " " + CUST.TRAN.terminal + " " + CUST.TRAN.freeText3
+					CUST.TRAN.stmtDesc=TOUPPER(CUST.TRAN.stmtDesc)
+					PRINT(CUST.TRAN.stmtDesc)
+					CUST.TRAN.freeText10 = LEFT$(CUST.TRAN.stmtDesc,200)
+				
+				#}
+				ENDIF
+			#}
+			ENDIF
+		#}
+		ENDIF
+	#}
+	ENDIF	
+	
+#}
+ENDIF
+CUST.TRAN.UserTrnCode = CUST.TRAN.UserTrnCode1
+CUST.TRAN.ChannelId = "ATM"
+CUST.TRAN.tranCategory = "N"
+CUST.TRAN.freeText7 = "I"
+#----------------------Transaction service ------------------------------------
+
+sv_a= urhk_SetUrhkInp("tranHdr.tranTypeSubType.tranType|"+CUST.TRAN.TranType)
+sv_a= urhk_SetUrhkInp("tranHdr.tranTypeSubType.tranSubType|"+CUST.TRAN.TrnSubType)
+sv_a = urhk_SetUrhkInp("tranDtl.pstFlg|Y")
+sv_a = urhk_SetUrhkInp("tranDtl.ignoreXcpnFlg|Y")
+IF(CUST.TRAN.channelId != "")THEN
+#{
+	sv_a= urhk_SetUrhkInp("tranDtl.deliveryChannelId|"+CUST.TRAN.channelId)
+#}
+else
+#{
+	CUST.TRAN.channelId = "UBS"
+	sv_a= urhk_SetUrhkInp("tranDtl.deliveryChannelId|"+CUST.TRAN.channelId)
+#}
+ENDIF
+
+IF(CUST.TRAN.Remarks != "")THEN
+#{
+       sv_a= urhk_SetUrhkInp("tranHdr.remarks|"+CUST.TRAN.Remarks)
+#}
+ENDIF
+
+sv_n=0
+sv_v=2
+
+PRINT(CUST.TRAN.TranType)
+PRINT(CUST.TRAN.TrnSubType)
+
+IF(((CUST.TRAN.TranType == "C") AND (CUST.TRAN.TrnSubType == "NR")) OR ((CUST.TRAN.TranType == "C") AND (CUST.TRAN.TrnSubType == "NP")))THEN
+#{
+    sv_l =1
+#}
+ELSE
+#{
+	sv_l =2
+#}
+ENDIF
+#sv_u = urhk_b2k_printrepos("CUST")
+PRINT(sv_l)
+WHILE(sv_n < sv_l)
+#{
+	print(FORMAT$(sv_v,"%d"))
+	print(BANCS.STDIN.BODDate)
+	print(("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")))
+	print(("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")))
+	print(("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")))
+	sv_b =CDOUBLE(("CUST").("TRAN").("TranAmt_"+FORMAT$(sv_n,"%d")))
+	print(sv_b)
+	CUST.TRAN.trAmt = sv_b
+	print(FORMAT$(sv_b,"%0.2f"))
+	print(("CUST").("TRAN").("PmtInstDt_"+FORMAT$(sv_n,"%d")))
+	CUST.TRAN.crncy=("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d"))
+	print(CUST.TRAN.crncy)
+		
+		
+		
+	IF((("CUST").("TRAN").("PmtInstType_"+FORMAT$(sv_n,"%d"))) != "DDS")THEN
+	#{
+		sv_a= urhk_SetUrhkInp("tranHdr.tranIdentifier.tranDate|" + BANCS.STDIN.BODDate)
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranIdentifier.tranDate|" +BANCS.STDIN.BODDate)
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.key.serial_num|"+FORMAT$(sv_n+1,"%d"))
+		
+		IF(("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")) != "") THEN
+		#{
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.valueDate|" + ("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")))
+			#sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.glDate|" + ("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")))
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.glDate|"+BANCS.STDIN.BODDate)
+		#}
+		ENDIF
+
+		IF(("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")) != "") THEN
+		#{
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.partTranType.code|"+("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")))
+		#}
+		ENDIF
+
+		IF(("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")) != "") THEN
+		#{
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.tranCrncyCode.crncyCode|" + ("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")))
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.refCrncyCode.crncyCode|" + ("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")))
+		#}
+		ENDIF
+
+		IF(("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")) != "") THEN
+		#{
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.acctId.foracid|" + ("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")))
+		#}
+		ENDIF
+
+		IF((sv_b != "") AND (("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")) != "")) THEN
+		#{
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.tranAmt|" + FORMAT$(sv_b,"%0.2f") +"|"+  ("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")))
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.refAmt|" + FORMAT$(sv_b,"%0.2f") + "|" + ("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")))
+		#}
+		ENDIF
+
+	IF((CUST.TRAN.TranType != "C") AND (CUST.TRAN.TrnSubType != "NR"))THEN
+	#{
+		IF((("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")) == "D") AND (CUST.TRAN.chrgReqForDbFlg == "Y")) THEN
+		#{
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgEventId.eventId|"+CUST.TRAN.eventIdDb)
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgEventId.eventType|TRANF")
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.partTranType.code|"+("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")))
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.targetAcct.foracid|"+("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")))
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.valueDate|" + ("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")))
+			#sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.glDate|" + ("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")))
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.glDate|"+BANCS.STDIN.BODDate)
+		#}
+		ENDIF
+		IF((("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")) == "C") AND (CUST.TRAN.chrgReqForCrFlg == "Y")) THEN
+		#{
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgEventId.eventId|"+CUST.TRAN.eventIdCr)
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgEventId.eventType|TRANF")
+			#sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pttmEventType.eventType|TRANF")
+			#sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pttmEventType.eventId|"+CUST.TRAN.UserTrnCode)
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.partTranType.code|"+("CUST").("TRAN").("CreditDebitFlg_"+FORMAT$(sv_n,"%d")))
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.targetAcct.foracid|"+("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d")))
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.valueDate|" + ("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")))
+			#sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.glDate|" + ("CUST").("TRAN").("ValueDate_"+FORMAT$(sv_n,"%d")))
+			sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranChrgDtlPtr.chrgInpCrit.glDate|" + BANCS.STDIN.BODDate)
+		
+		#}
+		ENDIF
+	#}
+	ENDIF
+
+	IF(CUST.TRAN.NumericRefNum != "")THEN
+	#{
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.refNum|"+CUST.TRAN.NumericRefNum)
+	#}
+	ENDIF
+	#sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.pTranIdentifier.partTranSrlNum|1")
+	PRINT(CUST.TRAN.UserTrnCode)
+	PRINT(sv_n)
+	IF(("CUST").("TRAN").("TrnParticulars_"+FORMAT$(sv_n,"%d")) != "")THEN
+	#{
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.tranParticulars|"+("CUST").("TRAN").("TrnParticulars_"+FORMAT$(sv_n,"%d")))
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.tranParticulars|"+CUST.TRAN.UserTrnCode)
+	#}
+	ENDIF
+	IF(CUST.TRAN.stmtDesc != "")THEN
+	#{
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.tranParticulars|"+CUST.TRAN.stmtDesc)
+	#}
+	ENDIF
+	
+	IF(("CUST").("TRAN").("PartTrnRmks_"+FORMAT$(sv_n,"%d")) != "")THEN
+	#{
+		#sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.tranRmks|"+("CUST").("TRAN").("PartTrnRmks_"+FORMAT$(sv_n,"%d")))
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.tranRmks|"+CUST.TRAN.UserTrnCode)
+		PRINT(CUST.TRAN.UserTrnCode)
+	#}
+	ENDIF
+				
+					
+	CUST.TRAN.AcctId = ("CUST").("TRAN").("AcctId_"+FORMAT$(sv_n,"%d"))
+	CUST.TRAN.PmtInstDt = ("CUST").("TRAN").("PmtInstDt_"+FORMAT$(sv_n,"%d"))
+	
+	IF((CUST.TRAN.rateCode != "") AND (("CUST").("TRAN").("TranCurr_"+FORMAT$(sv_n,"%d")) != "MXP"))THEN
+	#{
+		#sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.rate|"+CUST.TRAN.Rate)
+		sv_a= urhk_SetUrhkInp("tranDtl.partTranDetailLL.<rec_"+FORMAT$(sv_n,"%d")+">.rateCode.refCode|"+CUST.TRAN.rateCode)
+	#}
+	ENDIF
+#}
+ENDIF
+		
+	sv_n = sv_n +1
+	sv_v = sv_v -1
+#}
+DO
+
+#-------------------- Setting up the Output from the service
+
+sv_a = urhk_SetUrhkOut("tranDtl.tranIdentifier.tranId|TranId")
+print(sv_a)
+sv_a = urhk_SetUrhkOut("tranDtl.partTranDetailLL.<rec_0>.tranAmt|TranAmt")
+print(sv_a)
+sv_a = urhk_SetUrhkOut("tranDtl.tranIdentifier.tranDate|TranDate")
+print(sv_a)
+
+#----------------------------------------------------
+# Executing SRV to add new limit code
+#----------------------------------------------------
+
+IF(((CUST.TRAN.TranType == "C") AND (CUST.TRAN.TrnSubType == "NR")) OR ((CUST.TRAN.TranType == "C") AND (CUST.TRAN.TrnSubType == "NP"))) THEN
+#{
+    sv_u = urhk_ExecSrvNoCommit("SRV_AddAndPostCashTran|retain_all_output = Y|same_user_verify = Y|call_mode = N")
+	print(sv_u)
+#}
+ELSE
+#{
+	sv_u = urhk_ExecSrvNoCommit("SRV_AddAndPostXferTran|retain_all_output = Y|same_user_verify = Y|call_mode = N")
+	print(sv_u)
+#}
+ENDIF
+
+
+IF(sv_u != 0)THEN
+#{
+	sv_c = BANCS.OUTPARAM.Error_num
+	print(sv_c)
+	sv_d = BANCS.OUTPARAM.Xcpn_num
+	print(sv_d)
+	if (sv_d > 0) then
+	#{
+		sv_i = 1
+		sv_e = ""
+		while (sv_i <= sv_d)
+		#{
+			sv_j = FORMAT$(sv_i,"%d")
+			print(sv_j)
+			("CUST").("TRAN").("errorCode_"+sv_j) = ("BANCS").("OUTPARAM").("XcpnCode_"+sv_j)
+			("CUST").("TRAN").("errorDesc_"+sv_j) = ("BANCS").("OUTPARAM").("XcpnDesc_"+sv_j) + " " + ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+			print(("CUST").("TRAN").("errorDesc_"+sv_j))
+			sv_f = ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+			sv_i = sv_i + 1
+		#}
+		do
+	#}
+	endif
+		
+        if (sv_c > 0) then
+        #{
+			sv_i = 1
+			sv_e = ""
+			while (sv_i <= sv_c)
+			#{
+				sv_j = FORMAT$(sv_i,"%d")
+				print(sv_j)
+				("CUST").("TRAN").("errorCode_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorCode_"+sv_j)
+				("CUST").("TRAN").("errorDesc_"+sv_j) = ("BANCS").("OUTPARAM").("ErrorMesg_"+sv_j) + " " + ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+				print(("CUST").("TRAN").("errorDesc_"+sv_j))
+				sv_f = ("BANCS").("OUTPARAM").("Tag_"+sv_j)
+				sv_i = sv_i + 1
+			#}
+			do
+		#}
+		endif
+
+	if ( sv_c <=0) then
+		sv_c = sv_d
+	endif
+
+	sv_u = urhk_SetOrbOut("numOfErrors|"+sv_c)
+	if(sv_c == 0)then
+	#{
+		sv_u = urhk_SetOrbOut("numOfErrors|1")
+		sv_u = urhk_SetOrbOut("Error.FIBusinessException.ErrorDetail.ErrorCode|ERR0000156")
+		sv_r = func_cmmsgerrdescWithInputs("ERR0000156",BANCS.STDIN.userId, "", BYREF CUST.TRAN.errorMsg)
+		PRINT(sv_r)
+		CUST.TRAN.errorMsg = ("CUST").("TRAN").("errorDesc_"+sv_j)
+		sv_u = urhk_SetOrbOut("Error.FIBusinessException.ErrorDetail.ErrorDesc| "+CUST.TRAN.errorMsg)
+	#}
+	else
+	#{
+		if (sv_c > 0) then
+		#{
+			sv_i = 1
+			while (sv_i <= sv_c)
+			#{
+				sv_j = FORMAT$(sv_i,"%d")
+				sv_l = FORMAT$(sv_i-1,"%d")
+				print(("CUST").("TRAN").("errorDesc_"+sv_j))	
+				sv_u = urhk_SetOrbOut("Error.FIBusinessException.ErrorDetail.<rec_"+sv_l+">.ErrorCode| "+("CUST").("TRAN").("errorCode_"+sv_j))
+				sv_u = urhk_SetOrbOut("Error.FIBusinessException.ErrorDetail.<rec_"+sv_l+">.ErrorDesc| "+("CUST").("TRAN").("errorDesc_"+sv_j))
+				#sv_a = urhk_SetOrbErr(("CUST").("TRAN").("errorDesc_"+sv_j))
+				sv_i = sv_i + 1
+			#}
+			do
+		#}
+		endif
+	#}
+	endif
+	EXITSCRIPT
+
+#}
+ELSE
+#{
+	#BANCS.OUTPARAM.FeeAmt = ""
+	#BANCS.OUTPARAM.IvaAmt = ""
+	CUST.TRAN.TranId   = BANCS.OUTPARAM.TranId
+	CUST.TRAN.TranDate = BANCS.OUTPARAM.TranDate 
+	CUST.TRAN.TranAmt  = BANCS.OUTPARAM.TranAmt
+	PRINT(CUST.TRAN.TranAmt)
+	IF(CUST.TRAN.TranId != "")THEN
+	#{
+		sv_s = ""
+		sv_s = "tranDate,valueDate,rcreDate|SELECT TO_CHAR(TRAN_DATE,'DD-MM-YYYY'),TO_CHAR(VALUE_DATE,'DD-MM-YYYY'),TO_CHAR(rcre_time,'DD-MM-YYYY HH24:MI:SS') FROM TBAADM.DTD WHERE TRAN_ID = ?SVAR AND BANK_ID=?SVAR AND TRAN_DATE =TO_DATE(?SVAR,'DD-MM-YYYY') AND ROWNUM<2"
+		print(sv_s)
+		BANCS.INPARAM.BINDVARS = CUST.TRAN.TranId + "|" + BANCS.STDIN.contextBankId + "|" + LEFT$(CUST.TRAN.TranDate,10)
+		PRINT(BANCS.INPARAM.BINDVARS)
+
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		print(sv_u)
+		IF(sv_u == 0) THEN
+		#{
+			CUST.TRAN.tranDate   = BANCS.OUTPARAM.tranDate
+			PRINT(CUST.TRAN.tranDate)
+			CUST.TRAN.valueDate  = BANCS.OUTPARAM.valueDate
+			PRINT(CUST.TRAN.valueDate)
+			CUST.TRAN.rcreDate =  BANCS.OUTPARAM.rcreDate
+			PRINT(CUST.TRAN.rcreDate)
+		#}
+		ENDIF
+
+		CALLSCRIPTIFEXIST("makeTranInsertCDTH.scr")
+	#}
+	ENDIF
+	IF(CUST.TRAN.chrgReqFlg == "Y")THEN
+	#{
+		#sv_a= urhk_SetUrhkOut("tranDtl.partTranDetailLL.<rec_0>.pTranChrgDtlPtr.chrgContraPTran.tranAmt|IvaAmt")
+		#print(sv_a)
+		#sv_a= urhk_SetUrhkOut("tranDtl.partTranDetailLL.<rec_0>.pTranChrgDtlPtr.chrgDtlLL.<rec_0>.actualAmtColl|FeeAmt")
+		#print(sv_a)
+		
+		sv_s = ""
+		sv_s = "FeeAmt,IvaAmt|SELECT (SELECT TRAN_AMT FROM TBAADM.DTD WHERE TRAN_ID = ?SVAR AND TRAN_DATE = TO_DATE(?SVAR,'DD-MM-YYYY') AND PTTM_EVENT_TYPE = 'TRANF' AND BANK_ID = ?SVAR AND ROWNUM <2),"
+		sv_s = sv_s + "(SELECT TRAN_AMT FROM TBAADM.DTD WHERE TRAN_ID = ?SVAR AND TRAN_DATE = TO_DATE(?SVAR,'DD-MM-YYYY') AND PTTM_EVENT_TYPE = 'LNKED' AND BANK_ID = ?SVAR AND ROWNUM <2)  FROM DUAL"
+		print(sv_s)
+		BANCS.INPARAM.BINDVARS = CUST.TRAN.TranId + "|" + LEFT$(CUST.TRAN.tranDate,10) + "|" + BANCS.STDIN.contextBankId  
+		BANCS.INPARAM.BINDVARS = BANCS.INPARAM.BINDVARS + "|" + CUST.TRAN.TranId + "|" + LEFT$(CUST.TRAN.tranDate,10) + "|" + BANCS.STDIN.contextBankId
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		print(sv_u)
+		IF(sv_u == 0) THEN
+		#{
+		  	CUST.TRAN.FeeAmt   = BANCS.OUTPARAM.FeeAmt
+		    CUST.TRAN.IvaAmt   = BANCS.OUTPARAM.IvaAmt
+		#}
+		ENDIF
+	 	
+	#}
+	ELSE
+	#{
+		CUST.TRAN.FeeAmt = ""
+		CUST.TRAN.IvaAmt = ""
+	#}	
+	ENDIF
+
+	##Logic for ATM Partial Reversal
+	#IF(CUST.TRAN.ModeOfOpn == "R")THEN
+	##{
+	#	#Assign original AuthId for partial devolution
+	#	CUST.TRAN.AuthId = CUST.TRAN.NumericRefNum
+	##}
+	#ELSE
+	##{
+		#------------------- Auth ID  ---------------------------------#
+		sv_s = ""
+		sv_s = "AuthId| SELECT LPAD(CUSTOM.C_MCP_AUTH_SEQ.NEXTVAL,6,0) from dual"
+		print(sv_s)
+		sv_u = urhk_dbSelectWithBind(sv_s)
+		IF(sv_u ==0) THEN
+		#{
+			CUST.TRAN.AuthId  = BANCS.OUTPARAM.AuthId
+			print(CUST.TRAN.AuthId)
+		#}
+		ENDIF
+	##}
+	#ENDIF
+
+	
+	##CARD Number Fetching for this account Number
+	
+	sv_s = ""
+	sv_s = "CardNumber| SELECT LNKED_CARD_NUM "
+	sv_s = sv_s + " FROM CUSTOM.CUST_CARD_ACCT_TBL "  
+	sv_s = sv_s + " WHERE EMP_ACCNT_NUM = ?SVAR AND BANK_ID = ?SVAR "
+	sv_s = sv_s + " AND ENTITY_CRE_FLG = 'Y' "
+	sv_s = sv_s + " AND DEL_FLG = 'N' and rownum < 2"
+	print(sv_s)
+	
+	BANCS.INPARAM.BINDVARS = CUST.TRAN.AccountId +"|"+ BANCS.STDIN.contextBankId
+	PRINT(sv_s)
+	PRINT(BANCS.INPARAM.BINDVARS)
+	sv_u = urhk_dbSelectWithBind(sv_s)
+	print(sv_u)
+	IF(sv_u == 0) THEN
+	#{
+		CUST.TRAN.CardNumber = BANCS.OUTPARAM.CardNumber
+		PRINT(CUST.TRAN.CardNumber)
+	#}
+	ELSE
+	#{
+		CUST.TRAN.CardNumber = ""
+	#}	
+	ENDIF
+	
+	#BANCS.OUTPUT.successOrFailure = "S"
+	#print(CUST.TRAN.TranId)
+	IF(CUST.TRAN.debitAcctId!= "") then
+	#{
+		BANCS.INPARAM.AcctNum=CUST.TRAN.debitAcctId
+		callscriptifexist("sweepBalTransferForLM.scr")
+		
+	#}
+	ENDIF
+
+	CALLSCRIPTIFEXIST("makeCardPayInsertMCP.scr")
+	
+	BANCS.OUTPUT.successOrFailure = "S"
+	
+	IF(CUST.TRAN.CardNumber !="")THEN
+	#{
+		PRINT(CUST.TRAN.CardNumber)
+		BANCS.INPARAM.encrStr = CUST.TRAN.CardNumber
+		sv_e = urhk_decryptString("")
+		CUST.TRAN.CardNumber = BANCS.OUTPARAM.decrStr
+		PRINT(CUST.TRAN.CardNumber)
+	#}	
+	ENDIF
+	
+	print(CUST.TRAN.TranId)	
+	sv_u = urhk_SetOrbOut("MakeCardPaymentRs.TranId| "+ CUST.TRAN.TranId)
+	print(sv_u)
+	#sv_u = urhk_SetOrbOut("MakeCardPaymentRs.TranDate| "+ LEFT$(CUST.TRAN.TranDate,10) + " " + RIGHT$(BANCS.STDIN.sysDate,8))
+	sv_u = urhk_SetOrbOut("MakeCardPaymentRs.TranDate| "+ LEFT$(CUST.TRAN.TranDate,10) + " " + RIGHT$(CUST.TRAN.rcreDate,8))
+	print(sv_u)
+	sv_u = urhk_SetOrbOut("MakeCardPaymentRs.TranAmt| "+ CUST.TRAN.TranAmt)
+	print(sv_u)
+	sv_u = urhk_SetOrbOut("MakeCardPaymentRs.FeeAmt| "+ CUST.TRAN.FeeAmt)
+	print(sv_u)
+	sv_u = urhk_SetOrbOut("MakeCardPaymentRs.IvaAmt| "+ CUST.TRAN.IvaAmt)
+	print(sv_u)
+	sv_u = urhk_SetOrbOut("MakeCardPaymentRs.AuthId| "+ CUST.TRAN.AuthId)
+	print(sv_u)
+	sv_u = urhk_SetOrbOut("MakeCardPaymentRs.CardNumber| "+ CUST.TRAN.CardNumber)
+	print(sv_u)
+	
+#}
+ENDIF	
+
+
+PRINT(BANCS.OUTPUT.successOrFailure)
+ENDOFSCRIPT:
+PRINT(BANCS.OUTPUT.successOrFailure)
+IF(BANCS.OUTPUT.successOrFailure == "F") THEN
+#{
+	BANCS.OUTPUT.successOrFailure = "F"
+	PRINT(CUST.TRAN.errorMsg)
+	sv_u = urhk_SetOrbOut("SuccessOrFailure|FAILURE")
+	sv_u = urhk_SetOrbOut("numOfErrors|1")
+	sv_u = urhk_SetOrbOut("Error.FIBusinessException.ErrorDetail.ErrorCode| "+CUST.TRAN.errorCode)
+	sv_u = urhk_SetOrbOut("Error.FIBusinessException.ErrorDetail.ErrorDesc| "+CUST.TRAN.errorMsg)
+	
+	#sv_u = urhk_SetOrbErr(CUST.TRAN.errorMsg)	
+#}
+ENDIF
+
+DELETECLASS("CUST", "TRAN")
+#DELETEREP ("CUST")
+
+EXITSCRIPT
+TRACE OFF
+END--> 
